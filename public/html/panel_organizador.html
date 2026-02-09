@@ -89,7 +89,6 @@
             </div>
         </div>
 
-
         <!-- ================= EVENTOS ================= -->
         <section id="eventos">
             <h2>Gestión de Eventos</h2>
@@ -240,27 +239,26 @@
                     <button class="button" type="submit">Subir imagen</button>
                 </form>
 
-                <h4>Edición final</h4>
-                <button class="button" onclick="guardarEdicion()">Añadir a ediciones anteriores</button>
+                <div id="galeriaPost"></div>
+                <button class="button" onclick="guardarEdicion()">Guardar edición</button>
             </div>
         </section>
 
-    </main>
+        <!-- ✅ MODAL CONFIRMACIÓN (REUTILIZABLE) -->
+        <div id="modalConfirmacion" class="modal hidden">
+            <div class="modal-content">
+                <span class="modal-close" onclick="cerrarModalConfirmacion()">✖</span>
+                <h3>Confirmar eliminación</h3>
+                <p id="modalConfirmacionMensaje">¿Estás seguro de que quieres eliminar este elemento?</p>
 
-
-    <!-- Modal premio ya asignado -->
-    <div id="modalPremioError" class="modal hidden">
-        <div class="modal-content">
-            <span class="modal-close" onclick="cerrarModalPremio()">✖</span>
-
-            <h3>Error</h3>
-            <p id="modalPremioMensaje">Error: este premio ya está asignado</p>
-
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="cerrarModalPremio()">Cerrar</button>
+                <div class="modal-actions">
+                    <button class="button" type="button" onclick="cerrarModalConfirmacion()">Cancelar</button>
+                    <button class="button btn-danger" type="button" id="btnConfirmacionAceptar">Eliminar</button>
+                </div>
             </div>
         </div>
-    </div>
+
+    </main>
 
     <script>
         function abrirModalPremio(mensaje) {
@@ -276,14 +274,6 @@
             if (m) m.classList.add("hidden");
         }
     </script>
-    <div id="modalDetalle" class="modal hidden">
-        <div class="modal-content">
-            <span class="modal-close" onclick="cerrarModalDetalle()">✖</span>
-            <h3>Detalle de la candidatura</h3>
-            <div id="detalleContenido"></div>
-        </div>
-    </div>
-
 
     <!-- Scripts: ORDEN IMPORTANTE -->
     <script src="../js/panel_organizador.js"></script>

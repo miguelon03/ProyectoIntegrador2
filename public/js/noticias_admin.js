@@ -1,6 +1,7 @@
 const URL_NOT = "/ProyectoIntegrador2/app/controllers/NoticiasController.php";
 
 let noticiaEditandoId = null;
+let noticiaAEliminar = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarNoticias();
@@ -44,9 +45,6 @@ function validarFormularioNoticia(form) {
 
     limpiarErrores(form);
 
-    // ============================
-    // VALIDAR TÍTULO
-    // ============================
     if (!titulo.value.trim()) {
         mostrarError(titulo, "Este campo es obligatorio");
         valido = false;
@@ -55,9 +53,6 @@ function validarFormularioNoticia(form) {
         valido = false;
     }
 
-    // ============================
-    // VALIDAR DESCRIPCIÓN
-    // ============================
     if (!descripcion.value.trim()) {
         mostrarError(descripcion, "Este campo es obligatorio");
         valido = false;
@@ -94,7 +89,7 @@ function cargarNoticias() {
             <button class="icon-btn edit" onclick="editarNoticia(${n.id_noticia}, '${escapeJS(n.titulo)}', '${escapeJS(n.descripcion)}')">
               ✏️
             </button>
-            <button class="icon-btn delete" onclick="eliminarNoticia(${n.id_noticia})">
+            <button class="icon-btn delete" onclick="confirmarEliminarNoticia(${n.id_noticia})">
               🗑️
             </button>
           </div>
@@ -112,13 +107,12 @@ function guardarNoticia(e) {
   e.preventDefault();
 
   const form = e.target;
+
+  // Si quieres usar tu validación:
+  if (!validarFormularioNoticia(form)) return;
+
   const titulo = form.titulo.value.trim();
   const descripcion = form.descripcion.value.trim();
-
-  if (!titulo || !descripcion) {
-    document.getElementById("errorNoticia").innerText = "Rellena todos los campos";
-    return;
-  }
 
   const fd = new FormData();
   fd.append("titulo", titulo);
@@ -162,18 +156,28 @@ function editarNoticia(id, titulo, descripcion) {
 }
 
 /* =========================
-   ELIMINAR
+   ELIMINAR (MODAL)
 ========================= */
-function eliminarNoticia(id) {
-  if (!confirm("¿Seguro que quieres eliminar esta noticia?")) return;
+function confirmarEliminarNoticia(id) {
+  noticiaAEliminar = id;
+  abrirModalConfirmacion(
+    "¿Estás seguro de que quieres eliminar esta noticia?",
+    eliminarNoticiaConfirmada
+  );
+}
 
-  fetch(`${URL_NOT}?accion=borrar&id=${id}`, {
+function eliminarNoticiaConfirmada() {
+  if (!noticiaAEliminar) return;
+
+  fetch(`${URL_NOT}?accion=borrar&id=${noticiaAEliminar}`, {
     credentials: "same-origin"
   })
     .then(r => r.json())
-    .then(() => cargarNoticias());
+    .then(() => {
+      noticiaAEliminar = null;
+      cargarNoticias();
+    });
 }
-
 
 /* =========================
    UTILS
