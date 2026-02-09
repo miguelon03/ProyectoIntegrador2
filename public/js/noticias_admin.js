@@ -25,6 +25,51 @@ function ocultarFormularioNoticia() {
 }
 
 /* =========================
+   VALIDACIÓN FRONT-END
+========================= */
+function mostrarError(campo, mensaje) {
+    const error = campo.parentNode.querySelector(".error");
+    if (error) error.textContent = mensaje;
+}
+
+function limpiarErrores(form) {
+    form.querySelectorAll(".error").forEach(e => e.textContent = "");
+}
+
+function validarFormularioNoticia(form) {
+    let valido = true;
+
+    const titulo = form.titulo;
+    const descripcion = form.descripcion;
+
+    limpiarErrores(form);
+
+    // ============================
+    // VALIDAR TÍTULO
+    // ============================
+    if (!titulo.value.trim()) {
+        mostrarError(titulo, "Este campo es obligatorio");
+        valido = false;
+    } else if (titulo.value.trim().length < 3) {
+        mostrarError(titulo, "El título debe tener al menos 3 caracteres");
+        valido = false;
+    }
+
+    // ============================
+    // VALIDAR DESCRIPCIÓN
+    // ============================
+    if (!descripcion.value.trim()) {
+        mostrarError(descripcion, "Este campo es obligatorio");
+        valido = false;
+    } else if (descripcion.value.trim().length < 10) {
+        mostrarError(descripcion, "La descripción debe tener al menos 10 caracteres");
+        valido = false;
+    }
+
+    return valido;
+}
+
+/* =========================
    CARGAR NOTICIAS
 ========================= */
 function cargarNoticias() {

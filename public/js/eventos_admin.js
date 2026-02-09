@@ -4,6 +4,110 @@ let eventoAEliminar = null;
 const BASE_URL_EVENTOS = "/ProyectoIntegrador2/app/controllers/EventoController.php";
 
 /* =========================
+   VALIDACIÓN FRONT-END
+========================= */
+function mostrarError(campo, mensaje) {
+    const error = campo.parentNode.querySelector(".error");
+    if (error) error.textContent = mensaje;
+}
+
+function limpiarErrores(form) {
+    form.querySelectorAll(".error").forEach(e => e.textContent = "");
+}
+
+function validarFormularioEvento(form) {
+    let valido = true;
+
+    const titulo = form.titulo;
+    const descripcion = form.descripcion;
+    const fecha = form.fecha;
+    const hora = form.hora;
+
+    limpiarErrores(form);
+
+    /* ============================
+       VALIDAR TÍTULO
+    ============================ */
+    if (!titulo.value.trim()) {
+        mostrarError(titulo, "Este campo es obligatorio");
+        valido = false;
+    } else if (titulo.value.trim().length < 3) {
+        mostrarError(titulo, "El título debe tener al menos 3 caracteres");
+        valido = false;
+    }
+
+    /* ============================
+       VALIDAR DESCRIPCIÓN
+    ============================ */
+    if (!descripcion.value.trim()) {
+        mostrarError(descripcion, "Este campo es obligatorio");
+        valido = false;
+    } else if (descripcion.value.trim().length < 5) {
+        mostrarError(descripcion, "La descripción debe tener al menos 5 caracteres");
+        valido = false;
+    }
+
+    /* ============================
+       VALIDAR FECHA
+    ============================ */
+    if (!fecha.value) {
+        mostrarError(fecha, "Este campo es obligatorio");
+        valido = false;
+    } else {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        const fechaEvento = new Date(fecha.value + "T00:00:00");
+
+        if (fechaEvento < hoy) {
+            mostrarError(fecha, "La fecha no puede ser anterior a hoy");
+            valido = false;
+        }
+    }
+
+    /* ============================
+       VALIDAR HORA (08:30 - 23:00)
+    ============================ */
+    if (!hora.value) {
+        mostrarError(hora, "Este campo es obligatorio");
+        valido = false;
+    } else {
+        const [h, m] = hora.value.split(":").map(Number);
+        const minutos = h * 60 + m;
+
+        const minPermitido = 8 * 60 + 30;   // 08:30
+        const maxPermitido = 23 * 60;       // 23:00
+
+        if (minutos < minPermitido || minutos > maxPermitido) {
+            mostrarError(hora, "La hora debe estar entre 08:30 y 23:00");
+            valido = false;
+        }
+    }
+
+    /* ============================
+       VALIDAR HORA SI LA FECHA ES HOY
+    ============================ */
+    if (fecha.value && hora.value) {
+        const hoy = new Date();
+        const fechaEvento = new Date(fecha.value + "T00:00:00");
+
+        if (fechaEvento.toDateString() === hoy.toDateString()) {
+            const [h, m] = hora.value.split(":").map(Number);
+            const minutosEvento = h * 60 + m;
+
+            const minutosAhora = hoy.getHours() * 60 + hoy.getMinutes();
+
+            if (minutosEvento < minutosAhora) {
+                mostrarError(hora, "La hora no puede ser anterior a la hora actual");
+                valido = false;
+            }
+        }
+    }
+
+    return valido;
+}
+
+/* =========================
    CARGAR EVENTOS
 ========================= */
 function cargarEventos() {
@@ -58,6 +162,7 @@ function cargarEventos() {
 function mostrarFormularioEvento() {
     const form = document.getElementById("formEvento");
     form.reset();
+    limpiarErrores(form);
     form.style.display = "block";
     eventoEditando = null;
 }
@@ -65,6 +170,7 @@ function mostrarFormularioEvento() {
 function ocultarFormularioEvento() {
     const form = document.getElementById("formEvento");
     form.reset();
+    limpiarErrores(form);
     form.style.display = "none";
     eventoEditando = null;
 }
@@ -84,12 +190,19 @@ function editarEvento(id, titulo, descripcion, fecha, hora) {
 }
 
 /* =========================
-   GUARDAR EVENTO
+   GUARDAR EVENTO (con validación)
 ========================= */
 document.getElementById("formEvento").addEventListener("submit", e => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const form = e.target;
+
+    // VALIDACIÓN ANTES DE ENVIAR
+    if (!validarFormularioEvento(form)) {
+        return; // No enviar si hay errores
+    }
+
+    const formData = new FormData(form);
     let url = `${BASE_URL_EVENTOS}?accion=crear`;
 
     if (eventoEditando) {
