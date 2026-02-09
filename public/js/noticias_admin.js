@@ -1,8 +1,52 @@
 let noticiaEditandoId = null;
-
 let noticiaAEliminar = null;
 
 const BASE_URL = "/ProyectoIntegrador2/app/controllers/NoticiasController.php";
+
+/* =========================
+   VALIDACIÓN FRONT-END
+========================= */
+function mostrarError(campo, mensaje) {
+    const error = campo.parentNode.querySelector(".error");
+    if (error) error.textContent = mensaje;
+}
+
+function limpiarErrores(form) {
+    form.querySelectorAll(".error").forEach(e => e.textContent = "");
+}
+
+function validarFormularioNoticia(form) {
+    let valido = true;
+
+    const titulo = form.titulo;
+    const descripcion = form.descripcion;
+
+    limpiarErrores(form);
+
+    // ============================
+    // VALIDAR TÍTULO
+    // ============================
+    if (!titulo.value.trim()) {
+        mostrarError(titulo, "Este campo es obligatorio");
+        valido = false;
+    } else if (titulo.value.trim().length < 3) {
+        mostrarError(titulo, "El título debe tener al menos 3 caracteres");
+        valido = false;
+    }
+
+    // ============================
+    // VALIDAR DESCRIPCIÓN
+    // ============================
+    if (!descripcion.value.trim()) {
+        mostrarError(descripcion, "Este campo es obligatorio");
+        valido = false;
+    } else if (descripcion.value.trim().length < 10) {
+        mostrarError(descripcion, "La descripción debe tener al menos 10 caracteres");
+        valido = false;
+    }
+
+    return valido;
+}
 
 /* =========================
    CARGAR NOTICIAS
@@ -53,6 +97,7 @@ function cargarNoticias() {
 function mostrarFormularioNoticia() {
     const form = document.getElementById("formNoticia");
     form.reset();
+    limpiarErrores(form);
     form.style.display = "block";
     noticiaEditandoId = null;
 }
@@ -60,6 +105,7 @@ function mostrarFormularioNoticia() {
 function ocultarFormulario() {
     const form = document.getElementById("formNoticia");
     form.reset();
+    limpiarErrores(form);
     form.style.display = "none";
     noticiaEditandoId = null;
 }
@@ -68,7 +114,7 @@ function ocultarFormulario() {
    EDITAR
 ========================= */
 function editarNoticia(id, titulo, descripcion) {
-    noticiaEditando = id;
+    noticiaEditandoId = id;
 
     document.querySelector("#formNoticia [name='titulo']").value = titulo;
     document.querySelector("#formNoticia [name='descripcion']").value = descripcion;
@@ -82,11 +128,18 @@ function editarNoticia(id, titulo, descripcion) {
 document.getElementById("formNoticia").addEventListener("submit", e => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const form = e.target;
+
+    // VALIDACIÓN ANTES DE ENVIAR
+    if (!validarFormularioNoticia(form)) {
+        return;
+    }
+
+    const formData = new FormData(form);
     let url = `${BASE_URL}?accion=crear`;
 
     if (noticiaEditandoId) {
-        formData.append("id", noticiaEditando);
+        formData.append("id", noticiaEditandoId);
         url = `${BASE_URL}?accion=editar`;
     }
 
