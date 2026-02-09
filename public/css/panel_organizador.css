@@ -903,3 +903,17 @@ section h2 {
 .estado-badge.aceptado  { background: #2e7d32; }
 .estado-badge.nominado  { background: #1565c0; }
 .estado-badge.rechazado { background: #c8102e; }
+.patro-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.patro-card img {
+  height: 60px;
+  object-fit: contain;
+}

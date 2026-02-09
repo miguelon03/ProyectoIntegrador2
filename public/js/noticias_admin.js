@@ -1,149 +1,142 @@
+const URL_NOT = "/ProyectoIntegrador2/app/controllers/NoticiasController.php";
+
 let noticiaEditandoId = null;
 
-let noticiaAEliminar = null;
+document.addEventListener("DOMContentLoaded", () => {
+  cargarNoticias();
 
-const BASE_URL = "/ProyectoIntegrador2/app/controllers/NoticiasController.php";
+  const form = document.getElementById("formNoticia");
+  if (form) {
+    form.addEventListener("submit", guardarNoticia);
+  }
+});
+
+/* =========================
+   MOSTRAR / OCULTAR FORM
+========================= */
+function mostrarFormularioNoticia() {
+  document.getElementById("formNoticia").style.display = "block";
+}
+
+function ocultarFormularioNoticia() {
+  document.getElementById("formNoticia").style.display = "none";
+  document.getElementById("formNoticia").reset();
+  noticiaEditandoId = null;
+}
 
 /* =========================
    CARGAR NOTICIAS
 ========================= */
 function cargarNoticias() {
-    fetch(`${BASE_URL}?accion=listar`, {
-        credentials: "same-origin"
-    })
-        .then(r => r.json())
-        .then(data => {
-            const cont = document.getElementById("listaNoticias");
-            cont.innerHTML = "";
+  fetch(`${URL_NOT}?accion=listar`, { credentials: "same-origin" })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) return;
 
-            if (!data.ok || data.noticias.length === 0) {
-                cont.innerHTML = "<p>No hay noticias</p>";
-                return;
-            }
+      const cont = document.getElementById("listaNoticias");
+      cont.innerHTML = "";
 
-            data.noticias.forEach(n => {
-                cont.innerHTML += `
-                    <div class="news-card">
-                        <div>
-                            <h3>${escapeHtml(n.titulo)}</h3>
-                            <p>${escapeHtml(n.descripcion)}</p>
-                            <small>${n.fecha}</small>
-                        </div>
+      data.noticias.forEach(n => {
+        const div = document.createElement("div");
+        div.className = "news-card";
 
-                        <div class="news-actions">
-                            <button type="button" class="icon-btn edit"
-                                onclick="editarNoticia(${n.id_noticia}, '${escapeHtml(n.titulo)}', '${escapeHtml(n.descripcion)}')">
-                                ✏️
-                            </button>
+        div.innerHTML = `
+          <div>
+            <strong>${n.titulo}</strong>
+            <p>${n.descripcion}</p>
+          </div>
+          <div class="news-actions">
+            <button class="icon-btn edit" onclick="editarNoticia(${n.id_noticia}, '${escapeJS(n.titulo)}', '${escapeJS(n.descripcion)}')">
+              ✏️
+            </button>
+            <button class="icon-btn delete" onclick="eliminarNoticia(${n.id_noticia})">
+              🗑️
+            </button>
+          </div>
+        `;
 
-                            <button type="button" class="icon-btn delete"
-                                onclick="confirmarEliminarNoticia(${n.id_noticia})">
-                                🗑️
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        });
+        cont.appendChild(div);
+      });
+    });
 }
 
 /* =========================
-   FORMULARIO
+   GUARDAR / ACTUALIZAR
 ========================= */
-function mostrarFormularioNoticia() {
-    const form = document.getElementById("formNoticia");
-    form.reset();
-    form.style.display = "block";
-    noticiaEditandoId = null;
-}
+function guardarNoticia(e) {
+  e.preventDefault();
 
-function ocultarFormulario() {
-    const form = document.getElementById("formNoticia");
-    form.reset();
-    form.style.display = "none";
-    noticiaEditandoId = null;
+  const form = e.target;
+  const titulo = form.titulo.value.trim();
+  const descripcion = form.descripcion.value.trim();
+
+  if (!titulo || !descripcion) {
+    document.getElementById("errorNoticia").innerText = "Rellena todos los campos";
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append("titulo", titulo);
+  fd.append("descripcion", descripcion);
+
+  if (noticiaEditandoId) {
+    fd.append("accion", "editar");
+    fd.append("id", noticiaEditandoId);
+  } else {
+    fd.append("accion", "crear");
+  }
+
+  fetch(URL_NOT, {
+    method: "POST",
+    credentials: "same-origin",
+    body: fd
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) {
+        document.getElementById("errorNoticia").innerText = data.error;
+        return;
+      }
+
+      ocultarFormularioNoticia();
+      cargarNoticias();
+    });
 }
 
 /* =========================
    EDITAR
 ========================= */
 function editarNoticia(id, titulo, descripcion) {
-    noticiaEditando = id;
+  mostrarFormularioNoticia();
 
-    document.querySelector("#formNoticia [name='titulo']").value = titulo;
-    document.querySelector("#formNoticia [name='descripcion']").value = descripcion;
+  const form = document.getElementById("formNoticia");
+  form.titulo.value = titulo;
+  form.descripcion.value = descripcion;
 
-    document.getElementById("formNoticia").style.display = "block";
+  noticiaEditandoId = id;
 }
 
 /* =========================
-   GUARDAR (CREAR / EDITAR)
+   ELIMINAR
 ========================= */
-document.getElementById("formNoticia").addEventListener("submit", e => {
-    e.preventDefault();
+function eliminarNoticia(id) {
+  if (!confirm("¿Seguro que quieres eliminar esta noticia?")) return;
 
-    const formData = new FormData(e.target);
-    let url = `${BASE_URL}?accion=crear`;
+  fetch(`${URL_NOT}?accion=borrar&id=${id}`, {
+    credentials: "same-origin"
+  })
+    .then(r => r.json())
+    .then(() => cargarNoticias());
+}
 
-    if (noticiaEditandoId) {
-        formData.append("id", noticiaEditando);
-        url = `${BASE_URL}?accion=editar`;
-    }
-
-    fetch(url, {
-        method: "POST",
-        body: formData,
-        credentials: "same-origin"
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.ok) {
-                ocultarFormulario();
-                cargarNoticias();
-            } else {
-                alert(res.error || "Error al guardar la noticia");
-            }
-        });
-});
 
 /* =========================
-   MODAL BORRAR
+   UTILS
 ========================= */
-function confirmarEliminarNoticia(id) {
-    noticiaAEliminar = id;
-    document.getElementById("modalBorrarNoticia").classList.remove("hidden");
-}
-
-function cerrarModalEliminar() {
-    noticiaAEliminar = null;
-    document.getElementById("modalBorrarNoticia").classList.add("hidden");
-}
-
-function eliminarNoticiaConfirmada() {
-    if (!noticiaAEliminar) return;
-
-    fetch(`${BASE_URL}?accion=borrar&id=${noticiaAEliminar}`, {
-        credentials: "same-origin"
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.ok) {
-                cerrarModalEliminar();
-                cargarNoticias();
-            } else {
-                alert(res.error || "Error al eliminar la noticia");
-            }
-        });
-}
-
-/* =========================
-   UTIL
-========================= */
-function escapeHtml(text) {
-    return text
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll("'", "&#039;")
-        .replaceAll('"', "&quot;");
+function escapeJS(str) {
+  return String(str)
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n");
 }
