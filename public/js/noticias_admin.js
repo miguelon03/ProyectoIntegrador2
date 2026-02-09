@@ -6,14 +6,27 @@ const BASE_URL = "/ProyectoIntegrador2/app/controllers/NoticiasController.php";
 /* =========================
    VALIDACIÓN FRONT-END
 ========================= */
-function mostrarError(campo, mensaje) {
-    const error = campo.parentNode.querySelector(".error");
-    if (error) error.textContent = mensaje;
+function mostrarError(campo, texto) {
+    let error = campo.parentNode.querySelector(".error-msg");
+
+    if (!error) {
+        error = document.createElement("small");
+        error.classList.add("error-msg");
+        campo.parentNode.appendChild(error);
+    }
+
+    error.textContent = texto;
+
+    campo.classList.add("input-error", "shake");
+
+    setTimeout(() => campo.classList.remove("shake"), 300);
 }
 
 function limpiarErrores(form) {
-    form.querySelectorAll(".error").forEach(e => e.textContent = "");
+    form.querySelectorAll(".error-msg").forEach(e => e.remove());
+    form.querySelectorAll(".input-error").forEach(c => c.classList.remove("input-error"));
 }
+
 
 function validarFormularioNoticia(form) {
     let valido = true;

@@ -35,3 +35,33 @@
     color: #a50d26;
     transform: scale(1.1);
 }
+
+/* Estilo general del mensaje de error */
+.error-msg {
+    color: #d60000;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+    font-weight: 500;
+}
+
+/* Input con error */
+.input-error {
+    border: 2px solid #d60000 !important;
+    background-color: #ffecec;
+}
+
+/* Animación de temblor */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.2s ease-in-out;
+}
+
+

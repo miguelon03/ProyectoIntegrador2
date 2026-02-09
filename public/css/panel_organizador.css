@@ -903,3 +903,47 @@ section h2 {
 .estado-badge.aceptado  { background: #2e7d32; }
 .estado-badge.nominado  { background: #1565c0; }
 .estado-badge.rechazado { background: #c8102e; }
+
+
+.error-msg {
+    color: #d60000;
+    font-size: 0.85rem;
+    margin-top: 4px;
+    display: block;
+    font-weight: 500;
+    min-height: 16px;
+}
+
+
+.input-error {
+    border: 2px solid #d60000 !important;
+    background-color: #ffecec;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.2s ease-in-out;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+}
+
+.error-msg {
+    margin-top: 2px;
+    min-height: 16px; /* reserva espacio para que no se mueva todo */
+}
