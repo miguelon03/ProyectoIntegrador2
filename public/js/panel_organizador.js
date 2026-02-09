@@ -44,8 +44,56 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Cargar por defecto candidaturas
+    // ✅ Cargar por defecto candidaturas
     mostrarSeccion("candidaturas");
+});
+
+/* =========================
+   MODAL CONFIRMACIÓN (GENÉRICO)
+   - Reutilizable para Noticias y Eventos
+========================= */
+let _accionConfirmacion = null;
+
+function abrirModalConfirmacion(mensaje, accion) {
+    const modal = document.getElementById("modalConfirmacion");
+    const msg = document.getElementById("modalConfirmacionMensaje");
+    const btnOk = document.getElementById("btnConfirmacionAceptar");
+
+    // Fallback mínimo (por si alguien borra el HTML)
+    if (!modal || !msg || !btnOk) {
+        if (confirm(mensaje)) accion();
+        return;
+    }
+
+    msg.textContent = mensaje;
+    _accionConfirmacion = typeof accion === "function" ? accion : null;
+
+    // Limpieza de handler anterior y set del actual
+    btnOk.onclick = () => {
+        try {
+            if (_accionConfirmacion) _accionConfirmacion();
+        } finally {
+            cerrarModalConfirmacion();
+        }
+    };
+
+    modal.classList.remove("hidden");
+}
+
+function cerrarModalConfirmacion() {
+    const modal = document.getElementById("modalConfirmacion");
+    const btnOk = document.getElementById("btnConfirmacionAceptar");
+
+    if (modal) modal.classList.add("hidden");
+    _accionConfirmacion = null;
+    if (btnOk) btnOk.onclick = null;
+}
+
+/* Cerrar con ESC */
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        cerrarModalConfirmacion();
+    }
 });
 
 /* =========================
@@ -133,13 +181,13 @@ if (formImagen) {
             method: "POST",
             body: formData
         })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                formImagen.reset();
-                cargarImagenesPost();
-            } else mostrarModalError(data.error);
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    formImagen.reset();
+                    cargarImagenesPost();
+                } else mostrarModalError(data.error);
+            });
     });
 }
 
@@ -176,4 +224,3 @@ function guardarEdicion() {
         .then(r => r.json())
         .then(() => mostrarModalError("Edición guardada correctamente"));
 }
-

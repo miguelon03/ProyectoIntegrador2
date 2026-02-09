@@ -947,3 +947,17 @@ section h2 {
     margin-top: 2px;
     min-height: 16px; /* reserva espacio para que no se mueva todo */
 }
+.patro-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.patro-card img {
+  height: 60px;
+  object-fit: contain;
+}

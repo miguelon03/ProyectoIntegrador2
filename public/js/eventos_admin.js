@@ -249,17 +249,21 @@ document.getElementById("formEvento").addEventListener("submit", async e => {
         });
 });
 
+<<<<<<< HEAD
 /* ============================================================
    BORRAR
 ============================================================ */
+=======
+/* =========================
+   MODAL BORRAR EVENTO (GENÉRICO)
+========================= */
+>>>>>>> 519d238549630f9cc45ddda54dd90f4a76f6657d
 function confirmarEliminarEvento(id) {
     eventoAEliminar = id;
-    document.getElementById("modalBorrarEvento").classList.remove("hidden");
-}
-
-function cerrarModalEliminarEvento() {
-    eventoAEliminar = null;
-    document.getElementById("modalBorrarEvento").classList.add("hidden");
+    abrirModalConfirmacion(
+        "¿Estás seguro de que quieres eliminar este evento?",
+        eliminarEventoConfirmado
+    );
 }
 
 function eliminarEventoConfirmado() {
@@ -271,11 +275,11 @@ function eliminarEventoConfirmado() {
         .then(r => r.json())
         .then(res => {
             if (res.ok) {
-                cerrarModalEliminarEvento();
                 cargarEventos();
             } else {
                 alert(res.error || "Error al eliminar el evento");
             }
+            eventoAEliminar = null;
         });
 }
 

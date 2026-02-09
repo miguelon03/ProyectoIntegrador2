@@ -1,7 +1,9 @@
-let patrocinadorAEliminar = null;
+const URL_PAT = "/ProyectoIntegrador2/app/controllers/PatrocinadoresController.php";
 
-const BASE_URL_PATROCINADORES = "/ProyectoIntegrador2/app/controllers/PatrocinadoresController.php";
+document.addEventListener("DOMContentLoaded", () => {
+  cargarPatrocinadores();
 
+<<<<<<< HEAD
 /* =========================
    VALIDACIÓN FRONT-END
 ========================= */
@@ -130,46 +132,90 @@ document.getElementById("formPatrocinador").addEventListener("submit", e => {
                 alert(res.error || "Error al guardar el patrocinador");
             }
         });
+=======
+  const form = document.getElementById("formPatrocinador");
+  if (form) {
+    form.addEventListener("submit", crearPatrocinador);
+  }
+>>>>>>> 519d238549630f9cc45ddda54dd90f4a76f6657d
 });
 
 /* =========================
-   BORRAR PATROCINADOR
+   CARGAR
 ========================= */
-function confirmarEliminarPatrocinador(id) {
-    patrocinadorAEliminar = id;
-    document.getElementById("modalBorrarPatrocinador").classList.remove("hidden");
-}
+function cargarPatrocinadores() {
+  fetch(`${URL_PAT}?accion=listar`, { credentials: "same-origin" })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) return;
 
-function cerrarModalEliminarPatrocinador() {
-    patrocinadorAEliminar = null;
-    document.getElementById("modalBorrarPatrocinador").classList.add("hidden");
-}
+      const cont = document.getElementById("listaPatrocinadores");
+      cont.innerHTML = "";
 
-function eliminarPatrocinadorConfirmado() {
-    if (!patrocinadorAEliminar) return;
+      if (!data.patrocinadores.length) {
+        cont.innerHTML = "<p>No hay patrocinadores.</p>";
+        return;
+      }
 
-    fetch(`${BASE_URL_PATROCINADORES}?accion=borrar&id=${patrocinadorAEliminar}`, {
-        credentials: "same-origin"
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.ok) {
-                cerrarModalEliminarPatrocinador();
-                cargarPatrocinadores();
-            } else {
-                alert(res.error || "Error al eliminar el patrocinador");
-            }
-        });
+      data.patrocinadores.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "patro-card";
+
+        div.innerHTML = `
+          <img src="${p.logo}" alt="${p.nombre}">
+          <strong>${p.nombre}</strong>
+          <button class="icon-btn delete" onclick="eliminarPatrocinador(${p.id_patrocinador})">
+            🗑️
+          </button>
+        `;
+
+        cont.appendChild(div);
+      });
+    });
 }
 
 /* =========================
-   UTIL
+   CREAR
 ========================= */
-function escapeHtml(text) {
-    return text
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll("'", "&#039;")
-        .replaceAll('"', "&quot;");
+function crearPatrocinador(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const fd = new FormData(form);
+
+  if (!fd.get("nombre") || !fd.get("logo").name) {
+    document.getElementById("errorPatrocinador").innerText = "Nombre e imagen obligatorios";
+    return;
+  }
+
+  fd.append("accion", "crear");
+
+  fetch(URL_PAT, {
+    method: "POST",
+    credentials: "same-origin",
+    body: fd
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) {
+        document.getElementById("errorPatrocinador").innerText = data.error;
+        return;
+      }
+
+      form.reset();
+      cargarPatrocinadores();
+    });
+}
+
+/* =========================
+   ELIMINAR
+========================= */
+function eliminarPatrocinador(id) {
+  if (!confirm("¿Eliminar patrocinador?")) return;
+
+  fetch(`${URL_PAT}?accion=borrar&id=${id}`, {
+    credentials: "same-origin"
+  })
+    .then(r => r.json())
+    .then(() => cargarPatrocinadores());
 }
