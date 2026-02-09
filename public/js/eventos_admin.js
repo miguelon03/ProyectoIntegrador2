@@ -3,9 +3,137 @@ let eventoAEliminar = null;
 
 const BASE_URL_EVENTOS = "/ProyectoIntegrador2/app/controllers/EventoController.php";
 
-/* =========================
+/* ============================================================
+   SISTEMA VISUAL DE ERRORES
+============================================================ */
+function mostrarError(campo, texto) {
+    let error = campo.parentNode.querySelector(".error-msg");
+
+    if (!error) {
+        error = document.createElement("small");
+        error.classList.add("error-msg");
+        campo.parentNode.appendChild(error);
+    }
+
+    error.textContent = texto;
+
+    campo.classList.add("input-error", "shake");
+    setTimeout(() => campo.classList.remove("shake"), 300);
+}
+
+function limpiarErrores(form) {
+    form.querySelectorAll(".error-msg").forEach(e => e.remove());
+    form.querySelectorAll(".input-error").forEach(c => c.classList.remove("input-error"));
+}
+
+/* ============================================================
+   VALIDACIÓN EN BLUR
+============================================================ */
+document.querySelectorAll("#formEvento input, #formEvento textarea").forEach(campo => {
+    campo.addEventListener("blur", () => {
+        switch (campo.name) {
+            case "titulo":
+                if (!campo.value.trim()) mostrarError(campo, "Este campo es obligatorio");
+                else if (campo.value.trim().length < 3) mostrarError(campo, "Mínimo 3 caracteres");
+                break;
+
+            case "descripcion":
+                if (!campo.value.trim()) mostrarError(campo, "Este campo es obligatorio");
+                else if (campo.value.trim().length < 5) mostrarError(campo, "Mínimo 5 caracteres");
+                break;
+
+            case "fecha":
+                if (!campo.value) mostrarError(campo, "Este campo es obligatorio");
+                break;
+
+            case "hora":
+                if (!campo.value) mostrarError(campo, "Este campo es obligatorio");
+                break;
+        }
+    });
+});
+
+/* ============================================================
+   VALIDACIÓN COMPLETA
+============================================================ */
+async function validarFormularioEvento(form) {
+    let valido = true;
+
+    const titulo = form.titulo;
+    const descripcion = form.descripcion;
+    const fecha = form.fecha;
+    const hora = form.hora;
+
+    limpiarErrores(form);
+
+    /* TÍTULO */
+    if (!titulo.value.trim()) {
+        mostrarError(titulo, "Este campo es obligatorio");
+        valido = false;
+    } else if (titulo.value.trim().length < 3) {
+        mostrarError(titulo, "El título debe tener al menos 3 caracteres");
+        valido = false;
+    }
+
+    /* DESCRIPCIÓN */
+    if (!descripcion.value.trim()) {
+        mostrarError(descripcion, "Este campo es obligatorio");
+        valido = false;
+    } else if (descripcion.value.trim().length < 5) {
+        mostrarError(descripcion, "La descripción debe tener al menos 5 caracteres");
+        valido = false;
+    }
+
+    /* FECHA */
+    if (!fecha.value) {
+        mostrarError(fecha, "Este campo es obligatorio");
+        valido = false;
+    } else {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        const fechaEvento = new Date(fecha.value + "T00:00:00");
+
+        if (fechaEvento < hoy) {
+            mostrarError(fecha, "La fecha no puede ser anterior a hoy");
+            valido = false;
+        }
+    }
+
+    /* HORA */
+    if (!hora.value) {
+        mostrarError(hora, "Este campo es obligatorio");
+        valido = false;
+    } else {
+        const [h, m] = hora.value.split(":").map(Number);
+        const minutos = h * 60 + m;
+
+        const minPermitido = 8 * 60 + 30; // 08:30
+        const maxPermitido = 23 * 60;     // 23:00
+
+        if (minutos < minPermitido || minutos > maxPermitido) {
+            mostrarError(hora, "La hora debe estar entre 08:30 y 23:00");
+            valido = false;
+        }
+    }
+
+    /* VALIDACIÓN DE CONFLICTOS */
+    if (fecha.value && hora.value) {
+        const res = await fetch(`${BASE_URL_EVENTOS}?accion=comprobarConflictos&fecha=${fecha.value}&hora=${hora.value}&id=${eventoEditando || ""}`);
+        const data = await res.json();
+
+        if (!data.ok) {
+            mostrarError(hora, data.mensaje);
+            valido = false;
+        }
+    }
+
+    return valido;
+}
+
+/* ============================================================
    CARGAR EVENTOS
-========================= */
+============================================================ */
 function cargarEventos() {
     fetch(`${BASE_URL_EVENTOS}?accion=listar`, {
         credentials: "same-origin"
@@ -52,12 +180,13 @@ function cargarEventos() {
         });
 }
 
-/* =========================
+/* ============================================================
    FORMULARIO
-========================= */
+============================================================ */
 function mostrarFormularioEvento() {
     const form = document.getElementById("formEvento");
     form.reset();
+    limpiarErrores(form);
     form.style.display = "block";
     eventoEditando = null;
 }
@@ -65,13 +194,14 @@ function mostrarFormularioEvento() {
 function ocultarFormularioEvento() {
     const form = document.getElementById("formEvento");
     form.reset();
+    limpiarErrores(form);
     form.style.display = "none";
     eventoEditando = null;
 }
 
-/* =========================
-   EDITAR EVENTO
-========================= */
+/* ============================================================
+   EDITAR
+============================================================ */
 function editarEvento(id, titulo, descripcion, fecha, hora) {
     eventoEditando = id;
 
@@ -83,13 +213,19 @@ function editarEvento(id, titulo, descripcion, fecha, hora) {
     document.getElementById("formEvento").style.display = "block";
 }
 
-/* =========================
-   GUARDAR EVENTO
-========================= */
-document.getElementById("formEvento").addEventListener("submit", e => {
+/* ============================================================
+   GUARDAR
+============================================================ */
+document.getElementById("formEvento").addEventListener("submit", async e => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const form = e.target;
+
+    if (!(await validarFormularioEvento(form))) {
+        return;
+    }
+
+    const formData = new FormData(form);
     let url = `${BASE_URL_EVENTOS}?accion=crear`;
 
     if (eventoEditando) {
@@ -113,17 +249,21 @@ document.getElementById("formEvento").addEventListener("submit", e => {
         });
 });
 
+<<<<<<< HEAD
+/* ============================================================
+   BORRAR
+============================================================ */
+=======
 /* =========================
-   MODAL BORRAR EVENTO
+   MODAL BORRAR EVENTO (GENÉRICO)
 ========================= */
+>>>>>>> 519d238549630f9cc45ddda54dd90f4a76f6657d
 function confirmarEliminarEvento(id) {
     eventoAEliminar = id;
-    document.getElementById("modalBorrarEvento").classList.remove("hidden");
-}
-
-function cerrarModalEliminarEvento() {
-    eventoAEliminar = null;
-    document.getElementById("modalBorrarEvento").classList.add("hidden");
+    abrirModalConfirmacion(
+        "¿Estás seguro de que quieres eliminar este evento?",
+        eliminarEventoConfirmado
+    );
 }
 
 function eliminarEventoConfirmado() {
@@ -135,17 +275,17 @@ function eliminarEventoConfirmado() {
         .then(r => r.json())
         .then(res => {
             if (res.ok) {
-                cerrarModalEliminarEvento();
                 cargarEventos();
             } else {
                 alert(res.error || "Error al eliminar el evento");
             }
+            eventoAEliminar = null;
         });
 }
 
-/* =========================
+/* ============================================================
    UTIL
-========================= */
+============================================================ */
 function escapeHtml(text) {
     return text
         .replaceAll("&", "&amp;")

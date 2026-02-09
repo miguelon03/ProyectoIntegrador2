@@ -238,7 +238,6 @@ body {
     height: 40px;
     background: #fff;
     padding: 6px;
-    border-radius: 4px;
     object-fit: contain;
 }
 
@@ -274,4 +273,43 @@ body {
         width: 32px;
         height: 32px;
     }
+}
+.footer-patrocinadores {
+    margin-top: 60px;
+    padding: 30px 20px;
+    background: #f7f7f7;
+    border-top: 2px solid #ddd;
+    text-align: center;
+}
+
+.footer-patrocinadores h3 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+}
+
+.patrocinadores-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+
+.patro-footer-item img {
+    max-height: 100px;
+    max-width: 200px;
+    object-fit: contain;
+    filter: grayscale(100%);
+    transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.patro-footer-item img:hover {
+    filter: grayscale(0%);
+    transform: scale(1.05);
+}
+
+.patro-vacio {
+    color: #777;
+    font-style: italic;
 }
