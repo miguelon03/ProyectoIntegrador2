@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         </div>
 
                         <div class="news-image">
-                            <img src="../img/noticias/${imagenAleatoria()}" alt="">
+                            <img src="/ProyectoIntegrador2/public/img/noticias/${imagenAleatoria()}" alt="">
                         </div>
                     </article>
                 `;
@@ -28,17 +28,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
             total = data.noticias.length;
             actualizarCarrusel();
-
-            setInterval(nextNoticia, 6000);
         });
 });
+    // Activar botones
+    document.getElementById("nextBtn").addEventListener("click", nextNoticia);
+    document.getElementById("prevBtn").addEventListener("click", prevNoticia);
 
+    // Auto‑carrusel cada 6s
+    setInterval(nextNoticia, 6000);
 /* =========================
    CARRUSEL
 ========================= */
 function actualizarCarrusel() {
-    document.getElementById("newsTrack").style.transform =
-        `translateX(-${indiceActual * 100}%)`;
+    const track = document.getElementById("newsTrack");
+    track.style.transform = `translateX(-${indiceActual * 100}%)`;
 }
 
 function nextNoticia() {

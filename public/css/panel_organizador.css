@@ -602,3 +602,66 @@ button[type="button"]:hover {
     font-size: 18px;
     color: #ff4d4d; /* Color rojo para el error */
 }
+/* =========================
+   PREMIOS
+========================= */
+
+#premios {
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+}
+
+#premios h3 {
+    margin-top: 35px;
+}
+
+#premios select {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    margin-right: 10px;
+    min-width: 200px;
+}
+
+#premios select:disabled {
+    background: #eee;
+    color: #999;
+}
+
+/* Tarjeta de premio */
+.premio-card {
+    border: 1px solid #e1e1e1;
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 20px;
+    background: linear-gradient(180deg, #fff, #fafafa);
+    box-shadow: 0 6px 20px rgba(0,0,0,.05);
+}
+
+.premio-card h4 {
+    color: #c8102e;
+    margin-bottom: 12px;
+}
+
+.premio-ganadores {
+    display: flex;
+    gap: 40px;
+    font-size: 15px;
+}
+
+.premio-ganadores div em {
+    color: #999;
+    font-style: italic;
+}
+
+/* Select bloqueado visual */
+option:disabled {
+    color: #bbb;
+}
+
+/* Botón asignar */
+#premios .button {
+    margin-top: 10px;
+}

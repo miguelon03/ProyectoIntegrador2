@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Festival de Cortos – Universidad Europea</title>
+
+    <!-- CSS principal -->
     <link rel="stylesheet" href="css/index.css">
+
+    <!-- CSS del carrusel de noticias -->
+    <link rel="stylesheet" href="css/noticias_publico.css">
 </head>
 
 <body>
@@ -18,7 +23,7 @@
         </div>
 
         <nav class="nav-links">
-            <a href="html/noticias.html">Noticias</a>
+            <!-- Noticias ELIMINADO -->
             <a href="html/eventos.html">Eventos</a>
             <a href="html/premios.html">Premios</a>
             <a href="html/gala.html">Gala</a>
@@ -36,6 +41,7 @@
 
 <main class="content">
 
+    <!-- ================= HERO ================= -->
     <section class="hero">
         <h1>Festival Universitario de Cortometrajes</h1>
         <p>
@@ -47,28 +53,99 @@
         </a>
     </section>
 
-    <section class="bloques">
-        <div class="bloque">
-            <h2>Noticias</h2>
-            <p>Últimas novedades del festival.</p>
-            <a href="noticias.html">Ver noticias</a>
+    <!-- ================= NOTICIAS INTEGRADAS ================= -->
+    <section id="noticiasIndex" class="news-carousel" style="margin-top: 80px;">
+        <h2 style="margin-bottom: 20px;">Últimas noticias</h2>
+
+        <button class="carousel-btn prev" onclick="prevNoticia()">‹</button>
+
+        <div class="carousel-viewport">
+            <div class="carousel-track" id="newsTrack">
+                <!-- Noticias cargadas dinámicamente -->
+            </div>
         </div>
 
-        <div class="bloque">
-            <h2>Eventos</h2>
-            <p>Consulta el calendario completo.</p>
-            <a href="eventos.html">Ver eventos</a>
-        </div>
-
-        <div class="bloque">
-            <h2>Premios</h2>
-            <p>Categorías y galardones.</p>
-            <a href="premios.html">Ver premios</a>
-        </div>
+        <button class="carousel-btn next" onclick="nextNoticia()">›</button>
     </section>
 
 </main>
 
+<!-- ================= FOOTER UE ================= -->
+<footer class="ue-footer">
+    <div class="ue-footer-top">
+
+        <div class="ue-footer-logo">
+            <img src="img/logo_uem.png" alt="Universidad Europea">
+        </div>
+
+        <div class="ue-footer-columns">
+
+            <div class="ue-footer-col">
+                <h3>Festival</h3>
+                <ul>
+                    <!-- Noticias ELIMINADO -->
+                    <li><a href="html/eventos.html">Eventos</a></li>
+                    <li><a href="html/premios.html">Premios</a></li>
+                    <li><a href="html/gala.html">Gala</a></li>
+                    <li><a href="html/ediciones.html">Ediciones anteriores</a></li>
+                </ul>
+            </div>
+
+            <div class="ue-footer-col">
+                <h3>Contacto</h3>
+                <ul>
+                    <li><a>Email: festival@universidadeuropea.es</a></li>
+                    <li><a>Tel: +34 91 740 72 72</a></li>
+                    <li><a>Campus de Villaviciosa de Odón</a></li>
+                </ul>
+            </div>
+
+            <div class="ue-footer-col">
+                <h3>Patrocinadores</h3>
+                <div class="patrocinadores-grid">
+                    <img src="img/patro1.png" alt="Patrocinador">
+                    <img src="img/patro2.png" alt="Patrocinador">
+                </div>
+            </div>
+
+            <div class="ue-footer-col">
+                <h3>Síguenos</h3>
+                <div class="social-icons">
+
+                    <a href="https://www.facebook.com/UniversidadEuropea" target="_blank">
+                        <img src="img/footer/logo-de-facebook.png" alt="Facebook">
+                    </a>
+
+                    <a href="https://www.instagram.com/universidadeuropea" target="_blank">
+                        <img src="img/footer/instagram.png" alt="Instagram">
+                    </a>
+
+                    <a href="https://www.youtube.com/user/UniversidadEuropea" target="_blank">
+                        <img src="img/footer/youtube.png" alt="YouTube">
+                    </a>
+
+                    <a href="https://www.linkedin.com/school/universidad-europea-de-madrid/posts/?feedView=all" target="_blank">
+                        <img src="img/footer/linkedin.png" alt="LinkedIn">
+                    </a>
+
+                    <a href="https://twitter.com/UEuropea" target="_blank">
+                        <img src="img/footer/twitter.png" alt="X (Twitter)">
+                    </a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="ue-footer-bottom">
+        <p>© Universidad Europea – Festival Universitario de Cortometrajes</p>
+    </div>
+</footer>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="js/noticias_publico.js"></script>
+<script src="js/session.js"></script>
 <script src="js/index.js"></script>
 <script src="js/session.js"></script>
 
