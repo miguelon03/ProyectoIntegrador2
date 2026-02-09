@@ -38,8 +38,57 @@
         <!-- ================= CANDIDATURAS ================= -->
         <section id="candidaturas" class="activa">
             <h2>Gestión de Candidaturas</h2>
-            <div id="listaCandidaturas"></div>
+
+            <h3>Pendientes</h3>
+            <div id="candidaturasPendientes"></div>
+
+            <h3>Aceptadas</h3>
+            <div id="candidaturasAceptadas"></div>
+
+            <h3>Nominadas</h3>
+            <div id="candidaturasNominadas"></div>
+
+            <h3>Rechazadas</h3>
+            <div id="candidaturasRechazadas"></div>
         </section>
+
+        <!-- MODAL DETALLE -->
+        <div id="modalDetalle" class="modal hidden">
+            <div class="modal-content">
+                <span class="modal-close" onclick="cerrarModalDetalle()">✖</span>
+
+                <h3>Detalle de la candidatura</h3>
+                <div id="detalleContenido"></div>
+
+                <div id="detalleAcciones" class="modal-actions"></div>
+            </div>
+        </div>
+
+        <!-- MODAL MOTIVO RECHAZO -->
+        <div id="modalMotivo" class="modal hidden">
+            <div class="modal-content">
+                <span class="modal-close" onclick="cerrarModalMotivo()">✖</span>
+
+                <h3>Motivo del rechazo</h3>
+                <p id="textoMotivo"></p>
+            </div>
+        </div>
+
+        <!-- MODAL RECHAZO (ESCRIBIR MOTIVO) -->
+        <div id="modalRechazo" class="modal hidden">
+            <div class="modal-content">
+                <span class="modal-close" onclick="cerrarModalRechazo()">✖</span>
+
+                <h3>Rechazar candidatura</h3>
+                <textarea id="motivoRechazo" placeholder="Escribe el motivo del rechazo"></textarea>
+
+                <div class="modal-actions">
+                    <button class="button" onclick="cerrarModalRechazo()">Cancelar</button>
+                    <button class="button btn-danger" onclick="confirmarRechazo()">Rechazar</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- ================= EVENTOS ================= -->
         <section id="eventos">
@@ -200,46 +249,43 @@
 
     </main>
 
-    <!-- Modales (si los usas) -->
-    <div id="modalRechazo" class="modal hidden">
+
+    <!-- Modal premio ya asignado -->
+    <div id="modalPremioError" class="modal hidden">
         <div class="modal-content">
-            <span class="modal-close" onclick="cerrarModalRechazo()">✖</span>
-            <h3>Rechazar candidatura</h3>
-            <textarea id="motivoRechazo" placeholder="Escribe el motivo del rechazo"></textarea>
+            <span class="modal-close" onclick="cerrarModalPremio()">✖</span>
+
+            <h3>Error</h3>
+            <p id="modalPremioMensaje">Error: este premio ya está asignado</p>
+
             <div class="modal-actions">
-                <button class="button" onclick="cerrarModalRechazo()">Cancelar</button>
-                <button class="button btn-danger" onclick="confirmarRechazo()">Rechazar</button>
+                <button class="btn-secondary" onclick="cerrarModalPremio()">Cerrar</button>
             </div>
         </div>
     </div>
-<!-- Modal premio ya asignado -->
-<div id="modalPremioError" class="modal hidden">
-  <div class="modal-content">
-    <span class="modal-close" onclick="cerrarModalPremio()">✖</span>
 
-    <h3>Error</h3>
-    <p id="modalPremioMensaje">Error: este premio ya está asignado</p>
+    <script>
+        function abrirModalPremio(mensaje) {
+            const m = document.getElementById("modalPremioError");
+            const t = document.getElementById("modalPremioMensaje");
+            if (!m || !t) return alert(mensaje);
+            t.textContent = mensaje;
+            m.classList.remove("hidden");
+        }
 
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="cerrarModalPremio()">Cerrar</button>
+        function cerrarModalPremio() {
+            const m = document.getElementById("modalPremioError");
+            if (m) m.classList.add("hidden");
+        }
+    </script>
+    <div id="modalDetalle" class="modal hidden">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModalDetalle()">✖</span>
+            <h3>Detalle de la candidatura</h3>
+            <div id="detalleContenido"></div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-  function abrirModalPremio(mensaje) {
-    const m = document.getElementById("modalPremioError");
-    const t = document.getElementById("modalPremioMensaje");
-    if (!m || !t) return alert(mensaje);
-    t.textContent = mensaje;
-    m.classList.remove("hidden");
-  }
-
-  function cerrarModalPremio() {
-    const m = document.getElementById("modalPremioError");
-    if (m) m.classList.add("hidden");
-  }
-</script>
 
     <!-- Scripts: ORDEN IMPORTANTE -->
     <script src="../js/panel_organizador.js"></script>
@@ -250,4 +296,5 @@
     <script src="../js/premios.js"></script>
 
 </body>
+
 </html>

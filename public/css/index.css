@@ -141,7 +141,7 @@ body {
 .modal {
   background: #fff;
   padding: 18px;
-  border-radius: 8px;
+  
   max-width: 520px;
   width: 90%;
   box-shadow: 0 6px 24px rgba(0,0,0,0.2);

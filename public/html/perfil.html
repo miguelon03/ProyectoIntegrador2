@@ -1,37 +1,93 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Mi perfil</title>
-    <link rel="stylesheet" href="../css/perfil.css">
+  <meta charset="UTF-8" />
+  <title>Mi Perfil</title>
+  <link rel="stylesheet" href="../css/perfil.css" />
 </head>
+
 <body>
 
-<header class="ue-header">
-    <div class="main-nav">
-        <img src="../img/logo_uem.png" alt="UE" class="logo">
-        <nav>
-            <a href="../index.php">Inicio</a>
-        </nav>
+  <header class="perfil-header">
+    <div class="perfil-header-inner">
+      <h1>Mi perfil</h1>
+      <a class="btn-salir" href="index.html">Salir</a>
     </div>
-</header>
+  </header>
 
-<main class="perfil-container">
-
+  <main class="perfil-container">
     <section class="perfil-card">
-        <h1>Mi perfil</h1>
-
-        <h2>Datos personales</h2>
-        <ul id="datosPersonales"></ul>
+      <h2>Datos personales</h2>
+      <ul id="datosPersonales"></ul>
     </section>
 
     <section class="perfil-card">
-        <h2>Mis candidaturas</h2>
-        <div id="misCandidaturas"></div>
+      <h2>Mis candidaturas</h2>
+      <div id="misCandidaturas"></div>
     </section>
+  </main>
 
-</main>
+  <!-- Modal detalle candidatura -->
+  <div id="modalDetalle" class="modal hidden">
+  <div class="modal-content">
+    <span class="modal-close" onclick="cerrarModalDetalle()">✖</span>
 
-<script src="../js/perfil.js"></script>
+    <h3>Detalle de mi candidatura</h3>
+
+    <form id="formReenviar" enctype="multipart/form-data">
+      <div class="campo">
+        <label>Nombre responsable</label>
+        <input type="text" name="nombre_responsable" id="detNombre">
+      </div>
+
+      <div class="campo">
+        <label>Email</label>
+        <input type="email" name="email" id="detEmail" required>
+      </div>
+
+      <div class="campo">
+        <label>DNI</label>
+        <input type="text" name="dni" id="detDni" required>
+      </div>
+
+      <div class="campo">
+        <label>Expediente</label>
+        <input type="text" name="expediente" id="detExpediente" required>
+      </div>
+
+      <div class="campo">
+        <label>Sinopsis</label>
+        <textarea name="sinopsis" id="detSinopsis" required></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Vídeo</label>
+        <input type="url" name="video" id="detVideo" required>
+      </div>
+
+      <div class="campo">
+        <label>Ficha (opcional si quieres cambiarla)</label>
+        <input type="file" name="ficha">
+        <small id="linkFicha"></small>
+      </div>
+
+      <div class="campo">
+        <label>Cartel (opcional si quieres cambiarlo)</label>
+        <input type="file" name="cartel">
+        <small id="linkCartel"></small>
+      </div>
+
+      <p id="detEstado"></p>
+      <p id="detMotivo" style="display:none;"></p>
+
+      <button type="submit" class="button">Reenviar al organizador</button>
+    </form>
+
+    <p id="msgReenviar" class="error"></p>
+  </div>
+</div>
+
+
+  <script src="../js/perfil.js"></script>
 </body>
 </html>

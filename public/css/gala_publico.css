@@ -56,7 +56,6 @@ body {
     margin: 60px auto;
     padding: 40px;
     background: #fff;
-    border-radius: 20px;
     box-shadow: 0 10px 40px rgba(0,0,0,.1);
 }
 
@@ -164,7 +163,6 @@ section h2 {
     height: 40px;
     background: #fff;
     padding: 6px;
-    border-radius: 4px;
     object-fit: contain;
 }
 

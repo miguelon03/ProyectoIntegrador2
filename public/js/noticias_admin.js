@@ -85,7 +85,7 @@ document.getElementById("formNoticia").addEventListener("submit", e => {
     const formData = new FormData(e.target);
     let url = `${BASE_URL}?accion=crear`;
 
-    if (noticiaEditando) {
+    if (noticiaEditandoId) {
         formData.append("id", noticiaEditando);
         url = `${BASE_URL}?accion=editar`;
     }
