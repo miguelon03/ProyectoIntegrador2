@@ -70,6 +70,7 @@
 </main>
 
 <script src="js/index.js"></script>
+<script src="js/session.js"></script>
 
 </body>
 </html>
