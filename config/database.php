@@ -71,11 +71,31 @@ CREATE TABLE IF NOT EXISTS inscripciones (
 );
 
 CREATE TABLE IF NOT EXISTS premios_ganadores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_ganador INT AUTO_INCREMENT PRIMARY KEY,
+
     id_premio INT NOT NULL,
     id_inscripcion INT NOT NULL,
-    FOREIGN KEY (id_premio) REFERENCES premios(id_premio) ON DELETE CASCADE,
-    FOREIGN KEY (id_inscripcion) REFERENCES inscripciones(id_inscripcion) ON DELETE CASCADE
+
+    puesto ENUM('PRIMERO', 'SEGUNDO') NOT NULL,
+
+    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Evita repetir el mismo puesto en la misma categoría
+    UNIQUE KEY uk_premio_puesto (id_premio, puesto),
+
+    -- Evita que una candidatura gane más de un premio
+    UNIQUE KEY uk_inscripcion (id_inscripcion),
+
+    -- Relaciones
+    CONSTRAINT fk_pg_premio
+        FOREIGN KEY (id_premio)
+        REFERENCES premios(id_premio)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_pg_inscripcion
+        FOREIGN KEY (id_inscripcion)
+        REFERENCES inscripciones(id_inscripcion)
+        ON DELETE CASCADE
 );
  
  CREATE TABLE IF NOT EXISTS gala (

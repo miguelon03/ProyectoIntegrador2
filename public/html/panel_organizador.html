@@ -212,6 +212,34 @@
             </div>
         </div>
     </div>
+<!-- Modal premio ya asignado -->
+<div id="modalPremioError" class="modal hidden">
+  <div class="modal-content">
+    <span class="modal-close" onclick="cerrarModalPremio()">✖</span>
+
+    <h3>Error</h3>
+    <p id="modalPremioMensaje">Error: este premio ya está asignado</p>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModalPremio()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirModalPremio(mensaje) {
+    const m = document.getElementById("modalPremioError");
+    const t = document.getElementById("modalPremioMensaje");
+    if (!m || !t) return alert(mensaje);
+    t.textContent = mensaje;
+    m.classList.remove("hidden");
+  }
+
+  function cerrarModalPremio() {
+    const m = document.getElementById("modalPremioError");
+    if (m) m.classList.add("hidden");
+  }
+</script>
 
     <!-- Scripts: ORDEN IMPORTANTE -->
     <script src="../js/panel_organizador.js"></script>
