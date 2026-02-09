@@ -161,8 +161,14 @@
                 <strong>Modo actual:</strong> <span id="modoActual"></span>
                 <button class="button" onclick="cambiarModo()">Cambiar modo</button>
             </div>
+           
 
             <div id="galaPre">
+             <h2>Fecha de la gala</h2>
+            <input type="date" id="fechaGala">
+            <button class="button" onclick="guardarFechaGala()">Guardar fecha</button>
+
+
                 <h3>Pre-evento: Secciones</h3>
                 <button class="button" onclick="mostrarFormSeccion()">Añadir sección</button>
 
@@ -191,7 +197,21 @@
                 <form id="formImagen" enctype="multipart/form-data">
                     <input type="file" name="imagen" accept="image/*" required>
                     <button class="button" type="submit">Subir imagen</button>
+                    <div id="galeriaPost" class="bloques"></div>
                 </form>
+                <!-- Modal eliminar imagen -->
+                <div id="modalEliminarImagen" class="modal hidden">
+                 <div class="modal-content">
+                       <h3>Eliminar imagen</h3>
+                 <p>¿Seguro que quieres eliminar esta imagen? Esta acción no se puede deshacer.</p>
+
+        <div class="modal-actions">
+            <button class="button" onclick="cerrarModalImagen()">Cancelar</button>
+            <button class="button btn-danger" onclick="confirmarEliminarImagen()">Eliminar</button>
+        </div>
+    </div>
+</div>
+
 
                 <h4>Edición final</h4>
                 <button class="button" onclick="guardarEdicion()">Añadir a ediciones anteriores</button>

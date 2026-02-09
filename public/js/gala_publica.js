@@ -1,31 +1,39 @@
-const GALA_URL = "/ProyectoIntegrador2/app/controllers/GalaController.php";
+const GALA_URL = "/ProyectoIntegrador2/app/controllers/GalaPublicController.php";
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetch(GALA_URL)
+    fetch(`${GALA_URL}?accion=publico`)
+
         .then(r => r.json())
         .then(data => {
             if (!data.ok) return;
 
-            if (data.modo === "PRE") {
-                document.getElementById("galaPostPublico").style.display = "none";
-                document.getElementById("galaPrePublico").style.display = "block";
+           if (data.modo === "PRE") {
+    document.getElementById("galaPostPublico").style.display = "none";
+    document.getElementById("galaPrePublico").style.display = "block";
 
-                const cont = document.getElementById("programaGala");
-                cont.innerHTML = "";
+    const fecha = document.getElementById("fechaGalaPublica");
+    if (fecha && data.fecha) {
+        fecha.innerText = data.fecha;
+    }
 
-                data.secciones.forEach(s => {
-                    cont.innerHTML += `
-                        <div class="event-card">
-                            <div class="event-info">
-                                <h3>${s.titulo}</h3>
-                                <p>${s.descripcion}</p>
-                                <small>${s.hora} · ${s.sala}</small>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+    const cont = document.getElementById("programaGala");
+    cont.innerHTML = "";
+
+    data.secciones.forEach(s => {
+        cont.innerHTML += `
+            <div class="event-card">
+                <div class="event-info">
+                    <h3>${s.titulo}</h3>
+                    <p>${s.descripcion}</p>
+                    <small>${s.hora} · ${s.sala}</small>
+                </div>
+            </div>
+        `;
+    });
+}
+
 
             if (data.modo === "POST") {
                 document.getElementById("galaPrePublico").style.display = "none";

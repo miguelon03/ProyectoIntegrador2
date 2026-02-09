@@ -68,15 +68,25 @@ function cargarModo() {
             if (data.modo === "PRE") {
                 galaPre.style.display = "block";
                 galaPost.style.display = "none";
+
+                // 🔑 FECHA DE LA GALA (FUERA DE LAS SECCIONES)
+                if (data.fecha) {
+                    const inputFecha = document.getElementById("fechaGala");
+                    if (inputFecha) {
+                        inputFecha.value = data.fecha;
+                    }
+                }
+
                 cargarSecciones();
             } else {
                 galaPre.style.display = "none";
                 galaPost.style.display = "block";
-                cargarImagenesPost(); // 🔥 CLAVE
+                cargarImagenesPost();
             }
         })
         .catch(() => mostrarModalError("Error al cargar modo de gala"));
 }
+
 
 /* Cambiar modo */
 function cambiarModo() {
@@ -106,19 +116,118 @@ function cargarSecciones() {
             data.secciones.forEach(s => {
                 cont.innerHTML += `
                     <div>
-                        <b>${s.titulo}</b> – ${s.hora} – ${s.sala}
-                        <button onclick="borrarSeccion(${s.id_seccion})">🗑️</button>
+                        <b>${s.titulo}</b> <br>
+                         ${s.hora} – ${s.sala} <br>
+                         -${s.descripcion} <br>
+                        <button onclick="editarSeccion(${s.id}, '${s.titulo}', '${s.hora}', '${s.sala}', '${s.descripcion}')">✏️</button>
+                        <button onclick="borrarSeccion(${s.id})">🗑️</button>
                     </div>
                 `;
             });
         });
 }
+function mostrarFormSeccion() {
+    const form = document.getElementById("formSeccion");
+    if (!form) return;
+
+    // 🔑 MODO CREAR → no estamos editando
+    seccionEditando = null;
+
+    // 🔑 LIMPIAR CAMPOS
+    form.reset();
+
+    form.style.display = "block";
+}
+
+function ocultarFormSeccion() {
+    const form = document.getElementById("formSeccion");
+    if (!form) return;
+    form.style.display = "none";
+}
+
+let seccionEditando = null;
+
+function editarSeccion(id, titulo, hora, sala, descripcion) {
+    seccionEditando = id;
+
+    const form = document.getElementById("formSeccion");
+    form.titulo.value = titulo;
+    form.hora.value = hora;
+    form.sala.value = sala;
+    form.descripcion.value = descripcion;
+
+    form.style.display = "block";
+}
+
+
 
 function borrarSeccion(id) {
     if (!confirm("¿Eliminar sección?")) return;
     fetch(`${BASE_URL_GALA}?accion=borrarSeccion&id=${id}`)
         .then(() => cargarSecciones());
 }
+
+
+document.getElementById("formSeccion").addEventListener("submit", e => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    let url = `${BASE_URL_GALA}?accion=crearSeccion`;
+
+    if (seccionEditando) {
+        formData.append("id", seccionEditando);
+        url = `${BASE_URL_GALA}?accion=editarSeccion`;
+    }
+
+    fetch(url, {
+        method: "POST",
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            ocultarFormSeccion();
+            seccionEditando = null;
+            cargarSecciones();
+        } else {
+            alert(data.error || "Error al guardar sección");
+        }
+    });
+});
+
+
+/* =========================
+   GUARDAR TEXTO RESUMEN (POST-GALA)
+========================= */
+const formResumen = document.getElementById("formResumen");
+
+if (formResumen) {
+    formResumen.addEventListener("submit", e => {
+        e.preventDefault();
+
+        const formData = new FormData(formResumen);
+
+        fetch(`${BASE_URL_GALA}?accion=guardarResumen`, {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin"
+        })
+        .then(r => r.json())
+       .then(data => {
+    if (data.ok) {
+        alert("Resumen guardado correctamente");
+
+        // 🔑 LIMPIAR EL TEXTAREA DESPUÉS DE GUARDAR
+        formResumen.reset();
+    } else {
+        alert(data.error || "Error al guardar el resumen");
+    }
+});
+
+    });
+}
+
 
 /* =========================
    POST-GALA – IMÁGENES
@@ -161,11 +270,30 @@ function cargarImagenesPost() {
         });
 }
 
+let imagenAEliminar = null;
+
 function borrarImagen(id) {
-    if (!confirm("¿Eliminar imagen?")) return;
-    fetch(`${BASE_URL_GALA}?accion=borrarImagen&id=${id}`)
-        .then(() => cargarImagenesPost());
+    imagenAEliminar = id;
+    document.getElementById("modalEliminarImagen").classList.remove("hidden");
 }
+/* =========================
+  MODAL
+========================= */
+function cerrarModalImagen() {
+    imagenAEliminar = null;
+    document.getElementById("modalEliminarImagen").classList.add("hidden");
+}
+
+function confirmarEliminarImagen() {
+    if (!imagenAEliminar) return;
+
+    fetch(`${BASE_URL_GALA}?accion=borrarImagen&id=${imagenAEliminar}`)
+        .then(() => {
+            cerrarModalImagen();
+            cargarImagenesPost();
+        });
+}
+
 
 /* =========================
    GUARDAR EDICIÓN
@@ -177,3 +305,25 @@ function guardarEdicion() {
         .then(() => mostrarModalError("Edición guardada correctamente"));
 }
 
+function guardarFechaGala() {
+    const fecha = document.getElementById("fechaGala").value;
+    if (!fecha) {
+        alert("Selecciona una fecha");
+        return;
+    }
+
+    fetch(`${BASE_URL_GALA}?accion=guardarFecha`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `fecha=${fecha}`,
+        credentials: "same-origin"
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            alert("Fecha guardada");
+        } else {
+            alert(data.error);
+        }
+    });
+}

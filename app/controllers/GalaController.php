@@ -15,10 +15,23 @@ $accion = $_GET['accion'] ?? '';
    ESTADO GALA
 ========================= */
 if ($accion === 'estado') {
-    $res = $conexion->query("SELECT modo FROM gala WHERE id=1");
-    echo json_encode(['ok'=>true,'modo'=>$res->fetch_assoc()['modo']]);
+
+    $res = $conexion->query("
+        SELECT modo, fecha_edicion 
+        FROM gala 
+        WHERE id = 1
+    ");
+
+    $fila = $res->fetch_assoc();
+
+    echo json_encode([
+        'ok'    => true,
+        'modo'  => $fila['modo'],
+        'fecha' => $fila['fecha_edicion']
+    ]);
     exit;
 }
+
 
 /* =========================
    CAMBIAR MODO
@@ -37,20 +50,59 @@ if ($accion === 'cambiarModo') {
    SECCIONES PRE
 ========================= */
 if ($accion === 'crearSeccion') {
+
     $stmt = $conexion->prepare("
         INSERT INTO gala_secciones (titulo, hora, sala, descripcion)
         VALUES (?,?,?,?)
     ");
-    $stmt->bind_param("ssss",
+
+    $stmt->bind_param(
+        "ssss",
         $_POST['titulo'],
         $_POST['hora'],
         $_POST['sala'],
         $_POST['descripcion']
     );
+
     $stmt->execute();
+
     echo json_encode(['ok'=>true]);
     exit;
 }
+/* =========================
+   EDITAR SECCIÓN PRE-GALA
+========================= */
+if ($accion === 'editarSeccion') {
+
+    $id = $_POST['id'] ?? null;
+
+    if (!$id) {
+        echo json_encode(['ok'=>false,'error'=>'ID no recibido']);
+        exit;
+    }
+
+    $stmt = $conexion->prepare("
+        UPDATE gala_secciones 
+        SET titulo = ?, hora = ?, sala = ?, descripcion = ?
+        WHERE id = ?
+    ");
+
+    $stmt->bind_param(
+        "ssssi",
+        $_POST['titulo'],
+        $_POST['hora'],
+        $_POST['sala'],
+        $_POST['descripcion'],
+        $id
+    );
+
+    $stmt->execute();
+
+    echo json_encode(['ok'=>true]);
+    exit;
+}
+
+
 
 if ($accion === 'listarSecciones') {
     $res = $conexion->query("SELECT * FROM gala_secciones ORDER BY hora");
@@ -60,9 +112,33 @@ if ($accion === 'listarSecciones') {
 
 if ($accion === 'borrarSeccion') {
     $id = intval($_GET['id']);
-    $stmt = $conexion->prepare("DELETE FROM gala_secciones WHERE id_seccion=?");
+   $stmt = $conexion->prepare("DELETE FROM gala_secciones WHERE id=?");
     $stmt->bind_param("i",$id);
     $stmt->execute();
+    echo json_encode(['ok'=>true]);
+    exit;
+}
+
+/* =========================
+   GUARDAR TEXTO RESUMEN (POST-GALA)
+========================= */
+if ($accion === 'guardarResumen') {
+
+    $texto = $_POST['texto'] ?? '';
+
+    if (!$texto) {
+        echo json_encode(['ok'=>false,'error'=>'Texto vacío']);
+        exit;
+    }
+
+    $stmt = $conexion->prepare("
+        UPDATE gala 
+        SET texto_resumen = ?
+        WHERE id = 1
+    ");
+    $stmt->bind_param("s", $texto);
+    $stmt->execute();
+
     echo json_encode(['ok'=>true]);
     exit;
 }
@@ -131,5 +207,71 @@ if ($accion === 'guardarEdicion') {
     echo json_encode(['ok'=>true]);
     exit;
 }
+
+/* =========================
+   GUARDAR FECHA DE LA GALA
+========================= */
+if ($accion === 'guardarFecha') {
+
+    $fecha = $_POST['fecha'] ?? null;
+
+    if (!$fecha) {
+        echo json_encode(['ok' => false, 'error' => 'Fecha no válida']);
+        exit;
+    }
+
+    $stmt = $conexion->prepare("
+        UPDATE gala 
+        SET fecha_edicion = ? 
+        WHERE id = 1
+    ");
+    $stmt->bind_param("s", $fecha);
+    $stmt->execute();
+
+    echo json_encode(['ok' => true]);
+    exit;
+}
+/* =========================
+   GALA PÚBLICA
+========================= */
+if ($accion === 'publico') {
+
+    $gala = $conexion->query("
+        SELECT modo, texto_resumen, fecha_edicion
+        FROM gala
+        WHERE id = 1
+    ")->fetch_assoc();
+
+    if ($gala['modo'] === 'PRE') {
+
+        $secciones = $conexion->query("
+            SELECT titulo, hora, sala, descripcion
+            FROM gala_secciones
+            ORDER BY hora
+        ")->fetch_all(MYSQLI_ASSOC);
+
+        echo json_encode([
+            'ok'        => true,
+            'modo'      => 'PRE',
+            'fecha'     => $gala['fecha_edicion'],
+            'secciones' => $secciones
+        ]);
+        exit;
+    }
+
+    // POST
+    $imagenes = $conexion->query("
+        SELECT ruta FROM gala_imagenes ORDER BY id DESC
+    ")->fetch_all(MYSQLI_ASSOC);
+
+    echo json_encode([
+        'ok'       => true,
+        'modo'     => 'POST',
+        'texto'    => $gala['texto_resumen'],
+        'imagenes' => $imagenes
+    ]);
+    exit;
+}
+
 
 echo json_encode(['ok'=>false,'error'=>'Acción no válida']);
