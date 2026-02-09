@@ -1,9 +1,16 @@
 const URL_PAT = "/ProyectoIntegrador2/app/controllers/PatrocinadoresController.php";
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarPatrocinadores();
+let patrocinadorAEliminar = null;
 
-<<<<<<< HEAD
+document.addEventListener("DOMContentLoaded", () => {
+    cargarPatrocinadores();
+
+    const form = document.getElementById("formPatrocinador");
+    if (form) {
+        form.addEventListener("submit", crearPatrocinador);
+    }
+});
+
 /* =========================
    VALIDACIÓN FRONT-END
 ========================= */
@@ -19,27 +26,24 @@ function mostrarError(campo, texto) {
     error.textContent = texto;
 
     campo.classList.add("input-error", "shake");
-
     setTimeout(() => campo.classList.remove("shake"), 300);
 }
 
 function limpiarErrores(form) {
     form.querySelectorAll(".error-msg").forEach(e => e.remove());
     form.querySelectorAll(".input-error").forEach(c => c.classList.remove("input-error"));
+    const err = document.getElementById("errorPatrocinador");
+    if (err) err.innerText = "";
 }
-
 
 function validarFormularioPatrocinador(form) {
     let valido = true;
 
     const nombre = form.nombre;
-    const logo = form.logo.files[0];
+    const logoFile = form.logo?.files?.[0];
 
     limpiarErrores(form);
 
-    // ============================
-    // VALIDAR NOMBRE
-    // ============================
     if (!nombre.value.trim()) {
         mostrarError(nombre, "Este campo es obligatorio");
         valido = false;
@@ -48,15 +52,12 @@ function validarFormularioPatrocinador(form) {
         valido = false;
     }
 
-    // ============================
-    // VALIDAR LOGO
-    // ============================
-    if (!logo) {
+    if (!logoFile) {
         mostrarError(form.logo, "Debes seleccionar una imagen");
         valido = false;
     } else {
         const tiposPermitidos = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-        if (!tiposPermitidos.includes(logo.type)) {
+        if (!tiposPermitidos.includes(logoFile.type)) {
             mostrarError(form.logo, "El archivo debe ser PNG, JPG o WEBP");
             valido = false;
         }
@@ -66,156 +67,116 @@ function validarFormularioPatrocinador(form) {
 }
 
 /* =========================
-   CARGAR PATROCINADORES
+   LISTAR
 ========================= */
 function cargarPatrocinadores() {
-    fetch(`${BASE_URL_PATROCINADORES}?accion=listar`, {
-        credentials: "same-origin"
-    })
+    fetch(`${URL_PAT}?accion=listar`, { credentials: "same-origin" })
         .then(r => r.json())
         .then(data => {
             const cont = document.getElementById("listaPatrocinadores");
+            if (!cont) return;
+
             cont.innerHTML = "";
 
-            if (!data.ok || data.patrocinadores.length === 0) {
+            if (!data.ok || !data.patrocinadores || data.patrocinadores.length === 0) {
                 cont.innerHTML = "<p>No hay patrocinadores</p>";
                 return;
             }
 
             data.patrocinadores.forEach(p => {
-                cont.innerHTML += `
-                    <div class="news-card">
-                        <div>
-                            <h3>${escapeHtml(p.nombre)}</h3>
-                            <img src="../img/patrocinadores/${p.imagen}" style="width:120px;object-fit:contain;">
-                        </div>
+                const div = document.createElement("div");
+                div.className = "patro-card";
 
-                        <div class="news-actions">
-                            <button type="button" class="icon-btn delete"
-                                onclick="confirmarEliminarPatrocinador(${p.id_patrocinador})">
-                                🗑️
-                            </button>
-                        </div>
-                    </div>
+                div.innerHTML = `
+                    <img src="${p.logo}" alt="${escapeHtml(p.nombre)}">
+                    <strong>${escapeHtml(p.nombre)}</strong>
+                    <button class="icon-btn delete" onclick="confirmarEliminarPatrocinador(${p.id_patrocinador})">🗑️</button>
                 `;
+
+                cont.appendChild(div);
             });
+        })
+        .catch(() => {
+            const err = document.getElementById("errorPatrocinador");
+            if (err) err.innerText = "Error al cargar patrocinadores";
         });
-}
-
-/* =========================
-   GUARDAR PATROCINADOR
-========================= */
-document.getElementById("formPatrocinador").addEventListener("submit", e => {
-    e.preventDefault();
-
-    const form = e.target;
-
-    // VALIDACIÓN ANTES DE ENVIAR
-    if (!validarFormularioPatrocinador(form)) {
-        return;
-    }
-
-    const formData = new FormData(form);
-
-    fetch(`${BASE_URL_PATROCINADORES}?accion=guardar`, {
-        method: "POST",
-        body: formData,
-        credentials: "same-origin"
-    })
-        .then(r => r.json())
-        .then(res => {
-            if (res.ok) {
-                form.reset();
-                limpiarErrores(form);
-                cargarPatrocinadores();
-            } else {
-                alert(res.error || "Error al guardar el patrocinador");
-            }
-        });
-=======
-  const form = document.getElementById("formPatrocinador");
-  if (form) {
-    form.addEventListener("submit", crearPatrocinador);
-  }
->>>>>>> 519d238549630f9cc45ddda54dd90f4a76f6657d
-});
-
-/* =========================
-   CARGAR
-========================= */
-function cargarPatrocinadores() {
-  fetch(`${URL_PAT}?accion=listar`, { credentials: "same-origin" })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) return;
-
-      const cont = document.getElementById("listaPatrocinadores");
-      cont.innerHTML = "";
-
-      if (!data.patrocinadores.length) {
-        cont.innerHTML = "<p>No hay patrocinadores.</p>";
-        return;
-      }
-
-      data.patrocinadores.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "patro-card";
-
-        div.innerHTML = `
-          <img src="${p.logo}" alt="${p.nombre}">
-          <strong>${p.nombre}</strong>
-          <button class="icon-btn delete" onclick="eliminarPatrocinador(${p.id_patrocinador})">
-            🗑️
-          </button>
-        `;
-
-        cont.appendChild(div);
-      });
-    });
 }
 
 /* =========================
    CREAR
 ========================= */
 function crearPatrocinador(e) {
-  e.preventDefault();
+    e.preventDefault();
+    const form = e.target;
 
-  const form = e.target;
-  const fd = new FormData(form);
+    if (!validarFormularioPatrocinador(form)) return;
 
-  if (!fd.get("nombre") || !fd.get("logo").name) {
-    document.getElementById("errorPatrocinador").innerText = "Nombre e imagen obligatorios";
-    return;
-  }
+    const fd = new FormData(form);
+    fd.append("accion", "crear"); // ✅ IMPORTANTE: el controller espera "crear"
 
-  fd.append("accion", "crear");
+    fetch(URL_PAT, {
+        method: "POST",
+        credentials: "same-origin",
+        body: fd
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.ok) {
+                const err = document.getElementById("errorPatrocinador");
+                if (err) err.innerText = data.error || "Error al crear patrocinador";
+                return;
+            }
 
-  fetch(URL_PAT, {
-    method: "POST",
-    credentials: "same-origin",
-    body: fd
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        document.getElementById("errorPatrocinador").innerText = data.error;
-        return;
-      }
-
-      form.reset();
-      cargarPatrocinadores();
-    });
+            form.reset();
+            limpiarErrores(form);
+            cargarPatrocinadores();
+        })
+        .catch(() => {
+            const err = document.getElementById("errorPatrocinador");
+            if (err) err.innerText = "Error de red al crear patrocinador";
+        });
 }
 
 /* =========================
-   ELIMINAR
+   ELIMINAR (con modal genérico)
 ========================= */
-function eliminarPatrocinador(id) {
-  if (!confirm("¿Eliminar patrocinador?")) return;
+function confirmarEliminarPatrocinador(id) {
+    patrocinadorAEliminar = id;
 
-  fetch(`${URL_PAT}?accion=borrar&id=${id}`, {
-    credentials: "same-origin"
-  })
-    .then(r => r.json())
-    .then(() => cargarPatrocinadores());
+    if (typeof abrirModalConfirmacion === "function") {
+        abrirModalConfirmacion(
+            "¿Eliminar patrocinador?",
+            eliminarPatrocinadorConfirmado
+        );
+        return;
+    }
+
+    if (confirm("¿Eliminar patrocinador?")) {
+        eliminarPatrocinadorConfirmado();
+    }
+}
+
+function eliminarPatrocinadorConfirmado() {
+    if (!patrocinadorAEliminar) return;
+
+    fetch(`${URL_PAT}?accion=borrar&id=${patrocinadorAEliminar}`, {
+        credentials: "same-origin"
+    })
+        .then(r => r.json())
+        .then(() => {
+            patrocinadorAEliminar = null;
+            cargarPatrocinadores();
+        });
+}
+
+/* =========================
+   UTIL
+========================= */
+function escapeHtml(text) {
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll("'", "&#039;")
+        .replaceAll('"', "&quot;");
 }

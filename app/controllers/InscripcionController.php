@@ -14,6 +14,93 @@ function json_exit($arr)
 $accion = $_GET['accion'] ?? $_POST['accion'] ?? null;
 
 /* ======================================================
+   PUBLICO: ESTADO SESIÓN + LÍMITE INSCRIPCIONES
+   - usado por public/js/inscripcion.js
+====================================================== */
+if ($accion === 'estado') {
+    $tieneSesion = isset($_SESSION['id_usuario']);
+    $total = 0;
+
+    if ($tieneSesion) {
+        $id_usuario = intval($_SESSION['id_usuario']);
+        $stmt = $conexion->prepare("SELECT COUNT(*) AS total FROM inscripciones WHERE id_usuario=?");
+        $stmt->bind_param("i", $id_usuario);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $total = intval($row['total'] ?? 0);
+    }
+
+    json_exit([
+        'ok' => true,
+        'tieneSesion' => $tieneSesion,
+        'tipo' => $_SESSION['tipo'] ?? null,
+        'total' => $total,
+    ]);
+}
+
+/* ======================================================
+   PUBLICO: COMPROBAR DUPLICADOS
+   - usado por public/js/inscripcion.js cuando NO hay sesión
+====================================================== */
+if ($accion === 'comprobarDuplicados') {
+
+    // Si ya hay sesión, no tiene sentido comprobar duplicados de alta
+    if (isset($_SESSION['id_usuario'])) {
+        json_exit(['ok' => true]);
+    }
+
+    $usuario = trim($_POST['usuario'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $dni = trim($_POST['dni'] ?? '');
+    $expediente = trim($_POST['expediente'] ?? '');
+
+    // Flags de duplicado
+    $dupUsuario = false;
+    $dupEmail = false;
+    $dupDni = false;
+    $dupExp = false;
+
+    if ($usuario !== '') {
+        $stmt = $conexion->prepare("SELECT 1 FROM participantes WHERE usuario=? LIMIT 1");
+        $stmt->bind_param("s", $usuario);
+        $stmt->execute();
+        $dupUsuario = (bool) $stmt->get_result()->fetch_row();
+    }
+
+    // email/dni/expediente están en inscripciones
+    if ($email !== '') {
+        $stmt = $conexion->prepare("SELECT 1 FROM inscripciones WHERE email=? LIMIT 1");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $dupEmail = (bool) $stmt->get_result()->fetch_row();
+    }
+
+    if ($dni !== '') {
+        $stmt = $conexion->prepare("SELECT 1 FROM inscripciones WHERE dni=? LIMIT 1");
+        $stmt->bind_param("s", $dni);
+        $stmt->execute();
+        $dupDni = (bool) $stmt->get_result()->fetch_row();
+    }
+
+    if ($expediente !== '') {
+        $stmt = $conexion->prepare("SELECT 1 FROM inscripciones WHERE expediente=? LIMIT 1");
+        $stmt->bind_param("s", $expediente);
+        $stmt->execute();
+        $dupExp = (bool) $stmt->get_result()->fetch_row();
+    }
+
+    $ok = !($dupUsuario || $dupEmail || $dupDni || $dupExp);
+
+    json_exit([
+        'ok' => $ok,
+        'usuario' => $dupUsuario,
+        'email' => $dupEmail,
+        'dni' => $dupDni,
+        'expediente' => $dupExp,
+    ]);
+}
+
+/* ======================================================
    ORGANIZADOR: LISTAR / ACEPTAR / RECHAZAR / NOMINAR
 ====================================================== */
 if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], true)) {
@@ -90,7 +177,7 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
 }
 
 /* ======================================================
-   PARTICIPANTE: MI DETALLE (para modal en perfil)
+   PARTICIPANTE: MI DETALLE
 ====================================================== */
 if ($accion === 'mi_detalle') {
 
@@ -128,7 +215,7 @@ if ($accion === 'mi_detalle') {
 }
 
 /* ======================================================
-   PARTICIPANTE: ACTUALIZAR + REENVIAR (estado => PENDIENTE)
+   PARTICIPANTE: ACTUALIZAR + REENVIAR
 ====================================================== */
 if ($accion === 'actualizar') {
 
@@ -138,7 +225,6 @@ if ($accion === 'actualizar') {
 
     $id_usuario = intval($_SESSION['id_usuario']);
 
-    // traer la inscripción actual del usuario
     $stmt = $conexion->prepare("
         SELECT id_inscripcion, ficha, cartel
         FROM inscripciones
@@ -166,8 +252,7 @@ if ($accion === 'actualizar') {
     if ($sinopsis === '' || $email === '' || $dni === '' || $expediente === '' || $video === '') {
         json_exit(['ok' => false, 'error' => 'Rellena sinopsis, email, dni, expediente y vídeo']);
     }
-    
-    // uploads opcionales
+
     $uploadsDirAbs = realpath(__DIR__ . "/../../") . "/uploads/";
     if (!is_dir($uploadsDirAbs)) @mkdir($uploadsDirAbs, 0777, true);
 
@@ -188,7 +273,6 @@ if ($accion === 'actualizar') {
         $cartelPath = "/ProyectoIntegrador2/uploads/" . $nombre;
     }
 
-    // actualizar y reenviar => vuelve a PENDIENTE, limpia motivo
     $stmt2 = $conexion->prepare("
         UPDATE inscripciones
         SET 
@@ -227,9 +311,17 @@ if ($accion === 'actualizar') {
 ====================================================== */
 if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // si no hay sesión, crear participante (igual que ya tenías)
     if (!isset($_SESSION['id_usuario'])) {
-        // comprobar usuario duplicado
+
+        // ✅ recoger datos antes de validar
+        $usuario = trim($_POST['usuario'] ?? '');
+        $contrasena = $_POST['contrasena'] ?? '';
+
+        if ($usuario === '' || $contrasena === '') {
+            json_exit(['ok' => false, 'error' => 'Usuario y contraseña obligatorios']);
+        }
+
+        // ✅ comprobar usuario duplicado (ahora con $usuario definido)
         $stmt = $conexion->prepare("SELECT id_usuario FROM participantes WHERE usuario=?");
         $stmt->bind_param("s", $usuario);
         $stmt->execute();
@@ -237,12 +329,6 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->num_rows > 0) {
             json_exit(['ok' => false, 'error' => 'El nombre de usuario ya existe']);
-        }
-
-        $usuario = trim($_POST['usuario'] ?? '');
-        $contrasena = $_POST['contrasena'] ?? '';
-        if ($usuario === '' || $contrasena === '') {
-            json_exit(['ok' => false, 'error' => 'Usuario y contraseña obligatorios']);
         }
 
         $hash = password_hash($contrasena, PASSWORD_DEFAULT);
@@ -268,9 +354,7 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($sinopsis === '' || $email === '' || $dni === '' || $expediente === '' || $video === '') {
         json_exit(['ok' => false, 'error' => 'Datos incompletos']);
     }
-    
 
-    // uploads
     $uploadsDirAbs = realpath(__DIR__ . "/../../") . "/uploads/";
     if (!is_dir($uploadsDirAbs)) @mkdir($uploadsDirAbs, 0777, true);
 

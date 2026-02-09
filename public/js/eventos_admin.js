@@ -3,60 +3,19 @@ let eventoAEliminar = null;
 
 const BASE_URL_EVENTOS = "/ProyectoIntegrador2/app/controllers/EventoController.php";
 
-/* ============================================================
-   SISTEMA VISUAL DE ERRORES
-============================================================ */
-function mostrarError(campo, texto) {
-    let error = campo.parentNode.querySelector(".error-msg");
-
-    if (!error) {
-        error = document.createElement("small");
-        error.classList.add("error-msg");
-        campo.parentNode.appendChild(error);
-    }
-
-    error.textContent = texto;
-
-    campo.classList.add("input-error", "shake");
-    setTimeout(() => campo.classList.remove("shake"), 300);
+/* =========================
+   VALIDACIÓN FRONT-END
+========================= */
+function mostrarError(campo, mensaje) {
+    const error = campo.parentNode.querySelector(".error");
+    if (error) error.textContent = mensaje;
 }
 
 function limpiarErrores(form) {
-    form.querySelectorAll(".error-msg").forEach(e => e.remove());
-    form.querySelectorAll(".input-error").forEach(c => c.classList.remove("input-error"));
+    form.querySelectorAll(".error").forEach(e => e.textContent = "");
 }
 
-/* ============================================================
-   VALIDACIÓN EN BLUR
-============================================================ */
-document.querySelectorAll("#formEvento input, #formEvento textarea").forEach(campo => {
-    campo.addEventListener("blur", () => {
-        switch (campo.name) {
-            case "titulo":
-                if (!campo.value.trim()) mostrarError(campo, "Este campo es obligatorio");
-                else if (campo.value.trim().length < 3) mostrarError(campo, "Mínimo 3 caracteres");
-                break;
-
-            case "descripcion":
-                if (!campo.value.trim()) mostrarError(campo, "Este campo es obligatorio");
-                else if (campo.value.trim().length < 5) mostrarError(campo, "Mínimo 5 caracteres");
-                break;
-
-            case "fecha":
-                if (!campo.value) mostrarError(campo, "Este campo es obligatorio");
-                break;
-
-            case "hora":
-                if (!campo.value) mostrarError(campo, "Este campo es obligatorio");
-                break;
-        }
-    });
-});
-
-/* ============================================================
-   VALIDACIÓN COMPLETA
-============================================================ */
-async function validarFormularioEvento(form) {
+function validarFormularioEvento(form) {
     let valido = true;
 
     const titulo = form.titulo;
@@ -66,7 +25,7 @@ async function validarFormularioEvento(form) {
 
     limpiarErrores(form);
 
-    /* TÍTULO */
+    /* VALIDAR TÍTULO */
     if (!titulo.value.trim()) {
         mostrarError(titulo, "Este campo es obligatorio");
         valido = false;
@@ -75,7 +34,7 @@ async function validarFormularioEvento(form) {
         valido = false;
     }
 
-    /* DESCRIPCIÓN */
+    /* VALIDAR DESCRIPCIÓN */
     if (!descripcion.value.trim()) {
         mostrarError(descripcion, "Este campo es obligatorio");
         valido = false;
@@ -84,23 +43,21 @@ async function validarFormularioEvento(form) {
         valido = false;
     }
 
-    /* FECHA */
+    /* VALIDAR FECHA */
     if (!fecha.value) {
         mostrarError(fecha, "Este campo es obligatorio");
         valido = false;
     } else {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
-
         const fechaEvento = new Date(fecha.value + "T00:00:00");
-
         if (fechaEvento < hoy) {
             mostrarError(fecha, "La fecha no puede ser anterior a hoy");
             valido = false;
         }
     }
 
-    /* HORA */
+    /* VALIDAR HORA (08:30 - 23:00) */
     if (!hora.value) {
         mostrarError(hora, "Este campo es obligatorio");
         valido = false;
@@ -108,8 +65,8 @@ async function validarFormularioEvento(form) {
         const [h, m] = hora.value.split(":").map(Number);
         const minutos = h * 60 + m;
 
-        const minPermitido = 8 * 60 + 30; // 08:30
-        const maxPermitido = 23 * 60;     // 23:00
+        const minPermitido = 8 * 60 + 30;   // 08:30
+        const maxPermitido = 23 * 60;       // 23:00
 
         if (minutos < minPermitido || minutos > maxPermitido) {
             mostrarError(hora, "La hora debe estar entre 08:30 y 23:00");
@@ -117,27 +74,31 @@ async function validarFormularioEvento(form) {
         }
     }
 
-    /* VALIDACIÓN DE CONFLICTOS */
+    /* VALIDAR HORA SI LA FECHA ES HOY */
     if (fecha.value && hora.value) {
-        const res = await fetch(`${BASE_URL_EVENTOS}?accion=comprobarConflictos&fecha=${fecha.value}&hora=${hora.value}&id=${eventoEditando || ""}`);
-        const data = await res.json();
+        const hoy = new Date();
+        const fechaEvento = new Date(fecha.value + "T00:00:00");
 
-        if (!data.ok) {
-            mostrarError(hora, data.mensaje);
-            valido = false;
+        if (fechaEvento.toDateString() === hoy.toDateString()) {
+            const [h, m] = hora.value.split(":").map(Number);
+            const minutosEvento = h * 60 + m;
+            const minutosAhora = hoy.getHours() * 60 + hoy.getMinutes();
+
+            if (minutosEvento < minutosAhora) {
+                mostrarError(hora, "La hora no puede ser anterior a la hora actual");
+                valido = false;
+            }
         }
     }
 
     return valido;
 }
 
-/* ============================================================
+/* =========================
    CARGAR EVENTOS
-============================================================ */
+========================= */
 function cargarEventos() {
-    fetch(`${BASE_URL_EVENTOS}?accion=listar`, {
-        credentials: "same-origin"
-    })
+    fetch(`${BASE_URL_EVENTOS}?accion=listar`, { credentials: "same-origin" })
         .then(r => r.json())
         .then(data => {
             const cont = document.getElementById("listaEventos");
@@ -149,12 +110,15 @@ function cargarEventos() {
             }
 
             data.eventos.forEach(e => {
+                // ✅ FIX: MySQL devuelve TIME como "HH:MM:SS"
+                const horaHHMM = (e.hora || "").toString().substring(0, 5);
+
                 cont.innerHTML += `
                     <div class="news-card">
                         <div>
                             <h3>${escapeHtml(e.titulo)}</h3>
                             <p>${escapeHtml(e.descripcion)}</p>
-                            <small>${e.fecha} · ${e.hora}</small>
+                            <small>${e.fecha} · ${horaHHMM}</small>
                         </div>
 
                         <div class="news-actions">
@@ -164,7 +128,7 @@ function cargarEventos() {
                                     '${escapeHtml(e.titulo)}',
                                     '${escapeHtml(e.descripcion)}',
                                     '${e.fecha}',
-                                    '${e.hora}'
+                                    '${horaHHMM}'
                                 )">
                                 ✏️
                             </button>
@@ -180,9 +144,9 @@ function cargarEventos() {
         });
 }
 
-/* ============================================================
+/* =========================
    FORMULARIO
-============================================================ */
+========================= */
 function mostrarFormularioEvento() {
     const form = document.getElementById("formEvento");
     form.reset();
@@ -199,31 +163,31 @@ function ocultarFormularioEvento() {
     eventoEditando = null;
 }
 
-/* ============================================================
-   EDITAR
-============================================================ */
+/* =========================
+   EDITAR EVENTO
+========================= */
 function editarEvento(id, titulo, descripcion, fecha, hora) {
     eventoEditando = id;
 
     document.querySelector("#formEvento [name='titulo']").value = titulo;
     document.querySelector("#formEvento [name='descripcion']").value = descripcion;
     document.querySelector("#formEvento [name='fecha']").value = fecha;
+
+    // ✅ hora llega ya en HH:MM (no HH:MM:SS)
     document.querySelector("#formEvento [name='hora']").value = hora;
 
     document.getElementById("formEvento").style.display = "block";
 }
 
-/* ============================================================
-   GUARDAR
-============================================================ */
-document.getElementById("formEvento").addEventListener("submit", async e => {
+/* =========================
+   GUARDAR EVENTO (con validación)
+========================= */
+document.getElementById("formEvento").addEventListener("submit", e => {
     e.preventDefault();
 
     const form = e.target;
 
-    if (!(await validarFormularioEvento(form))) {
-        return;
-    }
+    if (!validarFormularioEvento(form)) return;
 
     const formData = new FormData(form);
     let url = `${BASE_URL_EVENTOS}?accion=crear`;
@@ -244,26 +208,31 @@ document.getElementById("formEvento").addEventListener("submit", async e => {
                 ocultarFormularioEvento();
                 cargarEventos();
             } else {
+                // si quieres, lo cambiamos a tu modal de error
                 alert(res.error || "Error al guardar el evento");
             }
         });
 });
 
-<<<<<<< HEAD
-/* ============================================================
-   BORRAR
-============================================================ */
-=======
 /* =========================
    MODAL BORRAR EVENTO (GENÉRICO)
 ========================= */
->>>>>>> 519d238549630f9cc45ddda54dd90f4a76f6657d
 function confirmarEliminarEvento(id) {
     eventoAEliminar = id;
-    abrirModalConfirmacion(
-        "¿Estás seguro de que quieres eliminar este evento?",
-        eliminarEventoConfirmado
-    );
+
+    // ✅ Usa tu modal genérico si existe (panel_organizador.js)
+    if (typeof abrirModalConfirmacion === "function") {
+        abrirModalConfirmacion(
+            "¿Estás seguro de que quieres eliminar este evento?",
+            eliminarEventoConfirmado
+        );
+        return;
+    }
+
+    // fallback
+    if (confirm("¿Estás seguro de que quieres eliminar este evento?")) {
+        eliminarEventoConfirmado();
+    }
 }
 
 function eliminarEventoConfirmado() {
@@ -283,11 +252,11 @@ function eliminarEventoConfirmado() {
         });
 }
 
-/* ============================================================
+/* =========================
    UTIL
-============================================================ */
+========================= */
 function escapeHtml(text) {
-    return text
+    return String(text)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
