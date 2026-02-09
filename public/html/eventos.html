@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Eventos</title>
+
+<link rel="stylesheet"
+ href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<link rel="stylesheet" href="../css/calendario.css">
+</head>
+
+<body>
+
+<header class="ue-header">
+    <div class="main-nav">
+        <div class="logo">
+            <a href="../index.php">
+                <img src="../img/logo_uem.png" alt="Universidad Europea">
+            </a>
+        </div>
+
+        <nav class="nav-links">
+            <a href="noticias.html">Noticias</a>
+            <a href="eventos.html">Eventos</a>
+            <a href="premios.html">Premios</a>
+            <a href="gala.html">Gala</a>
+            <a href="ediciones.html">Ediciones anteriores</a>
+            <a href="inscripcion.html">Inscripción</a>
+
+            <select id="login">
+                <option value="" selected disabled hidden>👤 Entrar</option>
+                <option value="participante">Participante</option>
+                <option value="organizador">Organizador</option>
+            </select>
+        </nav>
+    </div>
+</header>
+
+<div id="calendar"></div>
+
+<div id="popup" class="popup hidden">
+  <div class="popup-content">
+    <span onclick="cerrarPopup()">✖</span>
+    <h3 id="popupTitulo"></h3>
+    <div id="popupEventos"></div>
+  </div>
+</div>
+
+<!-- =========================================================
+     FOOTER UNIVERSIDAD EUROPEA – CORPORATIVO
+========================================================= -->
+<footer class="ue-footer">
+    <div class="ue-footer-top">
+
+        <div class="ue-footer-logo">
+            <img src="../img/logo_uem.png" alt="Universidad Europea">
+        </div>
+
+        <div class="ue-footer-columns">
+
+            <div class="ue-footer-col">
+                <h3>Festival</h3>
+                <ul>
+                    <li><a href="noticias.html">Noticias</a></li>
+                    <li><a href="eventos.html">Eventos</a></li>
+                    <li><a href="premios.html">Premios</a></li>
+                    <li><a href="gala.html">Gala</a></li>
+                    <li><a href="ediciones.html">Ediciones anteriores</a></li>
+                </ul>
+            </div>
+
+            <div class="ue-footer-col">
+                <h3>Contacto</h3>
+                <ul>
+                    <li><a>Email: festival@universidadeuropea.es</a></li>
+                    <li><a>Tel: +34 91 740 72 72</a></li>
+                    <li><a>Campus de Villaviciosa de Odón</a></li>
+                </ul>
+            </div>
+
+            <div class="ue-footer-col">
+                <h3>Patrocinadores</h3>
+                <div class="patrocinadores-grid">
+                    <!-- Aquí puedes cargar logos dinámicos si quieres -->
+                    <img src="../img/patro1.png" alt="Patrocinador">
+                    <img src="../img/patro2.png" alt="Patrocinador">
+                </div>
+            </div>
+
+            <div class="ue-footer-col">
+    <h3>Síguenos</h3>
+    <div class="social-icons">
+
+        <!-- Facebook – Logo PNG -->
+        <!-- Aquí va el logo de Facebook en PNG -->
+        <a href="https://www.facebook.com/UniversidadEuropea" target="_blank">
+            <img src="../img/footer/logo-de-facebook.png" alt="Facebook">
+        </a>
+
+        <!-- Instagram – Logo PNG -->
+        <!-- Aquí va el logo de Instagram en PNG -->
+        <a href="https://www.instagram.com/universidadeuropea" target="_blank">
+            <img src="../img/footer/instagram.png" alt="Instagram">
+        </a>
+
+        <!-- YouTube – Logo PNG -->
+        <!-- Aquí va el logo de YouTube en PNG -->
+        <a href="https://www.youtube.com/user/UniversidadEuropea" target="_blank">
+            <img src="../img/footer/youtube.png" alt="YouTube">
+        </a>
+
+        <!-- Linkedin – Logo PNG -->
+        <!-- Aquí va el logo de Linkedin en PNG -->
+         <a href="https://www.linkedin.com/school/universidad-europea-de-madrid/posts/?feedView=all">
+            <img src="../img/footer/linkedin.png" mode="">
+         </a>
+
+        <!-- X (Twitter) – Logo PNG -->
+        <!-- Aquí va el logo de X/Twitter en PNG -->
+        <a href="https://twitter.com/UEuropea" target="_blank">
+            <img src="../img/footer/twitter.png" alt="X (Twitter)">
+        </a>
+
+    </div>
+</div>
+
+
+        </div>
+    </div>
+
+    <div class="ue-footer-bottom">
+        <p>© Universidad Europea – Festival Universitario de Cortometrajes</p>
+    </div>
+</footer>
+
+<script src="../js/calendario.js"></script>
+<script src="../js/login_1.js"></script>
+</body>
+</html>

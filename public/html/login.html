@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Acceso</title>
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+
+<div class="login-container">
+    
+    <a href="../index.php" class="btn-cerrar">✖</a>
+    <h2 id="tituloLogin">Acceso</h2>
+    <form id="loginForm">
+        <div class="campo">
+            <input type="text" name="usuario" placeholder="Usuario">
+            <small class="error"></small>
+        </div>
+
+        <div class="campo">
+            <input type="password" name="contrasena" placeholder="Contraseña">
+            <small class="error"></small>
+        </div>
+
+        <!-- 🔑 tipo viene por URL -->
+        <input type="hidden" name="tipo" id="tipo">
+
+        <button type="submit">Entrar</button>
+        <p id="mensaje"></p>
+    </form>
+</div>
+
+<script src="../js/login.js"></script>
+</body>
+</html>

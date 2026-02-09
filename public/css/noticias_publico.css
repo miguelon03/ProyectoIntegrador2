@@ -1,0 +1,261 @@
+@import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
+
+/* =========================
+   HEADER
+========================= */
+.ue-header {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;
+    margin-top: 0px;
+}
+
+.main-nav {
+    max-width: 1200px;
+    margin: auto;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 64px;
+}
+
+.nav-links a,
+.nav-links select {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #1E1E1E;
+    font-weight: bold;
+}
+
+.nav-links select {
+    border: none;
+}
+
+body {
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    background: #f4f4f4;
+}
+
+/* =========================
+   CARRUSEL DE NOTICIAS
+========================= */
+.news-carousel {
+    position: relative;
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 60px 110px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.12);
+}
+
+.carousel-viewport {
+    overflow: hidden;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.6s ease;
+}
+
+.news-slide {
+    min-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+}
+
+.news-text h2 {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+}
+
+.news-image img {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: #c8102e;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 8px 20px rgba(0,0,0,.25);
+}
+
+.carousel-btn.prev {
+    left: 30px;
+}
+
+.carousel-btn.next {
+    right: 30px;
+}
+
+.carousel-btn:hover {
+    background: #a50d26;
+}
+
+/* =========================
+   RESPONSIVE CARRUSEL
+========================= */
+@media (max-width: 768px) {
+    .news-carousel {
+        padding: 40px 20px;
+    }
+
+    .news-slide {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .carousel-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+    }
+}
+
+/* =========================================================
+   FOOTER UNIVERSIDAD EUROPEA – CORPORATIVO
+========================================================= */
+
+.ue-footer {
+    background: #000;
+    color: #fff;
+    margin-top: 60px;
+    padding-top: 40px;
+}
+
+.ue-footer-top {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 20px 40px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+/* LOGO UE — SIN FILTRO */
+.ue-footer-logo img {
+    height: 60px;
+    object-fit: contain;
+    filter: none;
+}
+
+/* GRID PRINCIPAL */
+.ue-footer-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 40px;
+}
+
+.ue-footer-col h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.ue-footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ue-footer-col ul li {
+    margin-bottom: 8px;
+}
+
+.ue-footer-col ul li a {
+    color: #ccc;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.ue-footer-col ul li a:hover {
+    color: #ff3228;
+}
+
+/* ICONOS REDES SOCIALES — CON FILTRO */
+.social-icons {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.social-icons img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+    transition: 0.2s;
+}
+
+.social-icons img:hover {
+    transform: scale(1.15);
+    filter: brightness(0) invert(1) drop-shadow(0 0 4px #ff3228);
+}
+
+/* PATROCINADORES */
+.patrocinadores-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.patrocinadores-grid img {
+    height: 40px;
+    background: #fff;
+    padding: 6px;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+/* COPYRIGHT */
+.ue-footer-bottom {
+    text-align: center;
+    padding: 20px;
+    background: #111;
+    font-size: 14px;
+    color: #bbb;
+}
+
+/* =========================================================
+   RESPONSIVE FOOTER — ORDEN PERSONALIZADO
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .ue-footer-columns {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    /* Orden personalizado */
+    .ue-footer-logo { order: 1; }
+    .ue-footer-col:nth-child(4) { order: 2; } /* Síguenos */
+    .ue-footer-col:nth-child(3) { order: 3; } /* Patrocinadores */
+    .ue-footer-col:nth-child(1) { order: 4; } /* Festival */
+    .ue-footer-col:nth-child(2) { order: 5; } /* Contacto */
+
+    .social-icons img {
+        width: 32px;
+        height: 32px;
+    }
+}

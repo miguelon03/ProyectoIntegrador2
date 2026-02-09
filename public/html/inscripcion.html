@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscripción</title>
+    <link rel="stylesheet" href="../css/inscripcion.css">
+</head>
+
+<body>
+
+<div class="form-container">
+    <a href="../index.php" class="btn-cerrar">✖</a>
+
+    <h1 id="titulo">Inscripción al concurso</h1>
+
+    <form id="formInscripcion" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label>Ficha técnico-artística</label>
+            <input type="file" name="ficha" required>
+        </div>
+
+        <div class="form-group">
+            <label>Cartel</label>
+            <input type="file" name="cartel" required>
+        </div>
+
+        <div class="form-group">
+            <label>Sinopsis</label>
+            <textarea name="sinopsis" required></textarea>
+        </div>
+
+        <!-- SOLO SI NO HAY SESIÓN -->
+        <div id="datosUsuario">
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" name="usuario">
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="contrasena">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email">
+            </div>
+
+            <div class="form-group">
+                <label>DNI</label>
+                <input type="text" name="dni">
+            </div>
+
+            <div class="form-group">
+                <label>Nº Expediente</label>
+                <input type="text" name="expediente">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Vídeo (enlace)</label>
+            <input type="url" name="video" required>
+        </div>
+
+        <button type="submit" class="btn-submit">
+            Enviar inscripción
+        </button>
+
+        <p id="mensaje" class="error"></p>
+    </form>
+</div>
+
+<script src="../js/inscripcion.js"></script>
+</body>
+</html>

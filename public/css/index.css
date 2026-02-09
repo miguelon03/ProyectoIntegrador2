@@ -1,0 +1,161 @@
+@import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+    color: #1E1E1E;
+}
+
+.ue-header {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.main-nav {
+    max-width: 1400px;
+    margin: auto;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 64px;
+}
+
+.nav-links a,
+.nav-links select {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #1E1E1E;
+    font-weight: bold;
+}
+
+.nav-links select {
+    border: none;
+}
+
+.content {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+.hero {
+    min-height: 80vh;
+
+    background:
+        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+        url("../img/hero.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    color: white;
+
+    padding-left: 80px;
+    padding-right: 80px;
+
+    /* 🔑 centrado vertical "manual" */
+    padding-top: calc(40vh - 120px);
+    padding-bottom: 60px;
+}
+
+
+
+
+.hero-content {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;          /* 👈 IZQUIERDA */
+    text-align: left;                 /* 👈 TEXTO A LA IZQUIERDA */
+
+    max-width: 900px;
+}
+
+
+.hero h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+
+.btn-principal {
+    background: #ff3228;
+    color:white;
+    padding: 12px 25px;
+    font-weight: bold;
+    text-decoration: none;
+}
+.btn-principal:hover{
+    background: white;
+    color:#ff3228;
+}
+
+.bloques {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+}
+
+.bloque {
+    background: white;
+    padding: 25px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+.bloque h2 {
+    margin-bottom: 10px;
+}
+
+.bloque a {
+    display: inline-block;
+    margin-top: 10px;
+    color: #ff3228;
+    font-weight: bold;
+}
+/* Modal genérico */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.modal {
+  background: #fff;
+  padding: 18px;
+  border-radius: 8px;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+}
+.modal .close {
+  float: right;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Error debajo del campo */
+.field-error {
+  color: #c00;
+  font-size: 0.9rem;
+  margin-top: 4px;
+  display: block;
+}

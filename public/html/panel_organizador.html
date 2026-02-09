@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Panel Organizador</title>
+    <link rel="stylesheet" href="../css/panel_organizador.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+
+<body>
+
+    <header class="ue-header">
+        <div class="main-nav">
+            <div class="logo">
+                <img src="../img/logo_uem.png" alt="Universidad Europea">
+            </div>
+
+            <!-- BOTÓN HAMBURGUESA -->
+            <button class="menu-toggle" id="menuToggle">☰</button>
+
+            <nav class="nav-links" id="navLinks">
+                <button class="nav-item" onclick="mostrarSeccion('candidaturas')">Candidaturas</button>
+                <button class="nav-item" onclick="mostrarSeccion('eventos')">Eventos</button>
+                <button class="nav-item" onclick="mostrarSeccion('noticias')">Noticias</button>
+                <button class="nav-item" onclick="mostrarSeccion('premios')">Premios</button>
+                <button class="nav-item" onclick="mostrarSeccion('patrocinadores')">Patrocinadores</button>
+                <button class="nav-item" onclick="mostrarSeccion('gala')">Gala</button>
+                <a href="../../logout.php" class="nav-item logout">Cerrar sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="content">
+
+        <h1>Panel de Organizador</h1>
+
+        <!-- ================= CANDIDATURAS ================= -->
+        <section id="candidaturas" class="activa">
+            <h2>Gestión de Candidaturas</h2>
+            <div id="listaCandidaturas"></div>
+        </section>
+
+        <!-- ================= EVENTOS ================= -->
+        <section id="eventos">
+            <h2>Gestión de Eventos</h2>
+
+            <button class="button" onclick="mostrarFormularioEvento()">Añadir evento</button>
+
+            <form id="formEvento" style="display:none;margin-top:20px;">
+                <div class="campo">
+                    <label>Título</label>
+                    <input type="text" name="titulo">
+                    <small class="error"></small>
+                </div>
+
+                <div class="campo">
+                    <label>Descripción</label>
+                    <textarea name="descripcion"></textarea>
+                    <small class="error"></small>
+                </div>
+
+                <div class="campo">
+                    <label>Fecha</label>
+                    <input type="date" name="fecha">
+                    <small class="error"></small>
+                </div>
+
+                <div class="campo">
+                    <label>Hora</label>
+                    <input type="time" name="hora">
+                    <small class="error"></small>
+                </div>
+
+                <button class="button" type="submit">Guardar evento</button>
+                <button class="button" type="button" onclick="ocultarFormularioEvento()">Cancelar</button>
+                <p id="errorEvento" class="error"></p>
+            </form>
+
+            <div id="listaEventos"></div>
+        </section>
+
+        <!-- ================= NOTICIAS ================= -->
+        <section id="noticias">
+            <h2>Gestión de Noticias</h2>
+
+            <button class="button" onclick="mostrarFormularioNoticia()">Añadir noticia</button>
+
+            <form id="formNoticia" style="display:none;margin-top:20px;">
+                <div class="campo">
+                    <label>Título</label>
+                    <input type="text" name="titulo">
+                    <small class="error"></small>
+                </div>
+
+                <div class="campo">
+                    <label>Descripción</label>
+                    <textarea name="descripcion"></textarea>
+                    <small class="error"></small>
+                </div>
+
+                <button class="button" type="submit">Guardar noticia</button>
+                <button class="button" type="button" onclick="ocultarFormularioNoticia()">Cancelar</button>
+                <p id="errorNoticia" class="error"></p>
+            </form>
+
+            <div id="listaNoticias"></div>
+        </section>
+
+        <!-- ================= PREMIOS ================= -->
+        <section id="premios">
+            <h2>Gestión de Premios</h2>
+
+            <form id="formPremio">
+                <div class="campo">
+                    <input type="text" name="nombre" placeholder="Nombre de la categoría" required>
+                </div>
+                <button type="submit" class="button">Crear categoría</button>
+            </form>
+
+            <div id="listaPremios"></div>
+
+            <h3>Asignar premios</h3>
+            <select id="categoriaSelect"></select>
+            <select id="nominadoSelect"></select>
+
+            <select id="puestoSelect">
+                <option value="PRIMERO">Primer premio</option>
+                <option value="SEGUNDO">Segundo premio</option>
+            </select>
+
+            <button class="button" onclick="asignarPremio()">Asignar</button>
+        </section>
+
+        <!-- ================= PATROCINADORES ================= -->
+        <section id="patrocinadores">
+            <h2>Gestión de Patrocinadores</h2>
+
+            <form id="formPatrocinador" enctype="multipart/form-data">
+                <div class="campo">
+                    <input type="text" name="nombre" placeholder="Nombre patrocinador">
+                    <small class="error"></small>
+                </div>
+
+                <div class="campo">
+                    <input type="file" name="logo">
+                    <small class="error"></small>
+                </div>
+
+                <button class="button" type="submit">Guardar patrocinador</button>
+                <p id="errorPatrocinador" class="error"></p>
+            </form>
+
+            <div id="listaPatrocinadores"></div>
+        </section>
+
+        <!-- ================= GALA ================= -->
+        <section id="gala">
+            <h2>Gestión de Gala</h2>
+            <div style="margin-bottom:20px;">
+                <strong>Modo actual:</strong> <span id="modoActual"></span>
+                <button class="button" onclick="cambiarModo()">Cambiar modo</button>
+            </div>
+
+            <div id="galaPre">
+                <h3>Pre-evento: Secciones</h3>
+                <button class="button" onclick="mostrarFormSeccion()">Añadir sección</button>
+
+                <form id="formSeccion" style="display:none;margin-top:15px;">
+                    <input type="text" name="titulo" placeholder="Título" required>
+                    <input type="time" name="hora" required>
+                    <input type="text" name="sala" placeholder="Sala" required>
+                    <textarea name="descripcion" placeholder="Descripción" required></textarea>
+                    <button class="button" type="submit">Guardar sección</button>
+                    <button class="button" type="button" onclick="ocultarFormSeccion()">Cancelar</button>
+                </form>
+
+                <div id="listaSecciones"></div>
+            </div>
+
+            <div id="galaPost" style="display:none;">
+                <h3>Post-evento</h3>
+
+                <h4>Texto resumen</h4>
+                <form id="formResumen">
+                    <textarea name="texto" rows="5" required></textarea>
+                    <button class="button" type="submit">Guardar resumen</button>
+                </form>
+
+                <h4>Galería de imágenes</h4>
+                <form id="formImagen" enctype="multipart/form-data">
+                    <input type="file" name="imagen" accept="image/*" required>
+                    <button class="button" type="submit">Subir imagen</button>
+                </form>
+
+                <h4>Edición final</h4>
+                <button class="button" onclick="guardarEdicion()">Añadir a ediciones anteriores</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modales (si los usas) -->
+    <div id="modalRechazo" class="modal hidden">
+        <div class="modal-content">
+            <span class="modal-close" onclick="cerrarModalRechazo()">✖</span>
+            <h3>Rechazar candidatura</h3>
+            <textarea id="motivoRechazo" placeholder="Escribe el motivo del rechazo"></textarea>
+            <div class="modal-actions">
+                <button class="button" onclick="cerrarModalRechazo()">Cancelar</button>
+                <button class="button btn-danger" onclick="confirmarRechazo()">Rechazar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts: ORDEN IMPORTANTE -->
+    <script src="../js/panel_organizador.js"></script>
+    <script src="../js/candidaturas.js"></script>
+    <script src="../js/eventos_admin.js"></script>
+    <script src="../js/noticias_admin.js"></script>
+    <script src="../js/patrocinadores.js"></script>
+    <script src="../js/premios.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Festival de Cortos – Universidad Europea</title>
+    <link rel="stylesheet" href="../css/index.css">
+</head>
+
+<body>
+
+<header class="ue-header">
+    <div class="main-nav">
+        <div class="logo">
+            <a href="index.php">
+                <img src="../img/logo_uem.png" alt="Universidad Europea">
+            </a>
+        </div>
+
+        <nav class="nav-links">
+            <a href="noticias.html">Noticias</a>
+            <a href="eventos.html">Eventos</a>
+            <a href="premios.html">Premios</a>
+            <a href="gala.html">Gala</a>
+            <a href="ediciones.html">Ediciones anteriores</a>
+            <a href="inscripcion.html">Inscripción</a>
+            <a href="../../logout.php" class="nav-item logout">Cerrar sesión</a>
+        </nav>
+    </div>
+</header>
+
+<main class="content">
+
+    <section class="hero">
+        <h1>Festival Universitario de Cortometrajes</h1>
+        <p>
+            Bienvenido al festival anual de cortos de la Universidad Europea.
+            Descubre las mejores candidaturas, eventos, premios y galas.
+        </p>
+        <a href="inscripcion.html" class="btn-principal">
+            Sube tu corto
+        </a>
+    </section>
+
+    <section class="bloques">
+        <div class="bloque">
+            <h2>Noticias</h2>
+            <p>Últimas novedades del festival.</p>
+            <a href="noticias.html">Ver noticias</a>
+        </div>
+
+        <div class="bloque">
+            <h2>Eventos</h2>
+            <p>Consulta el calendario completo.</p>
+            <a href="eventos.html">Ver eventos</a>
+        </div>
+
+        <div class="bloque">
+            <h2>Premios</h2>
+            <p>Categorías y galardones.</p>
+            <a href="premios.html">Ver premios</a>
+        </div>
+    </section>
+
+</main>
+<div id="modalGlobal" class="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <span id="modalClose" class="close">✖</span>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script src="js/index.js"></script>
+<script src="../js/session.js"></script>
+
+</body>
+</html>

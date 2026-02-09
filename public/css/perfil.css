@@ -1,0 +1,99 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f4f4;
+}
+
+.ue-header {
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.main-nav {
+    max-width: 1200px;
+    margin: auto;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-nav nav a {
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #222;
+}
+
+.logo {
+    height: 50px;
+}
+
+.perfil-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.perfil-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.1);
+    margin-bottom: 30px;
+}
+
+.perfil-card h1,
+.perfil-card h2 {
+    margin-top: 0;
+}
+
+.perfil-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.perfil-card li {
+    margin-bottom: 10px;
+}
+
+.candidatura-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #fafafa;
+}
+
+.candidatura-card a {
+    color: #b30000;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.candidatura-card a:hover {
+    text-decoration: underline;
+}
+
+.estado {
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: #fff;
+}
+
+.estado.pendiente {
+    background: #ff9800;
+}
+
+.estado.aceptado {
+    background: #4caf50;
+}
+
+.estado.rechazado {
+    background: #f44336;
+}
+
+.estado.nominado {
+    background: #673ab7;
+}

@@ -1,0 +1,604 @@
+@import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
+
+/* =========================
+   VARIABLES UE
+   ========================= */
+:root {
+    --ue-red: #c8102e;
+    --ue-red-dark: #a50d26;
+    --ue-dark: #1f1f1f;
+    --ue-gray: #f4f4f4;
+    --ue-white: #ffffff;
+    --ue-text: #333333;
+    --ue-border: #dddddd;
+    --ue-font: 'Hellix', Helvetica, Arial, sans-serif;
+    ;
+}
+
+/* =========================
+   RESET
+   ========================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+    min-height: 14px;
+}
+
+body {
+    font-family: var(--ue-font);
+    background-color: var(--ue-gray);
+    color: var(--ue-text);
+}
+
+/* =========================
+   HEADER
+   ========================= */
+.ue-header {
+    background-color: var(--ue-white);
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.main-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 25px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LOGO */
+.logo img {
+    height: 48px;
+}
+
+/* =========================
+   NAV LINKS + BUTTONS
+   ========================= */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+}
+
+/* Estilo común para <a> y <button> */
+.nav-links .nav-item {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ue-dark);
+
+    cursor: pointer;
+    position: relative;
+    text-decoration: none;
+}
+
+/* Subrayado animado */
+.nav-links .nav-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0%;
+    height: 2px;
+    background-color: var(--ue-red);
+    transition: width 0.25s ease;
+}
+
+.nav-links .nav-item:hover::after {
+    width: 100%;
+}
+
+.nav-links .nav-item:hover {
+    color: var(--ue-red);
+}
+
+/* Evitar focus feo */
+.nav-links button.nav-item:focus {
+    outline: none;
+}
+
+/* Logout opcional */
+.nav-links .logout {
+    color: var(--ue-red);
+}
+
+/* =========================
+   BOTÓN HAMBURGUESA
+   ========================= */
+.menu-toggle {
+    display: none;
+    font-size: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ue-dark);
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width: 900px) {
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-links {
+        position: absolute;
+        top: 85px;
+        right: 20px;
+
+        background: var(--ue-white);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+
+        padding: 20px 25px;
+        display: none;
+        z-index: 1000;
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links .nav-item {
+        font-size: 17px;
+    }
+}
+
+/* =========================
+   CONTENIDO PRINCIPAL
+   ========================= */
+.content {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 35px;
+    background-color: var(--ue-white);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.content h1 {
+    margin-bottom: 25px;
+    color: var(--ue-dark);
+}
+
+/* =========================
+   MENÚ INTERNO ORGANIZADOR
+   ========================= */
+.admin-menu {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+}
+
+.admin-menu button {
+    padding: 10px 18px;
+}
+
+/* =========================
+   SECCIONES
+   ========================= */
+section {
+    display: none;
+}
+
+section.activa {
+    display: block;
+}
+
+section h2 {
+    margin-bottom: 20px;
+    color: var(--ue-dark);
+}
+
+section h3 {
+    margin: 20px 0 10px;
+}
+
+/* =========================
+   FORMULARIOS
+   ========================= */
+form {
+    margin-top: 15px;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+textarea,
+input[type="file"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid var(--ue-border);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--ue-red);
+    box-shadow: 0 0 0 2px rgba(200, 16, 46, 0.2);
+}
+
+/* =========================
+   BOTONES UE
+   ROJO → BLANCO AL HOVER
+   ========================= */
+.button {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    border: 2px solid var(--ue-red);
+    cursor: pointer;
+    margin-right: 8px;
+    background-color: var(--ue-red);
+    color: var(--ue-white);
+    transition: background-color 0.3s ease,
+        color 0.3s ease,
+        transform 0.15s ease;
+}
+
+.button:hover {
+    background-color: var(--ue-white);
+    color: var(--ue-red);
+    transform: translateY(-1px);
+}
+
+/* Botones secundarios (Cancelar, etc.) */
+button[type="button"] {
+    background-color: #777;
+    border-color: #777;
+    color: var(--ue-white);
+}
+
+button[type="button"]:hover {
+    background-color: var(--ue-white);
+    color: #777;
+}
+
+/* =========================
+   LISTADOS
+   ========================= */
+#listaNoticias,
+#listaEventos,
+#listaCategorias,
+#listaGanadores,
+#listaPatrocinadores,
+#listaSecciones {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid var(--ue-border);
+}
+
+/* =========================
+   ERRORES
+   ========================= */
+.error,
+#errorGeneral,
+#errorEvento,
+#errorCategoria {
+    color: var(--ue-red);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================
+   GALA
+   ========================= */
+#galaPre,
+#galaPost {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid var(--ue-border);
+    background-color: #fafafa;
+}
+
+/* =========================
+   RESPONSIVE
+   ========================= */
+@media (max-width: 900px) {
+
+
+    .content {
+        margin: 20px;
+        padding: 25px;
+    }
+}
+
+/* =========================
+   TARJETA EVENTO
+   ========================= */
+.event-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding: 18px;
+    margin-bottom: 15px;
+
+    background: #ffffff;
+    border: 1px solid #ddd;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.event-info h3 {
+    margin-bottom: 6px;
+}
+
+.event-info p {
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.event-info small {
+    color: #777;
+}
+
+/* =========================
+   ACCIONES
+   ========================= */
+.event-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botón icono base */
+.icon-btn {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+
+    background: #f0f0f0;
+    color: #333;
+
+    transition: background 0.25s ease,
+        color 0.25s ease,
+        transform 0.15s ease;
+}
+
+.icon-btn i {
+    font-size: 14px;
+}
+
+/* Hover general */
+.icon-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* EDITAR */
+.icon-btn.edit {
+    background: rgba(200, 16, 46, 0.12);
+    color: #ff3228;
+}
+
+.icon-btn.edit:hover {
+    background: #ff3228;
+    color: #ffffff;
+}
+
+/* BORRAR */
+.icon-btn.delete {
+    background: rgba(0, 0, 0, 0.08);
+    color: #444;
+}
+
+.icon-btn.delete:hover {
+    background: #333;
+    color: #ffffff;
+}
+
+/* =========================
+   NOTICIAS
+========================= */
+.news-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 18px;
+    margin-bottom: 15px;
+
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.news-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.icon-btn {
+    border: none;
+    background: #f4f4f4;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.icon-btn.edit:hover {
+    background: #e3f2fd;
+}
+
+.icon-btn.delete:hover {
+    background: #fdecea;
+}
+
+/* =========================
+   MODAL
+========================= */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #ffffff;
+    padding: 25px;
+    width: 400px;
+    max-width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, .25);
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #ff3228;
+}
+
+/* =========================
+   ACCIONES DEL MODAL
+========================= */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+/* Botón cancelar */
+.btn-secondary {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+
+    background: #f1f1f1;
+    color: #333;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+
+    transition: background 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.15s ease;
+}
+
+.btn-secondary:hover {
+    background: #e6e6e6;
+    border-color: #bbb;
+    transform: translateY(-1px);
+}
+
+/* Botón eliminar (principal) */
+.btn-danger {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 700;
+
+    background: #c8102e;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+
+    transition: background 0.25s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.btn-danger:hover {
+    background: #a50d26;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(200, 16, 46, 0.35);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+/* Estilo del modal */
+.modal {
+    display: none; /* Inicialmente oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    z-index: 1000; /* Asegurarse de que esté encima de otros elementos */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 80%;
+    text-align: center;
+}
+
+/* Botón de cerrar */
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* Título del error */
+#modalErrorMessage {
+    font-size: 18px;
+    color: #ff4d4d; /* Color rojo para el error */
+}
