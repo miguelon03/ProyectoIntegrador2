@@ -15,7 +15,6 @@ $accion = $_GET['accion'] ?? $_POST['accion'] ?? null;
 
 /* ======================================================
    PUBLICO: ESTADO SESIÓN + LÍMITE INSCRIPCIONES
-   - usado por public/js/inscripcion.js
 ====================================================== */
 if ($accion === 'estado') {
     $tieneSesion = isset($_SESSION['id_usuario']);
@@ -40,11 +39,9 @@ if ($accion === 'estado') {
 
 /* ======================================================
    PUBLICO: COMPROBAR DUPLICADOS
-   - usado por public/js/inscripcion.js cuando NO hay sesión
 ====================================================== */
 if ($accion === 'comprobarDuplicados') {
 
-    // Si ya hay sesión, no tiene sentido comprobar duplicados de alta
     if (isset($_SESSION['id_usuario'])) {
         json_exit(['ok' => true]);
     }
@@ -54,7 +51,6 @@ if ($accion === 'comprobarDuplicados') {
     $dni = trim($_POST['dni'] ?? '');
     $expediente = trim($_POST['expediente'] ?? '');
 
-    // Flags de duplicado
     $dupUsuario = false;
     $dupEmail = false;
     $dupDni = false;
@@ -67,7 +63,6 @@ if ($accion === 'comprobarDuplicados') {
         $dupUsuario = (bool) $stmt->get_result()->fetch_row();
     }
 
-    // email/dni/expediente están en inscripciones
     if ($email !== '') {
         $stmt = $conexion->prepare("SELECT 1 FROM inscripciones WHERE email=? LIMIT 1");
         $stmt->bind_param("s", $email);
@@ -110,29 +105,49 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
     }
 
     if ($accion === 'listar') {
-        $res = $conexion->query("
-            SELECT 
-                i.id_inscripcion,
-                i.id_usuario,
-                i.ficha,
-                i.cartel,
-                i.sinopsis,
-                i.nombre_responsable,
-                i.email,
-                i.dni,
-                i.expediente,
-                i.video,
-                i.estado,
-                i.motivo_rechazo,
-                i.fecha,
-                p.usuario
-            FROM inscripciones i
-            LEFT JOIN participantes p ON p.id_usuario = i.id_usuario
-            ORDER BY i.fecha DESC
-        ");
 
-        json_exit(['ok' => true, 'candidaturas' => $res->fetch_all(MYSQLI_ASSOC)]);
+    if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'organizador') {
+        json_exit(['ok' => false, 'error' => 'No autorizado']);
     }
+
+    $tipo = $_GET['tipo'] ?? null;
+
+    if ($tipo !== 'Alumno' && $tipo !== 'Alumni') {
+        json_exit(['ok' => false, 'error' => 'Tipo inválido']);
+    }
+
+    $stmt = $conexion->prepare("
+        SELECT 
+            i.id_inscripcion,
+            i.id_usuario,
+            i.ficha,
+            i.cartel,
+            i.sinopsis,
+            i.nombre_responsable,
+            i.email,
+            i.dni,
+            i.expediente,
+            i.video,
+            i.tipo_participante,
+            i.estado,
+            i.motivo_rechazo,
+            i.fecha,
+            p.usuario
+        FROM inscripciones i
+        LEFT JOIN participantes p ON p.id_usuario = i.id_usuario
+        WHERE i.tipo_participante = ?
+        ORDER BY i.fecha DESC
+    ");
+
+    $stmt->bind_param("s", $tipo);
+    $stmt->execute();
+
+    json_exit([
+        'ok' => true,
+        'candidaturas' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)
+    ]);
+}
+
 
     if ($accion === 'aceptar') {
         $id = intval($_GET['id'] ?? 0);
@@ -166,7 +181,7 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
 
         $stmt = $conexion->prepare("
             UPDATE inscripciones 
-            SET estado='RECHAZADO', motivo_rechazo=?
+            SET estado='RECHAZADO', motivo_rechazo=? 
             WHERE id_inscripcion=?
         ");
         $stmt->bind_param("si", $motivo, $id);
@@ -198,6 +213,7 @@ if ($accion === 'mi_detalle') {
             dni,
             expediente,
             video,
+            tipo_participante,
             estado,
             motivo_rechazo,
             fecha
@@ -248,6 +264,11 @@ if ($accion === 'actualizar') {
     $expediente = trim($_POST['expediente'] ?? '');
     $video = trim($_POST['video'] ?? '');
     $nombre_responsable = trim($_POST['nombre_responsable'] ?? '');
+    $tipo_participante = trim($_POST['tipo_participante'] ?? '');
+
+    if ($tipo_participante !== 'Alumno' && $tipo_participante !== 'Alumni') {
+        json_exit(['ok' => false, 'error' => 'Debes seleccionar Alumno o Alumni']);
+    }
 
     if ($sinopsis === '' || $email === '' || $dni === '' || $expediente === '' || $video === '') {
         json_exit(['ok' => false, 'error' => 'Rellena sinopsis, email, dni, expediente y vídeo']);
@@ -284,12 +305,13 @@ if ($accion === 'actualizar') {
             dni=?,
             expediente=?,
             video=?,
+            tipo_participante=?,
             estado='PENDIENTE',
             motivo_rechazo=NULL
         WHERE id_inscripcion=? AND id_usuario=?
     ");
     $stmt2->bind_param(
-        "ssssssssii",
+        "ssssssssssi",
         $fichaPath,
         $cartelPath,
         $sinopsis,
@@ -298,6 +320,7 @@ if ($accion === 'actualizar') {
         $dni,
         $expediente,
         $video,
+        $tipo_participante,
         $id_inscripcion,
         $id_usuario
     );
@@ -307,13 +330,12 @@ if ($accion === 'actualizar') {
 }
 
 /* ======================================================
-   INSCRIPCIÓN PARTICIPANTE (crear) - SIN accion
+   INSCRIPCIÓN PARTICIPANTE (crear)
 ====================================================== */
 if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!isset($_SESSION['id_usuario'])) {
 
-        // ✅ recoger datos antes de validar
         $usuario = trim($_POST['usuario'] ?? '');
         $contrasena = $_POST['contrasena'] ?? '';
 
@@ -321,7 +343,6 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
             json_exit(['ok' => false, 'error' => 'Usuario y contraseña obligatorios']);
         }
 
-        // ✅ comprobar usuario duplicado (ahora con $usuario definido)
         $stmt = $conexion->prepare("SELECT id_usuario FROM participantes WHERE usuario=?");
         $stmt->bind_param("s", $usuario);
         $stmt->execute();
@@ -350,6 +371,11 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $expediente = trim($_POST['expediente'] ?? '');
     $video = trim($_POST['video'] ?? '');
     $nombre_responsable = trim($_POST['usuario'] ?? ($_SESSION['usuario'] ?? ''));
+    $tipo_participante = trim($_POST['tipo_participante'] ?? '');
+
+    if ($tipo_participante !== 'Alumno' && $tipo_participante !== 'Alumni') {
+        json_exit(['ok' => false, 'error' => 'Debes seleccionar Alumno o Alumni']);
+    }
 
     if ($sinopsis === '' || $email === '' || $dni === '' || $expediente === '' || $video === '') {
         json_exit(['ok' => false, 'error' => 'Datos incompletos']);
@@ -376,11 +402,11 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt2 = $conexion->prepare("
         INSERT INTO inscripciones
-        (id_usuario, ficha, cartel, sinopsis, nombre_responsable, email, dni, expediente, video, estado)
-        VALUES (?,?,?,?,?,?,?,?,?, 'PENDIENTE')
+        (id_usuario, ficha, cartel, sinopsis, nombre_responsable, email, dni, expediente, video, tipo_participante, estado)
+        VALUES (?,?,?,?,?,?,?,?,?,?, 'PENDIENTE')
     ");
     $stmt2->bind_param(
-        "issssssss",
+        "isssssssss",
         $id_usuario,
         $fichaPath,
         $cartelPath,
@@ -389,7 +415,8 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $email,
         $dni,
         $expediente,
-        $video
+        $video,
+        $tipo_participante
     );
     $stmt2->execute();
 

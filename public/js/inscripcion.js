@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("datosUsuario").style.display = "none";
       }
 
-      // si ya ha enviado 2 (según tu regla), redirige
       if ((data.total ?? 0) >= 2) {
         window.location.href = "index.html";
       }
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
-   VALIDACIONES FRONT-END
+   SISTEMA DE ERRORES
 ========================= */
 function mostrarError(campo, texto) {
   let error = campo.parentNode.querySelector(".error-msg");
@@ -45,6 +44,9 @@ function limpiarError(campo) {
   campo.classList.remove("input-error");
 }
 
+/* =========================
+   VALIDACIONES
+========================= */
 function obligatorio(campo) {
   if (!campo.value.trim()) {
     mostrarError(campo, "Este campo es obligatorio");
@@ -119,10 +121,27 @@ function validarDni(campo) {
 function validarExpediente(campo) {
   if (!obligatorio(campo)) return false;
   const v = campo.value.trim();
-  if (v.length < 4) {
-    mostrarError(campo, "Debe tener al menos 4 caracteres");
+  if (v.length < 3) {
+    mostrarError(campo, "Debe tener al menos 3 caracteres");
     return false;
   }
+  limpiarError(campo);
+  return true;
+}
+
+/* =========================
+   VALIDAR ALUMNO / ALUMNI
+========================= */
+function validarTipoParticipante(campo) {
+  if (!obligatorio(campo)) return false;
+
+  const v = campo.value.trim();
+
+  if (v !== "Alumno" && v !== "Alumni") {
+    mostrarError(campo, "Debes seleccionar Alumno o Alumni");
+    return false;
+  }
+
   limpiarError(campo);
   return true;
 }
@@ -131,7 +150,7 @@ function validarExpediente(campo) {
    VALIDACIÓN BLUR
 ========================= */
 document
-  .querySelectorAll("#formInscripcion input, #formInscripcion textarea")
+  .querySelectorAll("#formInscripcion input, #formInscripcion textarea, #formInscripcion select")
   .forEach(campo => {
     campo.addEventListener("blur", () => {
       switch (campo.name) {
@@ -142,6 +161,7 @@ document
         case "expediente": validarExpediente(campo); break;
         case "video": validarVideo(campo); break;
         case "sinopsis": obligatorio(campo); break;
+        case "tipo_participante": validarTipoParticipante(campo); break;
       }
     });
   });
@@ -165,6 +185,7 @@ document.getElementById("formInscripcion").addEventListener("submit", async e =>
   const dni = form.dni;
   const expediente = form.expediente;
   const video = form.video;
+  const tipo = form.tipo_participante;
 
   const errores = [];
 
@@ -173,25 +194,24 @@ document.getElementById("formInscripcion").addEventListener("submit", async e =>
   const okSinopsis = obligatorio(sinopsis); if (!okSinopsis) errores.push("Sinopsis");
   const okVideo = validarVideo(video); if (!okVideo) errores.push("Vídeo");
 
-  let okUsuario = true, okPass = true, okEmail = true, okDni = true, okExp = true;
+  let okUsuario = true, okPass = true, okEmail = true, okDni = true, okExp = true, okTipo = true;
 
-  // ✅ solo validamos datos de usuario si NO hay sesión
   if (!TIENE_SESION) {
     okUsuario = validarUsuario(usuario); if (!okUsuario) errores.push("Usuario");
     okPass = validarContrasena(contrasena); if (!okPass) errores.push("Contraseña");
     okEmail = validarEmail(email); if (!okEmail) errores.push("Email");
     okDni = validarDni(dni); if (!okDni) errores.push("DNI");
     okExp = validarExpediente(expediente); if (!okExp) errores.push("Nº Expediente");
+    okTipo = validarTipoParticipante(tipo); if (!okTipo) errores.push("Tipo de participante");
   }
 
-  const valido = okFicha && okCartel && okSinopsis && okVideo && okUsuario && okPass && okEmail && okDni && okExp;
+  const valido = okFicha && okCartel && okSinopsis && okVideo && okUsuario && okPass && okEmail && okDni && okExp && okTipo;
 
   if (!valido) {
     mensaje.textContent = "Revisa estos campos: " + [...new Set(errores)].join(", ") + ".";
     return;
   }
 
-  // ✅ duplicados solo si NO hay sesión
   if (!TIENE_SESION) {
     const datos = new FormData();
     datos.append("usuario", usuario.value);
@@ -218,13 +238,11 @@ document.getElementById("formInscripcion").addEventListener("submit", async e =>
         return;
       }
     } catch (err) {
-      console.error(err);
       mensaje.textContent = "Error del servidor al comprobar duplicados.";
       return;
     }
   }
 
-  // Envío final
   const formData = new FormData(form);
 
   fetch("../../app/controllers/InscripcionController.php", {

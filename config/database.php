@@ -64,6 +64,9 @@ CREATE TABLE IF NOT EXISTS inscripciones (
     dni VARCHAR(20),
     expediente VARCHAR(255),
     video VARCHAR(255),
+
+    tipo_participante ENUM('Alumno','Alumni') NOT NULL,
+
     estado ENUM('PENDIENTE','RECHAZADO','ACEPTADO','NOMINADO') DEFAULT 'PENDIENTE',
     motivo_rechazo TEXT,
     mensaje_subsanacion TEXT,
@@ -80,13 +83,9 @@ CREATE TABLE IF NOT EXISTS premios_ganadores (
 
     fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    -- Evita repetir el mismo puesto en la misma categoría
     UNIQUE KEY uk_premio_puesto (id_premio, puesto),
-
-    -- Evita que una candidatura gane más de un premio
     UNIQUE KEY uk_inscripcion (id_inscripcion),
 
-    -- Relaciones
     CONSTRAINT fk_pg_premio
         FOREIGN KEY (id_premio)
         REFERENCES premios(id_premio)
@@ -97,8 +96,8 @@ CREATE TABLE IF NOT EXISTS premios_ganadores (
         REFERENCES inscripciones(id_inscripcion)
         ON DELETE CASCADE
 );
- 
- CREATE TABLE IF NOT EXISTS gala (
+
+CREATE TABLE IF NOT EXISTS gala (
     id INT AUTO_INCREMENT PRIMARY KEY,
     modo ENUM('PRE','POST') DEFAULT 'PRE',
     texto_resumen TEXT,
@@ -142,17 +141,14 @@ CREATE TABLE IF NOT EXISTS patrocinadores (
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
 ";
-
-
-
 
 if (!$conexion->multi_query($sql)) {
     die("Error creando tablas: " . $conexion->error);
 }
 
 while ($conexion->next_result()) {;}
+
 /* =======================
    FUNCIÓN PARA INSERTAR USUARIOS (HASH)
 ======================= */
@@ -180,3 +176,4 @@ function insertarUsuario($conexion, $tabla, $usuario, $passwordPlano)
 ======================= */
 
 insertarUsuario($conexion, "organizadores", "miguel", "3333");
+

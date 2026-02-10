@@ -16,7 +16,6 @@
                 <img src="../img/logo_uem.png" alt="Universidad Europea">
             </div>
 
-            <!-- BOTÓN HAMBURGUESA -->
             <button class="menu-toggle" id="menuToggle">☰</button>
 
             <nav class="nav-links" id="navLinks">
@@ -37,20 +36,43 @@
 
         <!-- ================= CANDIDATURAS ================= -->
         <section id="candidaturas" class="activa">
-            <h2>Gestión de Candidaturas</h2>
+    <h2>Gestión de Candidaturas</h2>
 
-            <h3>Pendientes</h3>
-            <div id="candidaturasPendientes"></div>
+    <!-- BLOQUE ALUMNO -->
+    <div class="bloque-tipo">
+        <h3 class="titulo-tipo alumno">Candidaturas — Alumno</h3>
 
-            <h3>Aceptadas</h3>
-            <div id="candidaturasAceptadas"></div>
+        <h4>Pendientes</h4>
+        <div id="AlumnoPendientes" class="lista-candidaturas"></div>
 
-            <h3>Nominadas</h3>
-            <div id="candidaturasNominadas"></div>
+        <h4>Aceptadas</h4>
+        <div id="AlumnoAceptadas" class="lista-candidaturas"></div>
 
-            <h3>Rechazadas</h3>
-            <div id="candidaturasRechazadas"></div>
-        </section>
+        <h4>Nominadas</h4>
+        <div id="AlumnoNominadas" class="lista-candidaturas"></div>
+
+        <h4>Rechazadas</h4>
+        <div id="AlumnoRechazadas" class="lista-candidaturas"></div>
+    </div>
+
+    <!-- BLOQUE ALUMNI -->
+    <div class="bloque-tipo">
+        <h3 class="titulo-tipo alumni">Candidaturas — Alumni</h3>
+
+        <h4>Pendientes</h4>
+        <div id="AlumniPendientes" class="lista-candidaturas"></div>
+
+        <h4>Aceptadas</h4>
+        <div id="AlumniAceptadas" class="lista-candidaturas"></div>
+
+        <h4>Nominadas</h4>
+        <div id="AlumniNominadas" class="lista-candidaturas"></div>
+
+        <h4>Rechazadas</h4>
+        <div id="AlumniRechazadas" class="lista-candidaturas"></div>
+    </div>
+</section>
+
 
         <!-- MODAL DETALLE -->
         <div id="modalDetalle" class="modal hidden">
@@ -74,7 +96,7 @@
             </div>
         </div>
 
-        <!-- MODAL RECHAZO (ESCRIBIR MOTIVO) -->
+        <!-- MODAL RECHAZO -->
         <div id="modalRechazo" class="modal hidden">
             <div class="modal-content">
                 <span class="modal-close" onclick="cerrarModalRechazo()">✖</span>
@@ -203,17 +225,16 @@
         <!-- ================= GALA ================= -->
         <section id="gala">
             <h2>Gestión de Gala</h2>
+
             <div style="margin-bottom:20px;">
                 <strong>Modo actual:</strong> <span id="modoActual"></span>
                 <button class="button" onclick="cambiarModo()">Cambiar modo</button>
             </div>
-           
 
             <div id="galaPre">
-             <h2>Fecha de la gala</h2>
-            <input type="date" id="fechaGala">
-            <button class="button" onclick="guardarFechaGala()">Guardar fecha</button>
-
+                <h2>Fecha de la gala</h2>
+                <input type="date" id="fechaGala">
+                <button class="button" onclick="guardarFechaGala()">Guardar fecha</button>
 
                 <h3>Pre-evento: Secciones</h3>
                 <button class="button" onclick="mostrarFormSeccion()">Añadir sección</button>
@@ -243,30 +264,29 @@
                 <h4>Galería de imágenes</h4>
                 <form id="formImagen" enctype="multipart/form-data">
                     <input type="file" name="imagen" accept="image/*" required>
-                     <br>
+                    <br>
                     <button class="button" type="submit">Subir imagen</button>
                 </form>
+
                 <div id="galeriaPost" class="bloques"></div>
-                <!-- Modal eliminar imagen -->
+
                 <div id="modalEliminarImagen" class="modal hidden">
-                 <div class="modal-content">
-                       <h3>Eliminar imagen</h3>
-                 <p>¿Seguro que quieres eliminar esta imagen? Esta acción no se puede deshacer.</p>
+                    <div class="modal-content">
+                        <h3>Eliminar imagen</h3>
+                        <p>¿Seguro que quieres eliminar esta imagen? Esta acción no se puede deshacer.</p>
 
-        <div class="modal-actions">
-            <button class="button" onclick="cerrarModalImagen()">Cancelar</button>
-            <button class="button btn-danger" onclick="confirmarEliminarImagen()">Eliminar</button>
-        </div>
-    </div>
-</div>
+                        <div class="modal-actions">
+                            <button class="button" onclick="cerrarModalImagen()">Cancelar</button>
+                            <button class="button btn-danger" onclick="confirmarEliminarImagen()">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
 
-
-                <div id="galeriaPost"></div>
                 <button class="button" onclick="guardarEdicion()">Guardar edición</button>
             </div>
         </section>
 
-        <!-- ✅ MODAL CONFIRMACIÓN (REUTILIZABLE) -->
+        <!-- MODAL CONFIRMACIÓN -->
         <div id="modalConfirmacion" class="modal hidden">
             <div class="modal-content">
                 <span class="modal-close" onclick="cerrarModalConfirmacion()">✖</span>
@@ -297,7 +317,6 @@
         }
     </script>
 
-    <!-- Scripts: ORDEN IMPORTANTE -->
     <script src="../js/panel_organizador.js"></script>
     <script src="../js/candidaturas.js"></script>
     <script src="../js/eventos_admin.js"></script>

@@ -15,23 +15,13 @@
 
     <form id="formInscripcion" enctype="multipart/form-data">
 
-        <div class="form-group">
-            <label>Ficha técnico-artística</label>
-            <input type="file" name="ficha" required>
-        </div>
+        <!-- ============================
+             BLOQUE 1: DATOS DEL PARTICIPANTE
+        ============================ -->
+        <h2 class="bloque-titulo">Datos del participante</h2>
 
-        <div class="form-group">
-            <label>Cartel</label>
-            <input type="file" name="cartel" required>
-        </div>
-
-        <div class="form-group">
-            <label>Sinopsis</label>
-            <textarea name="sinopsis" required></textarea>
-        </div>
-
-        <!-- SOLO SI NO HAY SESIÓN -->
         <div id="datosUsuario">
+
             <div class="form-group">
                 <label>Usuario</label>
                 <input type="text" name="usuario">
@@ -56,6 +46,36 @@
                 <label>Nº Expediente</label>
                 <input type="text" name="expediente">
             </div>
+
+            <div class="form-group">
+                <label>Tipo de participante</label>
+                <select name="tipo_participante" id="tipo_participante">
+                    <option value="">Selecciona una opción</option>
+                    <option value="Alumno">Alumno</option>
+                    <option value="Alumni">Alumni</option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- ============================
+             BLOQUE 2: DATOS DEL CORTO
+        ============================ -->
+        <h2 class="bloque-titulo">Datos del corto</h2>
+
+        <div class="form-group">
+            <label>Ficha técnico-artística</label>
+            <input type="file" name="ficha" required>
+        </div>
+
+        <div class="form-group">
+            <label>Cartel</label>
+            <input type="file" name="cartel" required>
+        </div>
+
+        <div class="form-group">
+            <label>Sinopsis</label>
+            <textarea name="sinopsis" required></textarea>
         </div>
 
         <div class="form-group">
