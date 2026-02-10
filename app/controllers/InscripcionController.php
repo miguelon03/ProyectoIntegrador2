@@ -112,11 +112,13 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
 
     $tipo = $_GET['tipo'] ?? null;
 
-    if ($tipo !== 'Alumno' && $tipo !== 'Alumni') {
+    // 🔹 Si viene tipo, lo validamos
+    if ($tipo !== null && $tipo !== 'Alumno' && $tipo !== 'Alumni') {
         json_exit(['ok' => false, 'error' => 'Tipo inválido']);
     }
 
-    $stmt = $conexion->prepare("
+    // 🔹 Query base
+    $sql = "
         SELECT 
             i.id_inscripcion,
             i.id_usuario,
@@ -135,11 +137,21 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
             p.usuario
         FROM inscripciones i
         LEFT JOIN participantes p ON p.id_usuario = i.id_usuario
-        WHERE i.tipo_participante = ?
-        ORDER BY i.fecha DESC
-    ");
+    ";
 
-    $stmt->bind_param("s", $tipo);
+    // 🔹 Si hay tipo → filtramos
+    if ($tipo !== null) {
+        $sql .= " WHERE i.tipo_participante = ? ";
+    }
+
+    $sql .= " ORDER BY i.fecha DESC ";
+
+    $stmt = $conexion->prepare($sql);
+
+    if ($tipo !== null) {
+        $stmt->bind_param("s", $tipo);
+    }
+
     $stmt->execute();
 
     json_exit([
@@ -147,6 +159,7 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
         'candidaturas' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)
     ]);
 }
+
 
 
     if ($accion === 'aceptar') {

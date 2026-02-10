@@ -3,56 +3,82 @@ const URL_INS = "/ProyectoIntegrador2/app/controllers/InscripcionController.php"
 let candidaturaSeleccionada = null;
 let rechazoId = null;
 
-/* ============================================
-   CARGAR CANDIDATURAS POR TIPO
-============================================ */
-async function cargarCandidaturas(tipo) {
-    try {
-        const res = await fetch(`${URL_INS}?accion=listar&tipo=${tipo}`, {
-            credentials: "same-origin"
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+    // Solo arrancamos si estamos en el panel de candidaturas
+    if (!document.getElementById("AlumnoPendientes")) return;
+    cargarCandidaturas();
+});
+
+/* =========================
+   CARGAR CANDIDATURAS
+========================= */
+function cargarCandidaturas() {
+    fetch(`${URL_INS}?accion=listar`, { credentials: "same-origin" })
+        .then(r => r.json())
+        .then(data => {
+            if (!data.ok) {
+                alert(data.error || "Error al cargar candidaturas");
+                return;
+            }
+
+            // Contenedores por tipo y estado
+            const contenedores = {
+                Alumno: {
+                    PENDIENTE: document.getElementById("AlumnoPendientes"),
+                    ACEPTADO: document.getElementById("AlumnoAceptadas"),
+                    NOMINADO: document.getElementById("AlumnoNominadas"),
+                    RECHAZADO: document.getElementById("AlumnoRechazadas"),
+                },
+                Alumni: {
+                    PENDIENTE: document.getElementById("AlumniPendientes"),
+                    ACEPTADO: document.getElementById("AlumniAceptadas"),
+                    NOMINADO: document.getElementById("AlumniNominadas"),
+                    RECHAZADO: document.getElementById("AlumniRechazadas"),
+                }
+            };
+
+            // Limpiar todos
+            Object.values(contenedores).forEach(grupo => {
+                Object.values(grupo).forEach(div => {
+                    if (div) div.innerHTML = "";
+                });
+            });
+
+            (data.candidaturas || []).forEach(c => {
+                const tipo = String(c.tipo_participante || "").trim();
+                const estado = String(c.estado || "").trim().toUpperCase();
+
+                if (!contenedores[tipo] || !contenedores[tipo][estado]) {
+                    console.warn("Candidatura sin contenedor:", c);
+                    return;
+                }
+
+                const card = document.createElement("div");
+                card.className = "news-card candidatura-card";
+                card.innerHTML = `
+                    <div>
+                        <strong>${c.usuario ?? "Sin usuario"}</strong><br>
+                        <span class="estado-badge ${estado.toLowerCase()}">${estado}</span>
+                    </div>
+                    <div class="ver-mas">Ver</div>
+                `;
+
+                card.addEventListener("click", () => abrirModalDetalle(c));
+                contenedores[tipo][estado].appendChild(card);
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error al cargar candidaturas");
         });
-
-        const json = await res.json();
-        if (!json.ok) return;
-
-        const grupos = {
-            PENDIENTE: document.getElementById(`${tipo}Pendientes`),
-            ACEPTADO: document.getElementById(`${tipo}Aceptadas`),
-            NOMINADO: document.getElementById(`${tipo}Nominadas`),
-            RECHAZADO: document.getElementById(`${tipo}Rechazadas`)
-        };
-
-        Object.values(grupos).forEach(g => g.innerHTML = "");
-
-        (json.candidaturas || []).forEach(c => {
-            const card = document.createElement("div");
-            card.className = "news-card candidatura-card";
-
-            card.innerHTML = `
-                <div>
-                    <strong>${c.usuario ?? "Sin usuario"}</strong><br>
-                    <span class="estado-badge ${String(c.estado || "").toLowerCase()}">${c.estado}</span>
-                </div>
-                <div class="ver-mas">Ver</div>
-            `;
-
-            card.addEventListener("click", () => abrirModalDetalle(c));
-
-            if (c.estado === "PENDIENTE") grupos.PENDIENTE.appendChild(card);
-            else if (c.estado === "ACEPTADO") grupos.ACEPTADO.appendChild(card);
-            else if (c.estado === "NOMINADO") grupos.NOMINADO.appendChild(card);
-            else if (c.estado === "RECHAZADO") grupos.RECHAZADO.appendChild(card);
-        });
-
-    } catch (err) {
-        console.error(err);
-        alert("Error al cargar candidaturas");
-    }
 }
 
-/* ============================================
+/* =========================
    MODAL DETALLE
-============================================ */
+========================= */
 function abrirModalDetalle(c) {
     candidaturaSeleccionada = c;
 
@@ -67,7 +93,8 @@ function abrirModalDetalle(c) {
         <p><strong>Email:</strong> ${c.email ?? "-"}</p>
         <p><strong>DNI:</strong> ${c.dni ?? "-"}</p>
         <p><strong>Expediente:</strong> ${c.expediente ?? "-"}</p>
-        <p><strong>Tipo:</strong> ${c.tipo_participante ?? "-"}</p>
+
+        <p><strong>Tipo:</strong> ${c.tipo_participante}</p>
 
         <p><strong>Sinopsis:</strong><br>${c.sinopsis ?? "-"}</p>
 
@@ -76,34 +103,27 @@ function abrirModalDetalle(c) {
         </p>
 
         <p><strong>Ficha técnica:</strong>
-            ${c.ficha ? `<a href="${c.ficha}" target="_blank" download>Descargar ficha</a>` : "—"}
+            ${c.ficha ? `<a href="/ProyectoIntegrador2/uploads/${extraerNombre(c.ficha)}" target="_blank" download>Descargar ficha</a>` : "—"}
         </p>
 
         <p><strong>Cartel:</strong>
-            ${c.cartel ? `<a href="${c.cartel}" target="_blank" download>Descargar cartel</a>` : "—"}
+            ${c.cartel ? `<a href="/ProyectoIntegrador2/uploads/${extraerNombre(c.cartel)}" target="_blank" download>Descargar cartel</a>` : "—"}
         </p>
 
         <p><strong>Estado:</strong> ${c.estado}</p>
     `;
 
-    if (c.estado === "PENDIENTE") {
+    const estado = String(c.estado || "").trim().toUpperCase();
+
+    if (estado === "PENDIENTE") {
         acciones.appendChild(btnModal("Aceptar", () => aceptarCandidatura(c.id_inscripcion)));
+        acciones.appendChild(btnModal("Rechazar", () => abrirModalRechazo(c.id_inscripcion), true));
+    } else if (estado === "ACEPTADO") {
         acciones.appendChild(btnModal("Nominar", () => nominarCandidatura(c.id_inscripcion)));
-        acciones.appendChild(btnModal("Rechazar", () => abrirModalRechazo(c.id_inscripcion), true));
-    }
-
-    if (c.estado === "ACEPTADO") {
-        acciones.appendChild(btnModal("Nominar", () => nominarCandidatura(c.id_inscripcion)));
-        acciones.appendChild(btnModal("Rechazar", () => abrirModalRechazo(c.id_inscripcion), true));
-    }
-
-    if (c.estado === "NOMINADO") {
-        acciones.appendChild(btnModal("Rechazar", () => abrirModalRechazo(c.id_inscripcion), true));
-    }
-
-    if (c.estado === "RECHAZADO") {
+    } else if (estado === "RECHAZADO") {
         acciones.appendChild(btnModal("Ver motivo", () => abrirModalMotivo(c.motivo_rechazo || "Sin motivo")));
     }
+    // NOMINADO → sin acciones
 
     document.getElementById("modalDetalle").classList.remove("hidden");
 }
@@ -113,6 +133,9 @@ function cerrarModalDetalle() {
     document.getElementById("modalDetalle").classList.add("hidden");
 }
 
+/* =========================
+   BOTONES
+========================= */
 function btnModal(texto, fn, danger = false) {
     const b = document.createElement("button");
     b.className = "button" + (danger ? " btn-danger" : "");
@@ -121,16 +144,16 @@ function btnModal(texto, fn, danger = false) {
     return b;
 }
 
-/* ============================================
+/* =========================
    ACCIONES BACKEND
-============================================ */
+========================= */
 function aceptarCandidatura(id) {
     fetch(`${URL_INS}?accion=aceptar&id=${id}`, { credentials: "same-origin" })
         .then(r => r.json())
         .then(res => {
             if (!res.ok) return alert(res.error || "Error al aceptar");
             cerrarModalDetalle();
-            recargarListas();
+            cargarCandidaturas();
         });
 }
 
@@ -140,13 +163,13 @@ function nominarCandidatura(id) {
         .then(res => {
             if (!res.ok) return alert(res.error || "Error al nominar");
             cerrarModalDetalle();
-            recargarListas();
+            cargarCandidaturas();
         });
 }
 
-/* ============================================
+/* =========================
    MODAL RECHAZO
-============================================ */
+========================= */
 function abrirModalRechazo(id) {
     rechazoId = id;
     document.getElementById("motivoRechazo").value = "";
@@ -167,23 +190,19 @@ function confirmarRechazo() {
     fd.append("id", rechazoId);
     fd.append("motivo", motivo);
 
-    fetch(URL_INS, {
-        method: "POST",
-        credentials: "same-origin",
-        body: fd
-    })
+    fetch(URL_INS, { method: "POST", credentials: "same-origin", body: fd })
         .then(r => r.json())
         .then(res => {
             if (!res.ok) return alert(res.error || "Error al rechazar");
             cerrarModalRechazo();
             cerrarModalDetalle();
-            recargarListas();
+            cargarCandidaturas();
         });
 }
 
-/* ============================================
+/* =========================
    MODAL MOTIVO
-============================================ */
+========================= */
 function abrirModalMotivo(texto) {
     document.getElementById("textoMotivo").textContent = texto;
     document.getElementById("modalMotivo").classList.remove("hidden");
@@ -193,15 +212,10 @@ function cerrarModalMotivo() {
     document.getElementById("modalMotivo").classList.add("hidden");
 }
 
-/* ============================================
-   RECARGAR LISTAS
-============================================ */
-function recargarListas() {
-    cargarCandidaturas("Alumno");
-    cargarCandidaturas("Alumni");
+/* =========================
+   UTIL
+========================= */
+function extraerNombre(path) {
+    if (!path) return "";
+    return path.split("/").pop();
 }
-
-/* ============================================
-   INICIO
-============================================ */
-recargarListas();
