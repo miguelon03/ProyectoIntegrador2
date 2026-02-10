@@ -36,42 +36,42 @@
 
         <!-- ================= CANDIDATURAS ================= -->
         <section id="candidaturas" class="activa">
-    <h2>Gestión de Candidaturas</h2>
+            <h2>Gestión de Candidaturas</h2>
 
-    <!-- BLOQUE ALUMNO -->
-    <div class="bloque-tipo">
-        <h3 class="titulo-tipo alumno">Candidaturas — Alumno</h3>
+            <!-- BLOQUE ALUMNO -->
+            <div class="bloque-tipo">
+                <h3 class="titulo-tipo alumno">Candidaturas — Alumno</h3>
 
-        <h4>Pendientes</h4>
-        <div id="AlumnoPendientes" class="lista-candidaturas"></div>
+                <h4>Pendientes</h4>
+                <div id="AlumnoPendientes" class="lista-candidaturas"></div>
 
-        <h4>Aceptadas</h4>
-        <div id="AlumnoAceptadas" class="lista-candidaturas"></div>
+                <h4>Aceptadas</h4>
+                <div id="AlumnoAceptadas" class="lista-candidaturas"></div>
 
-        <h4>Nominadas</h4>
-        <div id="AlumnoNominadas" class="lista-candidaturas"></div>
+                <h4>Nominadas</h4>
+                <div id="AlumnoNominadas" class="lista-candidaturas"></div>
 
-        <h4>Rechazadas</h4>
-        <div id="AlumnoRechazadas" class="lista-candidaturas"></div>
-    </div>
+                <h4>Rechazadas</h4>
+                <div id="AlumnoRechazadas" class="lista-candidaturas"></div>
+            </div>
 
-    <!-- BLOQUE ALUMNI -->
-    <div class="bloque-tipo">
-        <h3 class="titulo-tipo alumni">Candidaturas — Alumni</h3>
+            <!-- BLOQUE ALUMNI -->
+            <div class="bloque-tipo">
+                <h3 class="titulo-tipo alumni">Candidaturas — Alumni</h3>
 
-        <h4>Pendientes</h4>
-        <div id="AlumniPendientes" class="lista-candidaturas"></div>
+                <h4>Pendientes</h4>
+                <div id="AlumniPendientes" class="lista-candidaturas"></div>
 
-        <h4>Aceptadas</h4>
-        <div id="AlumniAceptadas" class="lista-candidaturas"></div>
+                <h4>Aceptadas</h4>
+                <div id="AlumniAceptadas" class="lista-candidaturas"></div>
 
-        <h4>Nominadas</h4>
-        <div id="AlumniNominadas" class="lista-candidaturas"></div>
+                <h4>Nominadas</h4>
+                <div id="AlumniNominadas" class="lista-candidaturas"></div>
 
-        <h4>Rechazadas</h4>
-        <div id="AlumniRechazadas" class="lista-candidaturas"></div>
-    </div>
-</section>
+                <h4>Rechazadas</h4>
+                <div id="AlumniRechazadas" class="lista-candidaturas"></div>
+            </div>
+        </section>
 
 
         <!-- MODAL DETALLE -->
@@ -177,28 +177,42 @@
 
         <!-- ================= PREMIOS ================= -->
         <section id="premios">
-            <h2>Gestión de Premios</h2>
+            <h2>Asignación de Premios</h2>
+            <h3>Premios ya asignados</h3>
+            <div id="premiosAsignados"></div>
 
-            <form id="formPremio">
-                <div class="campo">
-                    <input type="text" name="nombre" placeholder="Nombre de la categoría" required>
-                </div>
-                <button type="submit" class="button">Crear categoría</button>
-            </form>
+            <h3>Premio honorífico</h3>
+            <div id="honorificoAsignado"></div>
 
-            <div id="listaPremios"></div>
+            <div id="bloqueAsignacionUE" class="bloque-premio">
+                <h3>Mejor cortometraje UE</h3>
+                <select id="uePuesto"></select>
+                <select id="ueNominado"></select>
+                <button class="button" onclick="asignarPremioUE()">Asignar</button>
+            </div>
+            <div id="msgUECompleto" class="premio-completo" style="display:none;">
+                ✅ Todos los puestos del premio UE ya están asignados.
+            </div>
 
-            <h3>Asignar premios</h3>
-            <select id="categoriaSelect"></select>
-            <select id="nominadoSelect"></select>
+            <div id="bloqueAsignacionALUMNI" class="bloque-premio">
+                <h3>Mejor cortometraje Alumni</h3>
+                <select id="alumniPuesto"></select>
+                <select id="alumniNominado"></select>
+                <button class="button" onclick="asignarPremioAlumni()">Asignar</button>
+            </div>
+            <div id="msgALCompleto" class="premio-completo" style="display:none;">
+                ✅ Todos los puestos del premio Alumni ya están asignados.
+            </div>
 
-            <select id="puestoSelect">
-                <option value="PRIMERO">Primer premio</option>
-                <option value="SEGUNDO">Segundo premio</option>
-            </select>
-
-            <button class="button" onclick="asignarPremio()">Asignar</button>
+            <div class="bloque-premio">
+                <h3>Premio Honorífico</h3>
+                <input type="text" id="honNombre" placeholder="Nombre del profesional">
+                <textarea id="honDesc" placeholder="Trayectoria / descripción"></textarea>
+                <input type="text" id="honLink" placeholder="Enlace (opcional)">
+                <button class="button" onclick="guardarHonorifico()">Guardar</button>
+            </div>
         </section>
+
 
         <!-- ================= PATROCINADORES ================= -->
         <section id="patrocinadores">

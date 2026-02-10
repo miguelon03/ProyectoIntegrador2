@@ -215,3 +215,36 @@
     color: #777;
     font-style: italic;
 }
+.premios-publicos {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.premio {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+.premio h2 {
+  margin-top: 0;
+  color: #8c0032;
+}
+
+.premio ul {
+  padding-left: 20px;
+}
+
+.premio li {
+  margin-bottom: 8px;
+}
+.premio {
+  background:#fff;
+  padding:20px;
+  margin-bottom:20px;
+  border-radius:8px;
+  box-shadow:0 2px 6px rgba(0,0,0,.1);
+}

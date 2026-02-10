@@ -1,279 +1,253 @@
-const URL_PREM = "/ProyectoIntegrador2/app/controllers/PremioController.php";
+const URL_PREMIOS = "/ProyectoIntegrador2/app/controllers/PremioController.php";
 
-// Cache de categorías/ganadores (para UI)
-let PREMIOS_CACHE = [];
-
-/* =========================
-   Modal de errores (panel organizador)
-========================= */
-function showErrorModal(msg) {
-  // Usa el modal de premios (si existe)
-  if (typeof abrirModalPremio === "function") {
-    abrirModalPremio(msg);
-    return;
-  }
-  alert(msg);
-}
-
-/* =========================
-   DOM Ready
-========================= */
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("formPremio");
-  if (form) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      crearCategoria();
-    });
-  }
+  if (!document.getElementById("ueNominado")) return;
 
-  const selCat = document.getElementById("categoriaSelect");
-  if (selCat) {
-    selCat.addEventListener("change", () => actualizarPuestoDisponibilidad());
-  }
-
-  const selPuesto = document.getElementById("puestoSelect");
-  if (selPuesto) {
-    selPuesto.addEventListener("change", () => actualizarPuestoDisponibilidad());
-  }
+  cargarPanelPremios();
 });
 
 /* =========================
-   Cargar premios
+   CARGA TOTAL PANEL PREMIOS
 ========================= */
-function cargarPremios() {
-  fetch(`${URL_PREM}?accion=listar`, { credentials: "same-origin" })
-    .then((r) => r.json())
-    .then((data) => {
-      if (!data.ok) throw new Error(data.error || "Error");
+function cargarPanelPremios() {
+  // 1) cargar asignados
+  fetch(`${URL_PREMIOS}?accion=asignados`, { credentials: "same-origin" })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) return alert(data.error || "Error al cargar premios asignados");
 
-      PREMIOS_CACHE = data.premios || [];
+      pintarAsignados(data.asignados || []);
+      pintarHonorificoAsignado(data.honorifico || null);
 
-      pintarCategorias(PREMIOS_CACHE);
+      // 2) con los asignados calculamos qué puestos quedan libres
+      const libres = calcularPuestosLibres(data.asignados || []);
+      configurarSelectPuestos(libres);
 
-      // Rellenar select categorías
-      const selCat = document.getElementById("categoriaSelect");
-      if (selCat) {
-        selCat.innerHTML = "";
-        PREMIOS_CACHE.forEach((p) => {
-          const opt = document.createElement("option");
-          opt.value = p.id_premio;
-          opt.textContent = p.nombre;
-          selCat.appendChild(opt);
-        });
-      }
+      // 3) cargar nominados disponibles para los premios que aún tengan puestos libres
+      if (libres.UE.length > 0) cargarNominados("UE");
+      if (libres.ALUMNI.length > 0) cargarNominados("ALUMNI");
 
-      // Cargar nominados (ya viene filtrado para no repetir ganadores)
-      return cargarNominados();
-    })
-    .then(() => {
-      actualizarPuestoDisponibilidad();
-    })
-    .catch((err) => {
-      console.error(err);
-      showErrorModal(err.message || "Error al cargar premios");
+      // 4) ocultar bloques de asignación si ya están completos
+      toggleBloqueAsignacion("UE", libres.UE.length > 0);
+      toggleBloqueAsignacion("ALUMNI", libres.ALUMNI.length > 0);
     });
 }
 
 /* =========================
-   Pintar categorías + ganadores
+   CALCULAR PUESTOS LIBRES
 ========================= */
-function pintarCategorias(premios) {
-  const cont = document.getElementById("listaPremios");
+function calcularPuestosLibres(asignados) {
+  const todos = {
+    UE: ["PRIMERO", "SEGUNDO", "TERCERO"],
+    ALUMNI: ["PRIMERO", "SEGUNDO"]
+  };
+
+  const ocupados = { UE: new Set(), ALUMNI: new Set() };
+
+  asignados.forEach(a => {
+    if (a.premio === "UE" || a.premio === "ALUMNI") {
+      ocupados[a.premio].add(String(a.puesto || "").toUpperCase());
+    }
+  });
+
+  return {
+    UE: todos.UE.filter(p => !ocupados.UE.has(p)),
+    ALUMNI: todos.ALUMNI.filter(p => !ocupados.ALUMNI.has(p))
+  };
+}
+
+/* =========================
+   PINTAR PREMIOS ASIGNADOS (BONITO)
+========================= */
+function pintarAsignados(asignados) {
+  const cont = document.getElementById("premiosAsignados");
   if (!cont) return;
 
-  if (!premios.length) {
-    cont.innerHTML = "<p>No hay categorías creadas.</p>";
-    return;
-  }
+  const ue = asignados.filter(a => a.premio === "UE");
+  const al = asignados.filter(a => a.premio === "ALUMNI");
 
-  cont.innerHTML = premios
-    .map((p) => {
-      const tienePuestos = ("ganador_primero" in p) || ("ganador_segundo" in p);
+  cont.innerHTML = `
+    <div class="premios-grid">
+      ${renderBloqueAsignado("Mejor cortometraje UE", ue, ["PRIMERO","SEGUNDO","TERCERO"])}
+      ${renderBloqueAsignado("Mejor cortometraje Alumni", al, ["PRIMERO","SEGUNDO"])}
+    </div>
+  `;
+}
 
-      let ganadoresHTML = "";
-      if (tienePuestos) {
-        ganadoresHTML = `
-          <div class="premio-ganadores">
-            <div><strong>1º premio:</strong> ${p.ganador_primero ?? "-"}</div>
-            <div><strong>2º premio:</strong> ${p.ganador_segundo ?? "-"}</div>
-          </div>
-        `;
-      } else {
-        ganadoresHTML = `
-          <div class="premio-ganadores">
-            <div><strong>Ganadores:</strong> ${p.ganadores ? p.ganadores : "-"}</div>
-          </div>
-        `;
-      }
+function renderBloqueAsignado(titulo, asignados, puestosOrden) {
+  const map = new Map();
+  asignados.forEach(a => map.set(a.puesto, a));
 
-      return `
-        <div class="premio-card">
-          <h4>${escapeHtml(p.nombre)}</h4>
-          ${p.descripcion ? `<p class="premio-desc">${escapeHtml(p.descripcion)}</p>` : ""}
-          ${ganadoresHTML}
-        </div>
-      `;
-    })
-    .join("");
+  const filas = puestosOrden.map(p => {
+    const row = map.get(p);
+    return `
+      <div class="premio-row">
+        <div class="premio-puesto">${prettyPuesto(p)}</div>
+        <div class="premio-ganador">${row ? escapeHtml(row.nombre_responsable) : "<span class='pendiente'>Pendiente</span>"}</div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="premio-card">
+      <h3>${titulo}</h3>
+      ${filas}
+    </div>
+  `;
+}
+
+function prettyPuesto(p) {
+  if (p === "PRIMERO") return "🥇 Primer premio";
+  if (p === "SEGUNDO") return "🥈 Segundo premio";
+  if (p === "TERCERO") return "🥉 Tercer premio";
+  return p;
 }
 
 /* =========================
-   Cargar nominados
+   HONORÍFICO (MOSTRAR SI YA EXISTE)
 ========================= */
-function cargarNominados() {
-  return fetch(`${URL_PREM}?accion=nominados`, { credentials: "same-origin" })
-    .then((r) => r.json())
-    .then((data) => {
-      if (!data.ok) throw new Error(data.error || "Error");
+function pintarHonorificoAsignado(hon) {
+  const cont = document.getElementById("honorificoAsignado");
+  if (!cont) return;
 
-      const selNom = document.getElementById("nominadoSelect");
-      if (!selNom) return;
+  if (!hon) {
+    cont.innerHTML = `<div class="pendiente">Premio honorífico pendiente</div>`;
+    return;
+  }
 
-      selNom.innerHTML = "";
-      const nominados = data.nominados || [];
+  cont.innerHTML = `
+    <div class="hon-card">
+      <h3>⭐ Premio Honorífico</h3>
+      <div class="hon-nombre">${escapeHtml(hon.nombre)}</div>
+      <div class="hon-desc">${escapeHtml(hon.descripcion)}</div>
+      ${hon.enlace ? `<a class="hon-link" href="${hon.enlace}" target="_blank">Más información</a>` : ""}
+      <div class="hon-edit-hint">Puedes editarlo desde el formulario de abajo.</div>
+    </div>
+  `;
 
-      if (!nominados.length) {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "No hay nominados disponibles";
-        selNom.appendChild(opt);
-        return;
-      }
+  // Pre-rellenar formulario para editar
+  const n = document.getElementById("honNombre");
+  const d = document.getElementById("honDesc");
+  const l = document.getElementById("honLink");
+  if (n && d && l) {
+    n.value = hon.nombre || "";
+    d.value = hon.descripcion || "";
+    l.value = hon.enlace || "";
+  }
+}
 
-      nominados.forEach((n) => {
-        const opt = document.createElement("option");
-        opt.value = n.id_inscripcion;
-        opt.textContent = n.usuario;
-        selNom.appendChild(opt);
+/* =========================
+   CONFIGURAR SELECT DE PUESTOS
+   (solo puestos libres)
+========================= */
+function configurarSelectPuestos(libres) {
+  const ueSel = document.getElementById("uePuesto");
+  const alSel = document.getElementById("alumniPuesto");
+
+  if (ueSel) {
+    ueSel.innerHTML = libres.UE.map(p => `<option value="${p}">${prettyPuesto(p)}</option>`).join("");
+  }
+  if (alSel) {
+    alSel.innerHTML = libres.ALUMNI.map(p => `<option value="${p}">${prettyPuesto(p)}</option>`).join("");
+  }
+}
+
+/* =========================
+   OCULTAR / MOSTRAR BLOQUE ASIGNACIÓN
+========================= */
+function toggleBloqueAsignacion(premio, visible) {
+  const id = premio === "UE" ? "bloqueAsignacionUE" : "bloqueAsignacionALUMNI";
+  const bloque = document.getElementById(id);
+  if (!bloque) return;
+
+  bloque.style.display = visible ? "block" : "none";
+
+  // si se oculta, mostramos un mensaje bonito de "completo"
+  const msgId = premio === "UE" ? "msgUECompleto" : "msgALCompleto";
+  const msg = document.getElementById(msgId);
+  if (msg) msg.style.display = visible ? "none" : "block";
+}
+
+/* =========================
+   CARGAR NOMINADOS
+========================= */
+function cargarNominados(premio) {
+  fetch(`${URL_PREMIOS}?accion=nominados&premio=${premio}`, { credentials:"same-origin" })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) return alert(data.error);
+
+      const sel = premio === "UE"
+        ? document.getElementById("ueNominado")
+        : document.getElementById("alumniNominado");
+
+      if (!sel) return;
+
+      sel.innerHTML = "";
+      (data.nominados || []).forEach(n => {
+        const o = document.createElement("option");
+        o.value = n.id_inscripcion;
+        o.textContent = n.nombre_responsable;
+        sel.appendChild(o);
       });
-    })
-    .catch((err) => {
-      console.error(err);
-      showErrorModal(err.message || "Error al cargar nominados");
     });
 }
 
 /* =========================
-   Crear categoría
+   ASIGNAR PREMIOS
 ========================= */
-function crearCategoria() {
-  const form = document.getElementById("formPremio");
-  if (!form) return;
-
-  const nombre = (form.querySelector('input[name="nombre"]')?.value || "").trim();
-  const descripcion = (form.querySelector('textarea[name="descripcion"]')?.value || "").trim();
-
-  if (!nombre) {
-    showErrorModal("Pon un nombre de categoría");
-    return;
-  }
-
-  const fd = new FormData();
-  fd.append("accion", "crear");
-  fd.append("nombre", nombre);
-  fd.append("descripcion", descripcion);
-
-  fetch(URL_PREM, {
-    method: "POST",
-    credentials: "same-origin",
-    body: fd,
-  })
-    .then((r) => r.json())
-    .then((data) => {
-      if (!data.ok) {
-        showErrorModal(data.error || "Error al crear categoría");
-        return;
-      }
-      form.reset();
-      cargarPremios();
-    })
-    .catch((err) => {
-      console.error(err);
-      showErrorModal("Error al crear categoría");
-    });
+function asignarPremioUE() {
+  asignar("UE", document.getElementById("uePuesto")?.value, document.getElementById("ueNominado")?.value);
+}
+function asignarPremioAlumni() {
+  asignar("ALUMNI", document.getElementById("alumniPuesto")?.value, document.getElementById("alumniNominado")?.value);
 }
 
-/* =========================
-   Asignar premio
-========================= */
-function asignarPremio() {
-  const selCat = document.getElementById("categoriaSelect");
-  const selNom = document.getElementById("nominadoSelect");
-  const selPuesto = document.getElementById("puestoSelect");
-
-  const id_premio = selCat?.value || "";
-  const id_inscripcion = selNom?.value || "";
-  const puesto = selPuesto?.value || "PRIMERO";
-
-  if (!id_premio) return showErrorModal("Selecciona una categoría");
-  if (!id_inscripcion) return showErrorModal("Selecciona un nominado");
+function asignar(premio, puesto, id) {
+  if (!puesto || !id) return alert("Selecciona puesto y nominado");
 
   const fd = new FormData();
   fd.append("accion", "asignar");
-  fd.append("id_premio", id_premio);
-  fd.append("id_inscripcion", id_inscripcion);
+  fd.append("premio", premio);
   fd.append("puesto", puesto);
+  fd.append("id_inscripcion", id);
 
-  fetch(URL_PREM, {
-    method: "POST",
-    credentials: "same-origin",
-    body: fd,
-  })
-    .then((r) => r.json())
-    .then((data) => {
-      if (!data.ok) {
-        // Modal requerido por ti
-        showErrorModal(data.error || "Error al asignar premio");
-        return;
-      }
-
-      // Quita el ganador del select para que no se pueda volver a asignar
-      const opt = selNom?.querySelector(`option[value="${id_inscripcion}"]`);
-      if (opt) opt.remove();
-
-      // Refresca categorías y deshabilita puesto si ya ocupado
-      cargarPremios();
-    })
-    .catch((err) => {
-      console.error(err);
-      showErrorModal("Error al asignar premio");
+  fetch(URL_PREMIOS, { method:"POST", credentials:"same-origin", body:fd })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.ok) return alert(res.error);
+      alert("Premio asignado correctamente");
+      cargarPanelPremios(); // 🔥 recargar todo para actualizar UI
     });
 }
 
 /* =========================
-   Deshabilitar PRIMERO/SEGUNDO si ya están ocupados
+   PREMIO HONORÍFICO (editar único)
 ========================= */
-function actualizarPuestoDisponibilidad() {
-  const selCat = document.getElementById("categoriaSelect");
-  const selPuesto = document.getElementById("puestoSelect");
-  if (!selCat || !selPuesto) return;
+function guardarHonorifico() {
+  const fd = new FormData();
+  fd.append("accion","honorifico_save");
+  fd.append("nombre",document.getElementById("honNombre").value);
+  fd.append("descripcion",document.getElementById("honDesc").value);
+  fd.append("enlace",document.getElementById("honLink").value);
 
-  const id = String(selCat.value || "");
-  const premio = PREMIOS_CACHE.find((p) => String(p.id_premio) === id);
-
-  const optPrim = selPuesto.querySelector('option[value="PRIMERO"]');
-  const optSeg = selPuesto.querySelector('option[value="SEGUNDO"]');
-
-  if (!premio || !optPrim || !optSeg) return;
-
-  // Si el controller devuelve ganador_primero_id / ganador_segundo_id
-  optPrim.disabled = !!premio.ganador_primero_id;
-  optSeg.disabled = !!premio.ganador_segundo_id;
-
-  // Si el seleccionado quedó deshabilitado, cambia automáticamente
-  if (selPuesto.value === "PRIMERO" && optPrim.disabled && !optSeg.disabled) selPuesto.value = "SEGUNDO";
-  if (selPuesto.value === "SEGUNDO" && optSeg.disabled && !optPrim.disabled) selPuesto.value = "PRIMERO";
+  fetch(URL_PREMIOS,{method:"POST",credentials:"same-origin",body:fd})
+    .then(r=>r.json())
+    .then(res=>{
+      if(!res.ok) return alert(res.error);
+      alert("Premio honorífico guardado");
+      cargarPanelPremios();
+    });
 }
 
 /* =========================
-   Utils
+   UTIL
 ========================= */
 function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  return String(str ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }

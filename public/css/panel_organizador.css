@@ -961,3 +961,122 @@ section h2 {
   height: 60px;
   object-fit: contain;
 }
+.bloque-premio {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+
+.bloque-premio h3 {
+  margin-top: 0;
+  color: #8c0032;
+}
+
+.bloque-premio select,
+.bloque-premio input,
+.bloque-premio textarea {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+}
+.bloque-premio {
+  background:#fff;
+  padding:20px;
+  border-radius:8px;
+  margin-bottom:20px;
+}
+/* =========================
+   PREMIOS ASIGNADOS (BONITO)
+========================= */
+.premios-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap:16px;
+  margin: 12px 0 22px;
+}
+
+.premio-card{
+  background:#fff;
+  border-radius:10px;
+  padding:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  border:1px solid #eee;
+}
+
+.premio-card h3{
+  margin:0 0 12px;
+  color:#8c0032;
+}
+
+.premio-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-top:1px solid #f0f0f0;
+}
+
+.premio-row:first-of-type{
+  border-top:none;
+}
+
+.premio-puesto{
+  font-weight:600;
+}
+
+.pendiente{
+  color:#888;
+  font-style:italic;
+}
+
+.premio-completo{
+  background:#eaf8ee;
+  border:1px solid #bfe7c8;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+
+/* Honorífico */
+.hon-card{
+  background:#fff;
+  border-radius:10px;
+  padding:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  border:1px solid #eee;
+  margin-bottom:16px;
+}
+
+.hon-card h3{
+  margin:0 0 10px;
+  color:#8c0032;
+}
+
+.hon-nombre{
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.hon-desc{
+  color:#333;
+  margin-bottom:8px;
+}
+
+.hon-link{
+  display:inline-block;
+  color:#8c0032;
+  font-weight:600;
+  text-decoration:none;
+}
+
+.hon-link:hover{
+  text-decoration:underline;
+}
+
+.hon-edit-hint{
+  margin-top:10px;
+  color:#666;
+  font-size:13px;
+}

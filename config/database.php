@@ -76,26 +76,27 @@ CREATE TABLE IF NOT EXISTS inscripciones (
 CREATE TABLE IF NOT EXISTS premios_ganadores (
     id_ganador INT AUTO_INCREMENT PRIMARY KEY,
 
-    id_premio INT NOT NULL,
+    premio VARCHAR(32) NOT NULL
+        COMMENT 'UE | ALUMNI',
+
+    puesto VARCHAR(16) NOT NULL
+        COMMENT 'PRIMERO | SEGUNDO | TERCERO',
+
     id_inscripcion INT NOT NULL,
 
-    puesto ENUM('PRIMERO', 'SEGUNDO') NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    UNIQUE KEY uk_premio_puesto (id_premio, puesto),
-    UNIQUE KEY uk_inscripcion (id_inscripcion),
-
-    CONSTRAINT fk_pg_premio
-        FOREIGN KEY (id_premio)
-        REFERENCES premios(id_premio)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_pg_inscripcion
+    CONSTRAINT fk_premio_inscripcion
         FOREIGN KEY (id_inscripcion)
         REFERENCES inscripciones(id_inscripcion)
-        ON DELETE CASCADE
-);
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_premio_puesto
+        UNIQUE (premio, puesto),
+
+    CONSTRAINT uq_inscripcion_unica
+        UNIQUE (id_inscripcion)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS gala (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -139,6 +140,12 @@ CREATE TABLE IF NOT EXISTS patrocinadores (
     nombre VARCHAR(150) NOT NULL UNIQUE,
     logo VARCHAR(255) NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS premio_honorifico (
+  id INT PRIMARY KEY DEFAULT 1,
+  nombre VARCHAR(255),
+  descripcion TEXT,
+  enlace VARCHAR(1024)
 );
 
 ";
