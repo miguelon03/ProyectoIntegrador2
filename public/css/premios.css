@@ -248,3 +248,220 @@
   border-radius:8px;
   box-shadow:0 2px 6px rgba(0,0,0,.1);
 }
+/* ===== Página premios (público) ===== */
+.premios-page {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 18px 40px;
+}
+
+.premios-page h1 {
+  font-size: 42px;
+  margin: 18px 0 22px;
+  font-weight: 800;
+}
+
+.premios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.premio-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.08);
+  border: 1px solid #eee;
+}
+
+.premio-card h2 {
+  margin: 0 0 14px;
+  color: #8c0032;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.premio-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.premio-card li {
+  margin: 8px 0;
+  line-height: 1.35;
+}
+
+.premio-card h3 {
+  margin: 18px 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.ganadores {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.ganadores li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #f1f1f1;
+}
+
+.ganadores li:first-child {
+  border-top: none;
+}
+
+.ganadores span {
+  font-weight: 600;
+}
+
+#honorificoPublico {
+  margin-top: 8px;
+  color: #333;
+}
+
+#honorificoPublico a {
+  color: #8c0032;
+  font-weight: 700;
+  text-decoration: none;
+}
+#honorificoPublico a:hover {
+  text-decoration: underline;
+}
+/* =========================
+   PREMIOS (PÚBLICO) - LIMPIO
+   (usa .premios-container del layout corporativo)
+========================= */
+body.premios-publico{
+.premios-container {
+  max-width: 1100px;
+  margin: 60px auto;
+  padding: 40px;
+  background: #fff;
+  box-shadow: 0 10px 40px rgba(0,0,0,.1);
+  border-radius: 12px;
+}
+
+.premios-container h1 {
+  font-size: 44px;
+  margin: 0 0 18px;
+  font-weight: 800;
+}
+
+.premios-container .intro {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 26px;
+}
+
+.premios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.premio-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.premio-card h2 {
+  margin: 0 0 14px;
+  color: #8c0032;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.premio-card ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.premio-card li {
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.premio-card h3 {
+  margin: 18px 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* Ganadores */
+.ganadores {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 10px;
+}
+
+.ganadores li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.ganadores li:last-child {
+  border-bottom: none;
+}
+
+.ganadores .medalla {
+  width: 26px;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.ganadores span {
+  font-weight: 700;
+}
+
+.ganadores .pendiente {
+  color: #777;
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* Honorífico */
+#honorificoPublico {
+  margin-top: 8px;
+  color: #333;
+}
+
+#honorificoPublico a {
+  color: #8c0032;
+  font-weight: 700;
+  text-decoration: none;
+}
+#honorificoPublico a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .premios-container {
+    margin: 30px auto;
+    padding: 22px;
+  }
+
+  .premios-container h1 {
+    font-size: 34px;
+  }
+
+  .premios-grid {
+    grid-template-columns: 1fr;
+  }
+}
+}

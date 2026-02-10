@@ -174,15 +174,50 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
     }
 
     if ($accion === 'nominar') {
-        $id = intval($_GET['id'] ?? 0);
-        if (!$id) json_exit(['ok' => false, 'error' => 'ID inválido']);
+    $id = intval($_GET['id'] ?? 0);
+    if (!$id) json_exit(['ok' => false, 'error' => 'ID inválido']);
 
-        $stmt = $conexion->prepare("UPDATE inscripciones SET estado='NOMINADO' WHERE id_inscripcion=?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
+    // 1) Obtener estado y tipo de la candidatura
+    $stmt = $conexion->prepare("SELECT estado, tipo_participante FROM inscripciones WHERE id_inscripcion=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
 
-        json_exit(['ok' => true]);
+    if (!$row) json_exit(['ok' => false, 'error' => 'Candidatura no encontrada']);
+
+    $estadoActual = strtoupper(trim($row['estado'] ?? ''));
+    $tipo = trim($row['tipo_participante'] ?? '');
+
+    // 2) Solo nominar si está ACEPTADO
+    if ($estadoActual !== 'ACEPTADO') {
+        json_exit(['ok' => false, 'error' => 'Solo se puede nominar una candidatura ACEPTADA']);
     }
+
+    // 3) Limitar a 5 nominados por tipo (Alumno / Alumni)
+    if ($tipo !== 'Alumno' && $tipo !== 'Alumni') {
+        json_exit(['ok' => false, 'error' => 'Tipo inválido']);
+    }
+
+    $stmt = $conexion->prepare("
+        SELECT COUNT(*) AS total
+        FROM inscripciones
+        WHERE estado='NOMINADO' AND tipo_participante=?
+    ");
+    $stmt->bind_param("s", $tipo);
+    $stmt->execute();
+    $totalNominados = intval(($stmt->get_result()->fetch_assoc()['total'] ?? 0));
+
+    if ($totalNominados >= 5) {
+        json_exit(['ok' => false, 'error' => "Ya hay 5 candidaturas nominadas para $tipo"]);
+    }
+
+    // 4) Nominar
+    $stmt = $conexion->prepare("UPDATE inscripciones SET estado='NOMINADO' WHERE id_inscripcion=?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+
+    json_exit(['ok' => true]);
+}
 
     if ($accion === 'rechazar') {
         $id = intval($_POST['id'] ?? 0);

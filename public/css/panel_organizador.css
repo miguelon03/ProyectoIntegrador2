@@ -1080,3 +1080,44 @@ section h2 {
   color:#666;
   font-size:13px;
 }
+.premios-asignados-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+  margin: 14px 0 18px;
+}
+
+.premios-asignados-card{
+  background:#fff;
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:18px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+
+.premios-asignados-card h3{
+  margin:0 0 14px;
+  color:#8c0032;
+  font-weight:800;
+}
+
+.premios-asignados-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.premio-fila{
+  display:grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:10px 0;
+  border-top:1px solid #f1f1f1;
+}
+.premio-fila:first-child{border-top:none;}
+
+.premio-icon{font-size:18px}
+.premio-texto{font-weight:700}
+.premio-valor{font-weight:700}
+.premio-pendiente{color:#777;font-style:italic;font-weight:600}

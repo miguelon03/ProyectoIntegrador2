@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../css/premios.css">
 </head>
 
-<body>
+<body class="premios-publico">
 
     <header class="ue-header">
         <div class="main-nav">
@@ -36,34 +36,51 @@
     <!-- =========================================================
      CONTENIDO PRINCIPAL DE LA PÁGINA DE PREMIOS
 ========================================================= -->
-    <section class="premios-publicos">
-  <h1>Premios del concurso</h1>
 
-  <div class="premio">
-    <h2>Mejor cortometraje UE</h2>
-    <ul>
-      <li><b>Primer premio:</b> 600 € + premio patrocinador</li>
-      <li><b>Segundo premio:</b> 300 €</li>
-      <li><b>Tercer premio:</b> 100 €</li>
-    </ul>
-  </div>
+    <div class="premios-container">
+        <h1>Premios del concurso</h1>
+        <p class="intro">Consulta los premios disponibles y los ganadores cuando hayan sido asignados.</p>
 
-  <div class="premio">
-    <h2>Mejor cortometraje Alumni</h2>
-    <ul>
-      <li><b>Primer premio:</b> 700 €</li>
-      <li><b>Segundo premio:</b> 300 €</li>
-    </ul>
-  </div>
+        <div class="premios-grid">
 
-  <div class="premio">
-    <h2>Premio Honorífico</h2>
-    <div id="honorificoPublico">Pendiente de anunciar</div>
-  </div>
-</section>
+            <section class="premio-card">
+                <h2>Mejor cortometraje UE</h2>
+                <ul>
+                    <li><strong>Primer premio:</strong> 600 € + Cámara de Canon</li>
+                    <li><strong>Segundo premio:</strong> 300 €</li>
+                    <li><strong>Tercer premio:</strong> 100 €</li>
+                </ul>
 
-<script src="../js/premios_publico.js"></script>
-<link rel="stylesheet" href="../css/premios.css">
+                <h3>Ganadores</h3>
+                <ul class="ganadores">
+                    <li><span class="medalla">🥇</span> <span id="ueGanador1" class="pendiente">Pendiente</span></li>
+                    <li><span class="medalla">🥈</span> <span id="ueGanador2" class="pendiente">Pendiente</span></li>
+                    <li><span class="medalla">🥉</span> <span id="ueGanador3" class="pendiente">Pendiente</span></li>
+                </ul>
+            </section>
+
+            <section class="premio-card">
+                <h2>Mejor cortometraje Alumni</h2>
+                <ul>
+                    <li><strong>Primer premio:</strong> 700 €</li>
+                    <li><strong>Segundo premio:</strong> 300 €</li>
+                </ul>
+
+                <h3>Ganadores</h3>
+                <ul class="ganadores">
+                    <li><span class="medalla">🥇</span> <span id="alGanador1" class="pendiente">Pendiente</span></li>
+                    <li><span class="medalla">🥈</span> <span id="alGanador2" class="pendiente">Pendiente</span></li>
+                </ul>
+            </section>
+
+            <section class="premio-card">
+                <h2>Premio Honorífico</h2>
+                <div id="honorificoPublico" class="pendiente">Pendiente de anunciar</div>
+            </section>
+
+        </div>
+    </div>
+
 
 
     <!-- =========================================================
@@ -141,6 +158,8 @@
     <script src="../js/session.js"></script>
     <script src="../js/login_1.js"></script>
     <script src="../js/patrocinadores_public.js"></script>
+    <script src="../js/premios_publico.js"></script>
+
 
 </body>
 
