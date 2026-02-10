@@ -32,6 +32,68 @@ if (!isset($_SESSION['id_usuario'])) {
 
 $id = intval($_SESSION['id_usuario']);
 
+/* ======================================================
+   ACTUALIZAR PERFIL (datos personales)
+   POST: accion=actualizar_perfil
+   - Actualiza usuario (y contraseña opcional) en participantes
+   - Actualiza email/dni/expediente/nombre_responsable en inscripciones
+====================================================== */
+$accion = $_GET['accion'] ?? $_POST['accion'] ?? null;
+
+if ($accion === 'actualizar_perfil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $usuario = trim($_POST['usuario'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $dni = strtoupper(trim($_POST['dni'] ?? ''));
+    $expediente = trim($_POST['expediente'] ?? '');
+    $contrasena = $_POST['contrasena'] ?? '';
+
+    $errores = [];
+    if ($usuario === '' || mb_strlen($usuario) < 3) $errores[] = 'Usuario inválido';
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errores[] = 'Email inválido';
+    if ($dni === '' || !preg_match('/^\d{8}[A-Z]$/', $dni)) $errores[] = 'DNI inválido';
+    if ($expediente === '' || mb_strlen($expediente) < 4) $errores[] = 'Expediente inválido';
+    if ($contrasena !== '' && (mb_strlen($contrasena) < 4 || mb_strlen($contrasena) > 12)) $errores[] = 'Contraseña inválida';
+
+    if ($errores) {
+        json_exit(['ok' => false, 'error' => implode(' · ', $errores)]);
+    }
+
+    // Usuario único
+    $stmtU = $conexion->prepare("SELECT id_usuario FROM participantes WHERE usuario=? AND id_usuario<>? LIMIT 1");
+    $stmtU->bind_param("si", $usuario, $id);
+    $stmtU->execute();
+    $dup = $stmtU->get_result()->fetch_assoc();
+    if ($dup) {
+        json_exit(['ok' => false, 'error' => 'El nombre de usuario ya existe']);
+    }
+
+    // Update participantes
+    if ($contrasena !== '') {
+        $hash = password_hash($contrasena, PASSWORD_DEFAULT);
+        $stmtP = $conexion->prepare("UPDATE participantes SET usuario=?, contrasena=? WHERE id_usuario=?");
+        $stmtP->bind_param("ssi", $usuario, $hash, $id);
+    } else {
+        $stmtP = $conexion->prepare("UPDATE participantes SET usuario=? WHERE id_usuario=?");
+        $stmtP->bind_param("si", $usuario, $id);
+    }
+    $stmtP->execute();
+
+    $_SESSION['usuario'] = $usuario;
+
+    // Update inscripciones (si existe columna nombre_responsable)
+    $tiene_nombre = column_exists($conexion, 'inscripciones', 'nombre_responsable');
+    if ($tiene_nombre) {
+        $stmtI = $conexion->prepare("UPDATE inscripciones SET nombre_responsable=?, email=?, dni=?, expediente=? WHERE id_usuario=?");
+        $stmtI->bind_param("ssssi", $usuario, $email, $dni, $expediente, $id);
+    } else {
+        $stmtI = $conexion->prepare("UPDATE inscripciones SET email=?, dni=?, expediente=? WHERE id_usuario=?");
+        $stmtI->bind_param("sssi", $email, $dni, $expediente, $id);
+    }
+    $stmtI->execute();
+
+    json_exit(['ok' => true]);
+}
+
 /* =========================
    PARTICIPANTE
 ========================= */
@@ -51,7 +113,6 @@ if (!$participante) {
 
 /* =========================
    INSCRIPCIONES (0..2)
-   devolvemos todo para el modal
 ========================= */
 $tiene_motivo = column_exists($conexion, 'inscripciones', 'motivo_rechazo');
 $tiene_nombre = column_exists($conexion, 'inscripciones', 'nombre_responsable');
@@ -83,8 +144,6 @@ $stmt2->bind_param("i", $id);
 $stmt2->execute();
 $candidaturas = $stmt2->get_result()->fetch_all(MYSQLI_ASSOC);
 
-/* Datos personales: si tienes 2 inscripciones, email/dni/expediente puede variar.
-   Para la cabecera mostramos los del primer registro si existe. */
 $head = $candidaturas[0] ?? null;
 
 json_exit([

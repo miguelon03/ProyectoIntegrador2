@@ -22,6 +22,7 @@ body{
   background:#fff;
   border-bottom:1px solid #ddd;
   box-shadow:0 2px 10px rgba(0,0,0,.06);
+  font-family:var(--font);
 }
 
 .perfil-header-inner{
@@ -204,4 +205,97 @@ body{
 
 @media (max-width:700px){
   .detalle-grid{ grid-template-columns:1fr; }
+}
+/* =========================
+   EDITAR PERFIL
+========================= */
+.perfil-form .campo{
+  display:grid;
+  gap:6px;
+  margin-bottom:12px;
+}
+
+.perfil-form input{
+  width:100%;
+  padding:10px 12px;
+  border:1px solid var(--border);
+}
+
+.perfil-form .error{
+  color:var(--ue-red);
+  font-size:13px;
+  margin-top:6px;
+}
+.link-button{
+  background:none;
+  border:none;
+  color:#b3001b;
+  cursor:pointer;
+  font-weight:600;
+  padding:6px 0;
+}
+.link-button:hover{
+  text-decoration:underline;
+}
+/* =========================
+   CABECERA PERFIL
+========================= */
+.perfil-header-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.perfil-header-left{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.link-button{
+  background:none;
+  border:none;
+  color:#b3001b;
+  font-weight:600;
+  cursor:pointer;
+  padding:0;
+}
+
+.link-button:hover{
+  text-decoration:underline;
+}
+/* =========================
+   ACCIONES CABECERA PERFIL
+========================= */
+.perfil-header-inner{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.perfil-header-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+/* Botón Editar perfil (mismo look que Salir, pero secundario) */
+.btn-editar{
+  background:none;
+  border:none;
+  color:#b3001b;
+  font-weight:600;
+  font-size:15px;
+  cursor:pointer;
+  padding:0;
+  font-family: var(--font);
+}
+
+.btn-editar:hover{
+  text-decoration:underline;
+}
+
+/* Aseguramos contraste */
+.perfil-header h1{
+  color:#111;
 }

@@ -241,8 +241,9 @@ if ($accion === 'actualizar') {
 
     $id_usuario = intval($_SESSION['id_usuario']);
 
+    // traer la inscripción actual del usuario
     $stmt = $conexion->prepare("
-        SELECT id_inscripcion, ficha, cartel
+        SELECT id_inscripcion, ficha, cartel, estado
         FROM inscripciones
         WHERE id_usuario=?
         ORDER BY fecha DESC
@@ -254,6 +255,11 @@ if ($accion === 'actualizar') {
 
     if (!$actual) {
         json_exit(['ok' => false, 'error' => 'No tienes inscripción para actualizar']);
+    }
+
+    // ✅ Solo se permite actualizar/reenviar si está RECHAZADO
+    if (strtoupper($actual['estado'] ?? '') !== 'RECHAZADO') {
+        json_exit(['ok' => false, 'error' => 'Solo puedes reenviar si tu candidatura está RECHAZADA']);
     }
 
     $id_inscripcion = intval($actual['id_inscripcion']);
@@ -274,6 +280,7 @@ if ($accion === 'actualizar') {
         json_exit(['ok' => false, 'error' => 'Rellena sinopsis, email, dni, expediente y vídeo']);
     }
 
+    // uploads opcionales
     $uploadsDirAbs = realpath(__DIR__ . "/../../") . "/uploads/";
     if (!is_dir($uploadsDirAbs)) @mkdir($uploadsDirAbs, 0777, true);
 
@@ -328,6 +335,7 @@ if ($accion === 'actualizar') {
 
     json_exit(['ok' => true]);
 }
+
 
 /* ======================================================
    INSCRIPCIÓN PARTICIPANTE (crear)
