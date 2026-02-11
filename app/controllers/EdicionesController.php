@@ -17,18 +17,36 @@ $accion = $_GET['accion'] ?? '';
 ========================= */
 if ($accion === 'guardar') {
 
-    // Registra los datos recibidos
-    error_log("Datos recibidos: " . print_r($_POST, true)); // Muestra los datos recibidos en POST
-    error_log("Archivos recibidos: " . print_r($_FILES, true)); // Muestra los archivos recibidos en FILES
+    // Logs de depuración
+    error_log("POST recibido en guardar edición: " . print_r($_POST, true));
+    error_log("FILES recibido en guardar edición: " . print_r($_FILES, true));
 
-    // Obtener datos actuales de gala
+    /* =========================
+       VALIDAR AÑO
+    ========================== */
+    $anio = intval($_POST['anio'] ?? 0);
+
+    if ($anio < 1900 || $anio > intval(date("Y"))) {
+        echo json_encode(['ok'=>false,'error'=>'Año inválido']);
+        exit;
+    }
+
+    /* =========================
+       OBTENER DATOS DE LA GALA
+    ========================== */
     $gala = $conexion->query("
         SELECT texto_resumen, fecha_edicion, modo
-        FROM gala WHERE id = 1
+        FROM gala
+        WHERE id = 1
     ")->fetch_assoc();
 
+    if (!$gala) {
+        echo json_encode(['ok'=>false,'error'=>'No se pudo leer la gala']);
+        exit;
+    }
+
     $modo = $gala['modo'] ?? '';
-    $textoResumen = $gala['texto_resumen'] ?? '';
+    $textoResumen = trim($gala['texto_resumen'] ?? '');
     $fechaEdicion = $gala['fecha_edicion'] ?? null;
 
     if ($modo !== 'POST') {
@@ -36,29 +54,31 @@ if ($accion === 'guardar') {
         exit;
     }
 
-    if (!$textoResumen) {
-        echo json_encode(['ok'=>false,'error'=>'No hay resumen']);
+    if ($textoResumen === '') {
+        echo json_encode(['ok'=>false,'error'=>'No hay resumen para guardar']);
         exit;
     }
 
-    // Fecha: preferimos la fecha de la gala si existe
-    $fecha = $fechaEdicion ?: date('Y-m-d');
-
-    // Año: lo podemos recibir del formulario (modal) y si no, lo derivamos de la fecha
-    $anio = isset($_POST['anio']) ? intval($_POST['anio']) : intval(date('Y', strtotime($fecha)));
-    if ($anio <= 0) {
-        $anio = intval(date('Y', strtotime($fecha)));
+    if (!$fechaEdicion || !strtotime($fechaEdicion)) {
+        echo json_encode(['ok'=>false,'error'=>'La gala no tiene fecha válida']);
+        exit;
     }
 
-    // Validar imágenes (debe haber al menos 1) antes de guardar la edición
+    /* =========================
+       VALIDAR IMÁGENES EXISTENTES
+    ========================== */
     $imgsRes = $conexion->query("SELECT ruta FROM gala_imagenes");
+
     if (!$imgsRes || $imgsRes->num_rows === 0) {
         echo json_encode(['ok'=>false,'error'=>'No hay imágenes en la galería de la post-gala']);
         exit;
     }
+
     $imgs = $imgsRes->fetch_all(MYSQLI_ASSOC);
 
-    // Insertar edición
+    /* =========================
+       INSERTAR EDICIÓN
+    ========================== */
     $stmt = $conexion->prepare("
         INSERT INTO ediciones (anio, fecha, texto_resumen)
         VALUES (?,?,?)
@@ -69,11 +89,18 @@ if ($accion === 'guardar') {
         exit;
     }
 
-    $stmt->bind_param("iss", $anio, $fecha, $textoResumen);
+    $stmt->bind_param("iss", $anio, $fechaEdicion, $textoResumen);
     $stmt->execute();
     $id_edicion = $conexion->insert_id;
 
-    // Copiar imágenes
+    if (!$id_edicion) {
+        echo json_encode(['ok'=>false,'error'=>'No se pudo crear la edición']);
+        exit;
+    }
+
+    /* =========================
+       COPIAR IMÁGENES A LA EDICIÓN
+    ========================== */
     foreach ($imgs as $img) {
         $stmt = $conexion->prepare("
             INSERT INTO ediciones_imagenes (id_edicion, ruta)
@@ -83,7 +110,9 @@ if ($accion === 'guardar') {
         $stmt->execute();
     }
 
-    // Limpiar gala actual
+    /* =========================
+       LIMPIAR GALA ACTUAL
+    ========================== */
     $conexion->query("UPDATE gala SET texto_resumen = NULL");
     $conexion->query("DELETE FROM gala_imagenes");
     $conexion->query("UPDATE gala SET modo = 'PRE'");
@@ -92,4 +121,7 @@ if ($accion === 'guardar') {
     exit;
 }
 
+/* =========================
+   ACCIÓN NO VÁLIDA
+========================= */
 echo json_encode(['ok'=>false,'error'=>'Acción no válida']);

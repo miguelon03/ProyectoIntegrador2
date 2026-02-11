@@ -47,37 +47,59 @@ if ($accion === 'cambiarModo') {
 }
 
 /* =========================
-   SECCIONES PRE
+   CREAR SECCIÓN (PRE-GALA)
 ========================= */
 if ($accion === 'crearSeccion') {
+
+    $titulo = trim($_POST['titulo'] ?? '');
+    $hora = trim($_POST['hora'] ?? '');
+    $sala = trim($_POST['sala'] ?? '');
+    $descripcion = trim($_POST['descripcion'] ?? '');
+
+    if ($titulo === '' || $hora === '' || $sala === '' || $descripcion === '') {
+        echo json_encode(['ok'=>false,'error'=>'Todos los campos son obligatorios']);
+        exit;
+    }
+
+    if (!preg_match('/^\d{2}:\d{2}$/', $hora)) {
+        echo json_encode(['ok'=>false,'error'=>'Hora inválida']);
+        exit;
+    }
 
     $stmt = $conexion->prepare("
         INSERT INTO gala_secciones (titulo, hora, sala, descripcion)
         VALUES (?,?,?,?)
     ");
-
-    $stmt->bind_param(
-        "ssss",
-        $_POST['titulo'],
-        $_POST['hora'],
-        $_POST['sala'],
-        $_POST['descripcion']
-    );
-
+    $stmt->bind_param("ssss", $titulo, $hora, $sala, $descripcion);
     $stmt->execute();
 
     echo json_encode(['ok'=>true]);
     exit;
 }
+
 /* =========================
-   EDITAR SECCIÓN PRE-GALA
+   EDITAR SECCIÓN
 ========================= */
 if ($accion === 'editarSeccion') {
 
-    $id = $_POST['id'] ?? null;
-
-    if (!$id) {
+    $id = intval($_POST['id'] ?? 0);
+    if ($id <= 0) {
         echo json_encode(['ok'=>false,'error'=>'ID no recibido']);
+        exit;
+    }
+
+    $titulo = trim($_POST['titulo'] ?? '');
+    $hora = trim($_POST['hora'] ?? '');
+    $sala = trim($_POST['sala'] ?? '');
+    $descripcion = trim($_POST['descripcion'] ?? '');
+
+    if ($titulo === '' || $hora === '' || $sala === '' || $descripcion === '') {
+        echo json_encode(['ok'=>false,'error'=>'Todos los campos son obligatorios']);
+        exit;
+    }
+
+    if (!preg_match('/^\d{2}:\d{2}$/', $hora)) {
+        echo json_encode(['ok'=>false,'error'=>'Hora inválida']);
         exit;
     }
 
@@ -86,33 +108,28 @@ if ($accion === 'editarSeccion') {
         SET titulo = ?, hora = ?, sala = ?, descripcion = ?
         WHERE id = ?
     ");
-
-    $stmt->bind_param(
-        "ssssi",
-        $_POST['titulo'],
-        $_POST['hora'],
-        $_POST['sala'],
-        $_POST['descripcion'],
-        $id
-    );
-
+    $stmt->bind_param("ssssi", $titulo, $hora, $sala, $descripcion, $id);
     $stmt->execute();
 
     echo json_encode(['ok'=>true]);
     exit;
 }
 
-
-
+/* =========================
+   LISTAR SECCIONES
+========================= */
 if ($accion === 'listarSecciones') {
     $res = $conexion->query("SELECT * FROM gala_secciones ORDER BY hora");
     echo json_encode(['ok'=>true,'secciones'=>$res->fetch_all(MYSQLI_ASSOC)]);
     exit;
 }
 
+/* =========================
+   BORRAR SECCIÓN
+========================= */
 if ($accion === 'borrarSeccion') {
     $id = intval($_GET['id']);
-   $stmt = $conexion->prepare("DELETE FROM gala_secciones WHERE id=?");
+    $stmt = $conexion->prepare("DELETE FROM gala_secciones WHERE id=?");
     $stmt->bind_param("i",$id);
     $stmt->execute();
     echo json_encode(['ok'=>true]);
@@ -120,14 +137,19 @@ if ($accion === 'borrarSeccion') {
 }
 
 /* =========================
-   GUARDAR TEXTO RESUMEN (POST-GALA)
+   GUARDAR RESUMEN (POST-GALA)
 ========================= */
 if ($accion === 'guardarResumen') {
 
-    $texto = $_POST['texto'] ?? '';
+    $texto = trim($_POST['texto'] ?? '');
 
-    if (!$texto) {
+    if ($texto === '') {
         echo json_encode(['ok'=>false,'error'=>'Texto vacío']);
+        exit;
+    }
+
+    if (strlen($texto) > 5000) {
+        echo json_encode(['ok'=>false,'error'=>'El resumen es demasiado largo']);
         exit;
     }
 
@@ -144,14 +166,31 @@ if ($accion === 'guardarResumen') {
 }
 
 /* =========================
-   POST-GALA IMÁGENES
+   SUBIR IMAGEN (POST-GALA)
 ========================= */
 if ($accion === 'subirImagen') {
+
+    if (!isset($_FILES['imagen']) || $_FILES['imagen']['error'] !== 0) {
+        echo json_encode(['ok'=>false,'error'=>'No se recibió la imagen']);
+        exit;
+    }
+
+    $permitidos = ['image/jpeg','image/png','image/webp'];
+    if (!in_array($_FILES['imagen']['type'], $permitidos)) {
+        echo json_encode(['ok'=>false,'error'=>'Formato no permitido (solo JPG, PNG, WEBP)']);
+        exit;
+    }
+
+    if ($_FILES['imagen']['size'] > 5 * 1024 * 1024) {
+        echo json_encode(['ok'=>false,'error'=>'La imagen supera los 5MB']);
+        exit;
+    }
+
     $dir = "../../uploads/";
     if (!is_dir($dir)) mkdir($dir,0777,true);
 
-    $nombre = uniqid()."_".$_FILES['imagen']['name'];
-    move_uploaded_file($_FILES['imagen']['tmp_name'],$dir.$nombre);
+    $nombre = uniqid()."_".basename($_FILES['imagen']['name']);
+    move_uploaded_file($_FILES['imagen']['tmp_name'], $dir.$nombre);
 
     $stmt = $conexion->prepare("INSERT INTO gala_imagenes (ruta) VALUES (?)");
     $stmt->bind_param("s",$nombre);
@@ -161,12 +200,18 @@ if ($accion === 'subirImagen') {
     exit;
 }
 
+/* =========================
+   LISTAR IMÁGENES
+========================= */
 if ($accion === 'listarImagenes') {
     $res = $conexion->query("SELECT * FROM gala_imagenes ORDER BY id DESC");
     echo json_encode(['ok'=>true,'imagenes'=>$res->fetch_all(MYSQLI_ASSOC)]);
     exit;
 }
 
+/* =========================
+   BORRAR IMAGEN
+========================= */
 if ($accion === 'borrarImagen') {
     $id = intval($_GET['id']);
     $res = $conexion->query("SELECT ruta FROM gala_imagenes WHERE id=$id");
@@ -179,64 +224,19 @@ if ($accion === 'borrarImagen') {
 }
 
 /* =========================
-   GUARDAR EDICIÓN
-========================= */
-// Acción para guardar la edición
-if ($accion === 'guardarEdicion') {
-    $anio = $_POST['anio'] ?? null;
-    $texto = $_POST['texto'] ?? '';
-    
-    // Verificar si se recibieron las imágenes
-    if (isset($_FILES['imagenes'])) {
-        $imagenes = $_FILES['imagenes'];
-    } else {
-        $imagenes = [];
-    }
-
-    // Verifica que el año y el texto no estén vacíos
-    if (!$anio || !$texto || empty($imagenes)) {
-        echo json_encode(['ok' => false, 'error' => 'Faltan datos']);
-        exit;
-    }
-
-    // Guardar la edición en la base de datos
-    $stmt = $conexion->prepare("INSERT INTO ediciones (texto_resumen, fecha, anio) VALUES (?, CURDATE(), ?)");
-    $stmt->bind_param("si", $texto, $anio);
-    $stmt->execute();
-    $id_edicion = $conexion->insert_id;
-
-    // Guardar las imágenes
-    foreach ($imagenes['tmp_name'] as $key => $tmp_name) {
-        $filename = uniqid() . "_" . $imagenes['name'][$key]; // Generar nombre único
-        $uploadDir = '../../uploads/';
-        $filepath = $uploadDir . $filename;
-
-        // Mover el archivo al directorio 'uploads'
-        if (move_uploaded_file($tmp_name, $filepath)) {
-            // Guardar la ruta de la imagen en la base de datos
-            $stmt = $conexion->prepare("INSERT INTO ediciones_imagenes (id_edicion, ruta) VALUES (?, ?)");
-            $stmt->bind_param("is", $id_edicion, $filename);
-            $stmt->execute();
-        } else {
-            echo json_encode(['ok' => false, 'error' => 'Error al subir la imagen']);
-            exit;
-        }
-    }
-
-    echo json_encode(['ok' => true]);
-}
-
-
-
-/* =========================
    GUARDAR FECHA DE LA GALA
 ========================= */
 if ($accion === 'guardarFecha') {
 
     $fecha = $_POST['fecha'] ?? null;
 
-    if (!$fecha) {
-        echo json_encode(['ok' => false, 'error' => 'Fecha no válida']);
+    if (!$fecha || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+        echo json_encode(['ok'=>false,'error'=>'Formato de fecha inválido']);
+        exit;
+    }
+
+    if (!strtotime($fecha)) {
+        echo json_encode(['ok'=>false,'error'=>'Fecha no válida']);
         exit;
     }
 
@@ -248,9 +248,10 @@ if ($accion === 'guardarFecha') {
     $stmt->bind_param("s", $fecha);
     $stmt->execute();
 
-    echo json_encode(['ok' => true]);
+    echo json_encode(['ok'=>true]);
     exit;
 }
+
 /* =========================
    GALA PÚBLICA
 ========================= */
@@ -292,6 +293,5 @@ if ($accion === 'publico') {
     ]);
     exit;
 }
-
 
 echo json_encode(['ok'=>false,'error'=>'Acción no válida']);
