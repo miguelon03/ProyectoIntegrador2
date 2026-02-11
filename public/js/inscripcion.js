@@ -7,12 +7,17 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(data => {
       TIENE_SESION = !!data.tieneSesion;
 
+      // ✅ Si ya tiene sesión, NO puede usar inscripción
+      // La 2ª candidatura se hace desde Perfil
       if (TIENE_SESION) {
-        document.getElementById("datosUsuario").style.display = "none";
+        window.location.href = "perfil.html";
+        return;
       }
 
+      // Si ya tiene 2 candidaturas, fuera también
       if ((data.total ?? 0) >= 2) {
         window.location.href = "index.html";
+        return;
       }
     })
     .catch(() => {
@@ -196,6 +201,7 @@ document.getElementById("formInscripcion").addEventListener("submit", async e =>
 
   let okUsuario = true, okPass = true, okEmail = true, okDni = true, okExp = true, okTipo = true;
 
+  // ✅ aquí siempre será false porque si tiene sesión redirigimos al cargar
   if (!TIENE_SESION) {
     okUsuario = validarUsuario(usuario); if (!okUsuario) errores.push("Usuario");
     okPass = validarContrasena(contrasena); if (!okPass) errores.push("Contraseña");

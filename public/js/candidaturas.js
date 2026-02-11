@@ -1,4 +1,11 @@
-const URL_INS = "/ProyectoIntegrador2/app/controllers/InscripcionController.php";
+const BASE_PATH = (() => {
+    const p = window.location.pathname || "";
+    const idx = p.indexOf("/public/");
+    if (idx !== -1) return p.substring(0, idx);
+    return "/ProyectoIntegrador2"; // fallback
+})();
+
+const URL_INS = `${BASE_PATH}/app/controllers/InscripcionController.php`;
 
 let candidaturaSeleccionada = null;
 let rechazoId = null;
@@ -20,7 +27,7 @@ function cargarCandidaturas() {
         .then(r => r.json())
         .then(data => {
             if (!data.ok) {
-                alert(data.error || "Error al cargar candidaturas");
+                showModal(data.error || "Error al cargar candidaturas");
                 return;
             }
 
@@ -72,7 +79,7 @@ function cargarCandidaturas() {
         })
         .catch(err => {
             console.error(err);
-            alert("Error al cargar candidaturas");
+            showModal("Error al cargar candidaturas");
         });
 }
 
@@ -103,11 +110,11 @@ function abrirModalDetalle(c) {
         </p>
 
         <p><strong>Ficha técnica:</strong>
-            ${c.ficha ? `<a href="/ProyectoIntegrador2/uploads/${extraerNombre(c.ficha)}" target="_blank" download>Descargar ficha</a>` : "—"}
+            ${c.ficha ? `<a href="${BASE_PATH}/uploads/${extraerNombre(c.ficha)}" target="_blank" download>Descargar ficha</a>` : "—"}
         </p>
 
         <p><strong>Cartel:</strong>
-            ${c.cartel ? `<a href="/ProyectoIntegrador2/uploads/${extraerNombre(c.cartel)}" target="_blank" download>Descargar cartel</a>` : "—"}
+            ${c.cartel ? `<a href="${BASE_PATH}/uploads/${extraerNombre(c.cartel)}" target="_blank" download>Descargar cartel</a>` : "—"}
         </p>
 
         <p><strong>Estado:</strong> ${c.estado}</p>
@@ -151,7 +158,10 @@ function aceptarCandidatura(id) {
     fetch(`${URL_INS}?accion=aceptar&id=${id}`, { credentials: "same-origin" })
         .then(r => r.json())
         .then(res => {
-            if (!res.ok) return alert(res.error || "Error al aceptar");
+            if (!res.ok) {
+                showModal(res.error || "Error al aceptar");
+                return;
+            }
             cerrarModalDetalle();
             cargarCandidaturas();
         });
@@ -161,7 +171,10 @@ function nominarCandidatura(id) {
     fetch(`${URL_INS}?accion=nominar&id=${id}`, { credentials: "same-origin" })
         .then(r => r.json())
         .then(res => {
-            if (!res.ok) return alert(res.error || "Error al nominar");
+            if (!res.ok) {
+                showModal(res.error || "Error al nominar");
+                return;
+            }
             cerrarModalDetalle();
             cargarCandidaturas();
         });
@@ -183,7 +196,10 @@ function cerrarModalRechazo() {
 
 function confirmarRechazo() {
     const motivo = document.getElementById("motivoRechazo").value.trim();
-    if (!motivo) return alert("Debes escribir un motivo");
+    if (!motivo) {
+        showModal("Debes escribir un motivo");
+        return;
+    }
 
     const fd = new FormData();
     fd.append("accion", "rechazar");
@@ -193,7 +209,10 @@ function confirmarRechazo() {
     fetch(URL_INS, { method: "POST", credentials: "same-origin", body: fd })
         .then(r => r.json())
         .then(res => {
-            if (!res.ok) return alert(res.error || "Error al rechazar");
+            if (!res.ok) {
+                showModal(res.error || "Error al rechazar");
+                return;
+            }
             cerrarModalRechazo();
             cerrarModalDetalle();
             cargarCandidaturas();

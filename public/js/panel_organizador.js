@@ -239,7 +239,7 @@ document.getElementById("formSeccion").addEventListener("submit", e => {
             seccionEditando = null;
             cargarSecciones();
         } else {
-            alert(data.error || "Error al guardar sección");
+            showModal(data.error || "Error al guardar sección");
         }
     });
 });
@@ -264,12 +264,12 @@ if (formResumen) {
         .then(r => r.json())
        .then(data => {
     if (data.ok) {
-        alert("Resumen guardado correctamente");
+        showModal("Resumen guardado correctamente");
 
         // 🔑 LIMPIAR EL TEXTAREA DESPUÉS DE GUARDAR
         formResumen.reset();
     } else {
-        alert(data.error || "Error al guardar el resumen");
+        showModal(data.error || "Error al guardar el resumen");
     }
 });
 
@@ -356,7 +356,7 @@ function guardarEdicion() {
 function guardarFechaGala() {
     const fecha = document.getElementById("fechaGala").value;
     if (!fecha) {
-        alert("Selecciona una fecha");
+        showModal("Selecciona una fecha");
         return;
     }
 
@@ -369,9 +369,9 @@ function guardarFechaGala() {
     .then(r => r.json())
     .then(data => {
         if (data.ok) {
-            alert("Fecha guardada");
+            showModal("Fecha guardada");
         } else {
-            alert(data.error);
+            showModal(data.error);
         }
     });
 }

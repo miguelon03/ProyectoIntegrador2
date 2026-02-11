@@ -6,6 +6,7 @@
     <title>Panel Organizador</title>
     <link rel="stylesheet" href="../css/panel_organizador.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="../css/ui.css">
 </head>
 
 <body>
@@ -320,7 +321,7 @@
         function abrirModalPremio(mensaje) {
             const m = document.getElementById("modalPremioError");
             const t = document.getElementById("modalPremioMensaje");
-            if (!m || !t) return alert(mensaje);
+            if (!m || !t) { if (typeof showModal === 'function') showModal(mensaje); return; }
             t.textContent = mensaje;
             m.classList.remove("hidden");
         }
@@ -331,7 +332,8 @@
         }
     </script>
 
-    <script src="../js/panel_organizador.js"></script>
+    <script src="../js/ui.js"></script>
+<script src="../js/panel_organizador.js"></script>
     <script src="../js/candidaturas.js"></script>
     <script src="../js/eventos_admin.js"></script>
     <script src="../js/noticias_admin.js"></script>

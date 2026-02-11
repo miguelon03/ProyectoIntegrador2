@@ -299,3 +299,43 @@ body{
 .perfil-header h1{
   color:#111;
 }
+.perfil-acciones {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+.perfil-acciones button {
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+/* =========================
+   CABECERA SECCIÓN (Editar perfil)
+========================= */
+.perfil-card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.perfil-card-header h2{
+  margin:0;
+}
+
+.btn-cerrar-seccion{
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:800;
+  color:var(--ue-red);
+  line-height:1;
+}
+
+.btn-cerrar-seccion:hover{
+  filter:brightness(0.9);
+}

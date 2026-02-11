@@ -209,7 +209,7 @@ document.getElementById("formEvento").addEventListener("submit", e => {
                 cargarEventos();
             } else {
                 // si quieres, lo cambiamos a tu modal de error
-                alert(res.error || "Error al guardar el evento");
+                showModal(res.error || "Error al guardar el evento");
             }
         });
 });
@@ -246,7 +246,7 @@ function eliminarEventoConfirmado() {
             if (res.ok) {
                 cargarEventos();
             } else {
-                alert(res.error || "Error al eliminar el evento");
+                showModal(res.error || "Error al eliminar el evento");
             }
             eventoAEliminar = null;
         });

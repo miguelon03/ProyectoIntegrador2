@@ -38,6 +38,23 @@ if ($accion === 'estado') {
 }
 
 /* ======================================================
+   PUBLICO: CONTAR CANDIDATURAS (para botón 2ª)
+====================================================== */
+if ($accion === 'contar') {
+    if (!isset($_SESSION['id_usuario'])) {
+        json_exit(['ok' => false, 'error' => 'No autorizado']);
+    }
+
+    $id_usuario = intval($_SESSION['id_usuario']);
+    $stmt = $conexion->prepare("SELECT COUNT(*) AS total FROM inscripciones WHERE id_usuario=?");
+    $stmt->bind_param("i", $id_usuario);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+
+    json_exit(['ok' => true, 'total' => intval($row['total'] ?? 0)]);
+}
+
+/* ======================================================
    PUBLICO: COMPROBAR DUPLICADOS
 ====================================================== */
 if ($accion === 'comprobarDuplicados') {
@@ -106,61 +123,77 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
 
     if ($accion === 'listar') {
 
-    if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'organizador') {
-        json_exit(['ok' => false, 'error' => 'No autorizado']);
+        if (!isset($_SESSION['tipo']) || $_SESSION['tipo'] !== 'organizador') {
+            json_exit(['ok' => false, 'error' => 'No autorizado']);
+        }
+
+                $tipo = trim($_GET['tipo'] ?? '');
+
+        // Si no viene tipo, devolvemos todas (el frontend las separa por Alumno/Alumni)
+        if ($tipo !== '' && $tipo !== 'Alumno' && $tipo !== 'Alumni') {
+            json_exit(['ok' => false, 'error' => 'Tipo inválido']);
+        }
+
+        if ($tipo === '') {
+
+            $stmt = $conexion->prepare("
+                SELECT 
+                    i.id_inscripcion,
+                    i.id_usuario,
+                    i.ficha,
+                    i.cartel,
+                    i.sinopsis,
+                    i.nombre_responsable,
+                    i.email,
+                    i.dni,
+                    i.expediente,
+                    i.video,
+                    i.tipo_participante,
+                    i.estado,
+                    i.motivo_rechazo,
+                    i.fecha,
+                    p.usuario
+                FROM inscripciones i
+                LEFT JOIN participantes p ON p.id_usuario = i.id_usuario
+                ORDER BY i.fecha DESC
+            ");
+
+            $stmt->execute();
+
+        } else {
+
+            $stmt = $conexion->prepare("
+                SELECT 
+                    i.id_inscripcion,
+                    i.id_usuario,
+                    i.ficha,
+                    i.cartel,
+                    i.sinopsis,
+                    i.nombre_responsable,
+                    i.email,
+                    i.dni,
+                    i.expediente,
+                    i.video,
+                    i.tipo_participante,
+                    i.estado,
+                    i.motivo_rechazo,
+                    i.fecha,
+                    p.usuario
+                FROM inscripciones i
+                LEFT JOIN participantes p ON p.id_usuario = i.id_usuario
+                WHERE i.tipo_participante = ?
+                ORDER BY i.fecha DESC
+            ");
+
+            $stmt->bind_param("s", $tipo);
+            $stmt->execute();
+        }
+
+        json_exit([
+            'ok' => true,
+            'candidaturas' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)
+        ]);
     }
-
-    $tipo = $_GET['tipo'] ?? null;
-
-    // 🔹 Si viene tipo, lo validamos
-    if ($tipo !== null && $tipo !== 'Alumno' && $tipo !== 'Alumni') {
-        json_exit(['ok' => false, 'error' => 'Tipo inválido']);
-    }
-
-    // 🔹 Query base
-    $sql = "
-        SELECT 
-            i.id_inscripcion,
-            i.id_usuario,
-            i.ficha,
-            i.cartel,
-            i.sinopsis,
-            i.nombre_responsable,
-            i.email,
-            i.dni,
-            i.expediente,
-            i.video,
-            i.tipo_participante,
-            i.estado,
-            i.motivo_rechazo,
-            i.fecha,
-            p.usuario
-        FROM inscripciones i
-        LEFT JOIN participantes p ON p.id_usuario = i.id_usuario
-    ";
-
-    // 🔹 Si hay tipo → filtramos
-    if ($tipo !== null) {
-        $sql .= " WHERE i.tipo_participante = ? ";
-    }
-
-    $sql .= " ORDER BY i.fecha DESC ";
-
-    $stmt = $conexion->prepare($sql);
-
-    if ($tipo !== null) {
-        $stmt->bind_param("s", $tipo);
-    }
-
-    $stmt->execute();
-
-    json_exit([
-        'ok' => true,
-        'candidaturas' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)
-    ]);
-}
-
-
 
     if ($accion === 'aceptar') {
         $id = intval($_GET['id'] ?? 0);
@@ -172,46 +205,50 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
 
         json_exit(['ok' => true]);
     }
-
-    if ($accion === 'nominar') {
+if ($accion === 'nominar') {
     $id = intval($_GET['id'] ?? 0);
     if (!$id) json_exit(['ok' => false, 'error' => 'ID inválido']);
 
-    // 1) Obtener estado y tipo de la candidatura
-    $stmt = $conexion->prepare("SELECT estado, tipo_participante FROM inscripciones WHERE id_inscripcion=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_assoc();
+    // Traer tipo y estado de la candidatura
+    $st = $conexion->prepare("
+        SELECT tipo_participante, estado
+        FROM inscripciones
+        WHERE id_inscripcion=?
+        LIMIT 1
+    ");
+    $st->bind_param("i", $id);
+    $st->execute();
+    $row = $st->get_result()->fetch_assoc();
 
-    if (!$row) json_exit(['ok' => false, 'error' => 'Candidatura no encontrada']);
-
-    $estadoActual = strtoupper(trim($row['estado'] ?? ''));
-    $tipo = trim($row['tipo_participante'] ?? '');
-
-    // 2) Solo nominar si está ACEPTADO
-    if ($estadoActual !== 'ACEPTADO') {
-        json_exit(['ok' => false, 'error' => 'Solo se puede nominar una candidatura ACEPTADA']);
+    if (!$row) {
+        json_exit(['ok' => false, 'error' => 'Candidatura no encontrada']);
     }
 
-    // 3) Limitar a 5 nominados por tipo (Alumno / Alumni)
+    $tipo = trim($row['tipo_participante'] ?? '');
     if ($tipo !== 'Alumno' && $tipo !== 'Alumni') {
         json_exit(['ok' => false, 'error' => 'Tipo inválido']);
     }
 
-    $stmt = $conexion->prepare("
-        SELECT COUNT(*) AS total
-        FROM inscripciones
-        WHERE estado='NOMINADO' AND tipo_participante=?
-    ");
-    $stmt->bind_param("s", $tipo);
-    $stmt->execute();
-    $totalNominados = intval(($stmt->get_result()->fetch_assoc()['total'] ?? 0));
-
-    if ($totalNominados >= 5) {
-        json_exit(['ok' => false, 'error' => "Ya hay 5 candidaturas nominadas para $tipo"]);
+    $estadoActual = strtoupper(trim($row['estado'] ?? ''));
+    if ($estadoActual !== 'ACEPTADO') {
+        json_exit(['ok' => false, 'error' => 'Solo puedes nominar candidaturas ACEPTADAS']);
     }
 
-    // 4) Nominar
+    // ✅ Máximo 5 nominados por categoría (Alumno / Alumni)
+    $st2 = $conexion->prepare("
+        SELECT COUNT(*) AS total
+        FROM inscripciones
+        WHERE estado='NOMINADO'
+          AND tipo_participante=?
+    ");
+    $st2->bind_param("s", $tipo);
+    $st2->execute();
+    $total = intval($st2->get_result()->fetch_assoc()['total'] ?? 0);
+
+    if ($total >= 5) {
+        json_exit(['ok' => false, 'error' => "Ya hay 5 nominados en la categoría $tipo. No puedes nominar más."]);
+    }
+
     $stmt = $conexion->prepare("UPDATE inscripciones SET estado='NOMINADO' WHERE id_inscripcion=?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
@@ -219,7 +256,7 @@ if ($accion && in_array($accion, ['listar', 'aceptar', 'rechazar', 'nominar'], t
     json_exit(['ok' => true]);
 }
 
-    if ($accion === 'rechazar') {
+if ($accion === 'rechazar') {
         $id = intval($_POST['id'] ?? 0);
         $motivo = trim($_POST['motivo'] ?? '');
 
@@ -289,43 +326,54 @@ if ($accion === 'actualizar') {
 
     $id_usuario = intval($_SESSION['id_usuario']);
 
-    // traer la inscripción actual del usuario
-    $stmt = $conexion->prepare("
-        SELECT id_inscripcion, ficha, cartel, estado
-        FROM inscripciones
-        WHERE id_usuario=?
-        ORDER BY fecha DESC
-        LIMIT 1
-    ");
-    $stmt->bind_param("i", $id_usuario);
+    // Si viene id_inscripcion, actualizamos esa candidatura (permite elegir cuál reenviar).
+    // Si no viene, por compatibilidad usamos la última.
+    $id_inscripcion = intval($_POST['id_inscripcion'] ?? 0);
+
+    if ($id_inscripcion > 0) {
+        $stmt = $conexion->prepare("
+            SELECT id_inscripcion, ficha, cartel, estado, tipo_participante
+            FROM inscripciones
+            WHERE id_usuario=? AND id_inscripcion=?
+            LIMIT 1
+        ");
+        $stmt->bind_param("ii", $id_usuario, $id_inscripcion);
+    } else {
+        $stmt = $conexion->prepare("
+            SELECT id_inscripcion, ficha, cartel, estado, tipo_participante
+            FROM inscripciones
+            WHERE id_usuario=?
+            ORDER BY fecha DESC
+            LIMIT 1
+        ");
+        $stmt->bind_param("i", $id_usuario);
+    }
+
     $stmt->execute();
     $actual = $stmt->get_result()->fetch_assoc();
 
     if (!$actual) {
-        json_exit(['ok' => false, 'error' => 'No tienes inscripción para actualizar']);
+        json_exit(['ok' => false, 'error' => 'No tienes candidatura para actualizar']);
     }
 
     // ✅ Solo se permite actualizar/reenviar si está RECHAZADO
-    if (strtoupper($actual['estado'] ?? '') !== 'RECHAZADO') {
+    // (permitimos también 'RECHAZADA' por si algún dato histórico quedó con esa variante)
+    $estadoActual = strtoupper(trim($actual['estado'] ?? ''));
+    if (!in_array($estadoActual, ['RECHAZADO', 'RECHAZADA'], true)) {
         json_exit(['ok' => false, 'error' => 'Solo puedes reenviar si tu candidatura está RECHAZADA']);
     }
 
     $id_inscripcion = intval($actual['id_inscripcion']);
 
     $sinopsis = trim($_POST['sinopsis'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $dni = trim($_POST['dni'] ?? '');
-    $expediente = trim($_POST['expediente'] ?? '');
     $video = trim($_POST['video'] ?? '');
-    $nombre_responsable = trim($_POST['nombre_responsable'] ?? '');
-    $tipo_participante = trim($_POST['tipo_participante'] ?? '');
 
-    if ($tipo_participante !== 'Alumno' && $tipo_participante !== 'Alumni') {
-        json_exit(['ok' => false, 'error' => 'Debes seleccionar Alumno o Alumni']);
+    if ($sinopsis === '' || $video === '') {
+        json_exit(['ok' => false, 'error' => 'Rellena sinopsis y vídeo']);
     }
 
-    if ($sinopsis === '' || $email === '' || $dni === '' || $expediente === '' || $video === '') {
-        json_exit(['ok' => false, 'error' => 'Rellena sinopsis, email, dni, expediente y vídeo']);
+    if (stripos($video, 'http') !== 0) {
+        json_exit(['ok' => false, 'error' => 'El vídeo debe ser un enlace válido (http/https)']);
     }
 
     // uploads opcionales
@@ -355,27 +403,17 @@ if ($accion === 'actualizar') {
             ficha=?,
             cartel=?,
             sinopsis=?,
-            nombre_responsable=?,
-            email=?,
-            dni=?,
-            expediente=?,
             video=?,
-            tipo_participante=?,
             estado='PENDIENTE',
             motivo_rechazo=NULL
         WHERE id_inscripcion=? AND id_usuario=?
     ");
     $stmt2->bind_param(
-        "ssssssssssi",
+        "ssssii",
         $fichaPath,
         $cartelPath,
         $sinopsis,
-        $nombre_responsable,
-        $email,
-        $dni,
-        $expediente,
         $video,
-        $tipo_participante,
         $id_inscripcion,
         $id_usuario
     );
@@ -384,9 +422,100 @@ if ($accion === 'actualizar') {
     json_exit(['ok' => true]);
 }
 
+/* ======================================================
+   PARTICIPANTE: CREAR SEGUNDA CANDIDATURA (solo datos candidatura)
+====================================================== */
+if ($accion === 'crear_segunda') {
+
+    if (!isset($_SESSION['id_usuario']) || ($_SESSION['tipo'] ?? '') !== 'participante') {
+        json_exit(['ok' => false, 'error' => 'No autorizado']);
+    }
+
+    $id_usuario = intval($_SESSION['id_usuario']);
+
+    // ✅ Límite: máximo 2 candidaturas
+    $stmtLim = $conexion->prepare("SELECT COUNT(*) AS total FROM inscripciones WHERE id_usuario=?");
+    $stmtLim->bind_param("i", $id_usuario);
+    $stmtLim->execute();
+    $rowLim = $stmtLim->get_result()->fetch_assoc();
+    $totalIns = intval($rowLim['total'] ?? 0);
+
+    if ($totalIns >= 2) {
+        json_exit(['ok' => false, 'error' => 'Has alcanzado el máximo de 2 candidaturas']);
+    }
+
+    // Tomamos los datos personales de la última inscripción (se mantienen sincronizados desde PerfilController)
+    $stmtPers = $conexion->prepare("
+        SELECT nombre_responsable, email, dni, expediente
+        FROM inscripciones
+        WHERE id_usuario=?
+        ORDER BY fecha DESC
+        LIMIT 1
+    ");
+    $stmtPers->bind_param("i", $id_usuario);
+    $stmtPers->execute();
+    $pers = $stmtPers->get_result()->fetch_assoc();
+
+    if (!$pers) {
+        json_exit(['ok' => false, 'error' => 'No se han encontrado datos personales. Crea tu primera candidatura desde Inscripción.']);
+    }
+
+    $sinopsis = trim($_POST['sinopsis'] ?? '');
+    $video = trim($_POST['video'] ?? '');
+    $tipo_participante = trim($_POST['tipo_participante'] ?? '');
+
+    if ($tipo_participante !== 'Alumno' && $tipo_participante !== 'Alumni') {
+        json_exit(['ok' => false, 'error' => 'Debes seleccionar Alumno o Alumni']);
+    }
+
+    if ($sinopsis === '' || $video === '') {
+        json_exit(['ok' => false, 'error' => 'Rellena sinopsis y vídeo']);
+    }
+
+    $uploadsDirAbs = realpath(__DIR__ . "/../../") . "/uploads/";
+    if (!is_dir($uploadsDirAbs)) @mkdir($uploadsDirAbs, 0777, true);
+
+    if (empty($_FILES['ficha']['name']) || empty($_FILES['cartel']['name'])) {
+        json_exit(['ok' => false, 'error' => 'Ficha y cartel son obligatorios']);
+    }
+
+    $fichaName = uniqid("ficha_") . "_" . basename($_FILES['ficha']['name']);
+    $cartelName = uniqid("cartel_") . "_" . basename($_FILES['cartel']['name']);
+
+    $fichaDest = $uploadsDirAbs . $fichaName;
+    $cartelDest = $uploadsDirAbs . $cartelName;
+
+    move_uploaded_file($_FILES['ficha']['tmp_name'], $fichaDest);
+    move_uploaded_file($_FILES['cartel']['tmp_name'], $cartelDest);
+
+    $fichaPath = "/ProyectoIntegrador2/uploads/" . $fichaName;
+    $cartelPath = "/ProyectoIntegrador2/uploads/" . $cartelName;
+
+    $stmt2 = $conexion->prepare("
+        INSERT INTO inscripciones
+        (id_usuario, ficha, cartel, sinopsis, nombre_responsable, email, dni, expediente, video, tipo_participante, estado)
+        VALUES (?,?,?,?,?,?,?,?,?,?, 'PENDIENTE')
+    ");
+    $stmt2->bind_param(
+        "isssssssss",
+        $id_usuario,
+        $fichaPath,
+        $cartelPath,
+        $sinopsis,
+        $pers['nombre_responsable'],
+        $pers['email'],
+        $pers['dni'],
+        $pers['expediente'],
+        $video,
+        $tipo_participante
+    );
+    $stmt2->execute();
+
+    json_exit(['ok' => true]);
+}
 
 /* ======================================================
-   INSCRIPCIÓN PARTICIPANTE (crear)
+   INSCRIPCIÓN PARTICIPANTE (crear) - primera candidatura
 ====================================================== */
 if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -420,6 +549,16 @@ if (!$accion && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $id_usuario = intval($_SESSION['id_usuario']);
+
+    // ✅ Límite: máximo 2 candidaturas por usuario
+    $stmtLim = $conexion->prepare("SELECT COUNT(*) AS total FROM inscripciones WHERE id_usuario=?");
+    $stmtLim->bind_param("i", $id_usuario);
+    $stmtLim->execute();
+    $rowLim = $stmtLim->get_result()->fetch_assoc();
+    $totalIns = intval($rowLim['total'] ?? 0);
+    if ($totalIns >= 2) {
+        json_exit(['ok' => false, 'error' => 'Has alcanzado el máximo de 2 candidaturas']);
+    }
 
     $sinopsis = trim($_POST['sinopsis'] ?? '');
     $email = trim($_POST['email'] ?? '');
