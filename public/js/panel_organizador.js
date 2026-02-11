@@ -100,6 +100,12 @@ window.addEventListener("keydown", (e) => {
    GALA
 ========================= */
 const BASE_URL_GALA = "/ProyectoIntegrador2/app/controllers/GalaController.php";
+const BASE_URL_EDICIONES = "/ProyectoIntegrador2/app/controllers/EdicionesController.php";
+
+// Fallback sencillo (en algunas ramas del proyecto se llamaba pero no existía)
+function mostrarModalError(mensaje) {
+    alert(mensaje || "Ha ocurrido un error");
+}
 
 /* Cargar modo PRE / POST */
 function cargarModo() {
@@ -346,12 +352,6 @@ function confirmarEliminarImagen() {
 /* =========================
    GUARDAR EDICIÓN
 ========================= */
-function guardarEdicion() {
-    if (!confirm("¿Guardar como edición anterior?")) return;
-    fetch(`${BASE_URL_GALA}?accion=guardarEdicion`)
-        .then(r => r.json())
-        .then(() => mostrarModalError("Edición guardada correctamente"));
-}
 
 function guardarFechaGala() {
     const fecha = document.getElementById("fechaGala").value;
@@ -374,4 +374,67 @@ function guardarFechaGala() {
             alert(data.error);
         }
     });
+}
+
+// El botón del HTML llama a guardarEdicion()
+function guardarEdicion() {
+    abrirModalConfirmacionEdicion();
+}
+// Función para abrir el modal de confirmación de guardar edición
+function abrirModalConfirmacionEdicion() {
+    document.getElementById("modalConfirmacionEdicion").classList.remove("hidden");
+}
+
+// Función para cerrar el modal de confirmación de guardar edición
+function cerrarModalConfirmacionEdicion() {
+    document.getElementById("modalConfirmacionEdicion").classList.add("hidden");
+}
+
+// Función para mostrar el campo de año y cerrar el modal de confirmación
+function mostrarCampoAnio() {
+    cerrarModalConfirmacionEdicion(); // Cierra el modal de confirmación
+    // Muestra el modal para ingresar el año
+    document.getElementById("modalAnioEdicion").classList.remove("hidden");
+}
+
+function cerrarModalAnioEdicion() {
+    const modal = document.getElementById("modalAnioEdicion");
+    if (modal) modal.classList.add("hidden");
+    const input = document.getElementById("anioEdicion");
+    if (input) input.value = "";
+}
+
+// Guardar edición:
+// - No pedimos texto/imágenes al front: ya están guardados en la BD (gala.texto_resumen y gala_imagenes)
+// - El backend copia esos datos a "ediciones" + "ediciones_imagenes" y resetea la gala.
+function guardarEdicionConAnio() {
+    const input = document.getElementById("anioEdicion");
+    const anio = (input ? input.value : "").trim();
+
+    if (!anio) {
+        alert("Debe ingresar un año");
+        return;
+    }
+
+    fetch(`${BASE_URL_EDICIONES}?accion=guardar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `anio=${encodeURIComponent(anio)}`,
+        credentials: "same-origin"
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.ok) {
+                alert("Edición guardada correctamente");
+                cerrarModalAnioEdicion();
+                // Refrescar UI: vuelve a PRE y limpia la parte de post-gala
+                cargarModo();
+            } else {
+                alert(data.error || "Error al guardar la edición");
+            }
+        })
+        .catch(error => {
+            console.error("Error al guardar edición:", error);
+            alert("Ocurrió un error, por favor intente nuevamente.");
+        });
 }

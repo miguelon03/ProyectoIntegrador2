@@ -3,7 +3,9 @@ header("Content-Type: application/json");
 require "../../config/database.php";
 
 $res = $conexion->query("
-    SELECT * FROM ediciones ORDER BY fecha DESC
+    SELECT id, anio, texto_resumen, fecha
+    FROM ediciones
+    ORDER BY anio DESC, fecha DESC
 ");
 
 $ediciones = [];

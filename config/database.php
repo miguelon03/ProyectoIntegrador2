@@ -118,9 +118,21 @@ CREATE TABLE IF NOT EXISTS gala_imagenes (
     ruta VARCHAR(255)
 );
 
+/*
+  EDICIONES
+  --------
+  Esta tabla se usa en la sección pública 'Ediciones anteriores'.
+
+  En versiones anteriores del proyecto hubo inconsistencias de nombres de
+  columnas ('texto' vs 'texto_resumen' y ausencia de 'anio').
+  Para evitar fallos en runtime, mantenemos aquí el esquema correcto y
+  añadimos una pequeña migración más abajo.
+*/
+
 CREATE TABLE IF NOT EXISTS ediciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    texto TEXT,
+    anio INT NOT NULL,
+    texto_resumen TEXT,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -155,6 +167,40 @@ if (!$conexion->multi_query($sql)) {
 }
 
 while ($conexion->next_result()) {;}
+
+/* =======================
+   MIGRACIÓN SUAVE (solo si viene de una versión anterior)
+   - Renombra ediciones.texto -> ediciones.texto_resumen
+   - Añade ediciones.anio si no existe
+======================= */
+function columnaExiste($conexion, $tabla, $columna)
+{
+    $tabla = $conexion->real_escape_string($tabla);
+    $columna = $conexion->real_escape_string($columna);
+
+    $res = $conexion->query("SHOW COLUMNS FROM `{$tabla}` LIKE '{$columna}'");
+    return $res && $res->num_rows > 0;
+}
+
+// Si la tabla ediciones viene de un esquema anterior
+$__tabEdiciones = $conexion->query("SHOW TABLES LIKE 'ediciones'");
+if ($__tabEdiciones && $__tabEdiciones->num_rows > 0) {
+
+    // 1) texto -> texto_resumen
+    if (columnaExiste($conexion, 'ediciones', 'texto') && !columnaExiste($conexion, 'ediciones', 'texto_resumen')) {
+        // Renombramos la columna para que coincida con el resto del proyecto
+        $conexion->query("ALTER TABLE ediciones CHANGE texto texto_resumen TEXT");
+    }
+
+    // 2) Añadir anio
+    if (!columnaExiste($conexion, 'ediciones', 'anio')) {
+        $conexion->query("ALTER TABLE ediciones ADD COLUMN anio INT NULL AFTER id");
+        // Rellenar con el año de la fecha si existe
+        $conexion->query("UPDATE ediciones SET anio = YEAR(fecha) WHERE anio IS NULL");
+        // Intentar dejarlo como NOT NULL (si no hay filas sin año)
+        $conexion->query("ALTER TABLE ediciones MODIFY anio INT NOT NULL");
+    }
+}
 
 /* =======================
    FUNCIÓN PARA INSERTAR USUARIOS (HASH)

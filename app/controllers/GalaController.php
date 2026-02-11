@@ -181,32 +181,52 @@ if ($accion === 'borrarImagen') {
 /* =========================
    GUARDAR EDICIÓN
 ========================= */
+// Acción para guardar la edición
 if ($accion === 'guardarEdicion') {
-
-    $texto = $conexion->query("SELECT texto_resumen FROM gala WHERE id=1")
-        ->fetch_assoc()['texto_resumen'];
-
-    $stmt = $conexion->prepare("INSERT INTO ediciones (texto) VALUES (?)");
-    $stmt->bind_param("s",$texto);
-    $stmt->execute();
-    $idEdicion = $stmt->insert_id;
-
-    $imgs = $conexion->query("SELECT ruta FROM gala_imagenes");
-    while ($img = $imgs->fetch_assoc()) {
-        $stmt = $conexion->prepare("
-            INSERT INTO ediciones_imagenes (id_edicion,ruta)
-            VALUES (?,?)
-        ");
-        $stmt->bind_param("is",$idEdicion,$img['ruta']);
-        $stmt->execute();
+    $anio = $_POST['anio'] ?? null;
+    $texto = $_POST['texto'] ?? '';
+    
+    // Verificar si se recibieron las imágenes
+    if (isset($_FILES['imagenes'])) {
+        $imagenes = $_FILES['imagenes'];
+    } else {
+        $imagenes = [];
     }
 
-    $conexion->query("DELETE FROM gala_imagenes");
-    $conexion->query("UPDATE gala SET texto_resumen=NULL");
+    // Verifica que el año y el texto no estén vacíos
+    if (!$anio || !$texto || empty($imagenes)) {
+        echo json_encode(['ok' => false, 'error' => 'Faltan datos']);
+        exit;
+    }
 
-    echo json_encode(['ok'=>true]);
-    exit;
+    // Guardar la edición en la base de datos
+    $stmt = $conexion->prepare("INSERT INTO ediciones (texto_resumen, fecha, anio) VALUES (?, CURDATE(), ?)");
+    $stmt->bind_param("si", $texto, $anio);
+    $stmt->execute();
+    $id_edicion = $conexion->insert_id;
+
+    // Guardar las imágenes
+    foreach ($imagenes['tmp_name'] as $key => $tmp_name) {
+        $filename = uniqid() . "_" . $imagenes['name'][$key]; // Generar nombre único
+        $uploadDir = '../../uploads/';
+        $filepath = $uploadDir . $filename;
+
+        // Mover el archivo al directorio 'uploads'
+        if (move_uploaded_file($tmp_name, $filepath)) {
+            // Guardar la ruta de la imagen en la base de datos
+            $stmt = $conexion->prepare("INSERT INTO ediciones_imagenes (id_edicion, ruta) VALUES (?, ?)");
+            $stmt->bind_param("is", $id_edicion, $filename);
+            $stmt->execute();
+        } else {
+            echo json_encode(['ok' => false, 'error' => 'Error al subir la imagen']);
+            exit;
+        }
+    }
+
+    echo json_encode(['ok' => true]);
 }
+
+
 
 /* =========================
    GUARDAR FECHA DE LA GALA
