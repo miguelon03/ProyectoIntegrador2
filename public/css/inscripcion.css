@@ -1,67 +1,147 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
-.form-container {
-    position: relative;
-    max-width: 700px;
-    margin: 40px auto;
-    background: #fff;
-    padding: 30px;
-    box-shadow: 0 4px 12px rgba(226,8,8,.9);
-}
-.form-container h1 { text-align:center; margin-bottom:25px; }
-.form-group { display:flex; flex-direction:column; margin-bottom:15px; }
-.form-group label { font-weight:600; margin-bottom:6px; }
-.form-group input, textarea {
-    padding:10px; border:1px solid #ccc;
-}
-.btn-submit {
-    background:red; color:white; padding:12px;
-    border:none; cursor:pointer;
-}
-.btn-cerrar {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-
-    font-size: 22px;
-    font-weight: bold;
-    color: #c8102e;
-    text-decoration: none;
-
-    cursor: pointer;
-    line-height: 1;
+*{
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
 }
 
-.btn-cerrar:hover {
-    color: #a50d26;
-    transform: scale(1.1);
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  background: #f4f4f4;
+  font-family: 'Hellix', Helvetica, Arial, sans-serif;
+  color: #222;
 }
 
-/* Estilo general del mensaje de error */
-.error-msg {
-    color: #d60000;
-    font-size: 0.85rem;
-    margin-top: 4px;
-    display: block;
-    font-weight: 500;
+.form-container{
+  position: relative;
+  max-width: 760px;
+  margin: 28px auto;
+  background: #fff;
+  padding: 28px;
+
+  
+  box-shadow: 0 10px 30px rgba(0,0,0,.10);
+  border: 1px solid #eee;
 }
 
-/* Input con error */
-.input-error {
-    border: 2px solid #d60000 !important;
-    background-color: #ffecec;
+.form-container h1{
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.bloque-titulo{
+  margin: 22px 0 12px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #1f1f1f;
+}
+
+.form-group{
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.form-group label{
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select{
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  
+  font-family: 'Hellix', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  background: #fafafa;
+}
+
+.form-group textarea{
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus{
+  outline: none;
+  border-color: #c8102e;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(200,16,46,0.14);
+}
+
+.btn-submit{
+  background: #c8102e;
+  color: white;
+  padding: 12px 16px;
+  border: none;
+  cursor: pointer;
+  font-weight: 900;
+  width: 100%;
+  transition: .15s ease;
+}
+
+.btn-submit:hover{
+  background: #a50d26;
+  transform: translateY(-1px);
+}
+
+/* Cerrar */
+.btn-cerrar{
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  font-size: 22px;
+  font-weight: 900;
+  color: #c8102e;
+  text-decoration: none;
+
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-cerrar:hover{
+  color: #a50d26;
+  transform: scale(1.05);
+}
+
+/* Mensajes de error */
+.error-msg{
+  color: #c8102e;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+  font-weight: 700;
+}
+
+.input-error{
+  border: 2px solid #c8102e !important;
+  background-color: #ffecec;
 }
 
 /* Animación de temblor */
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-3px); }
-    50% { transform: translateX(3px); }
-    75% { transform: translateX(-3px); }
-    100% { transform: translateX(0); }
+@keyframes shake{
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
 }
 
-.shake {
-    animation: shake 0.2s ease-in-out;
+.shake{
+  animation: shake 0.2s ease-in-out;
 }
 
-
+/* Responsive */
+@media (max-width: 520px){
+  body{ padding: 12px; }
+  .form-container{ padding: 18px; }
+  .form-container h1{ font-size: 22px; }
+}

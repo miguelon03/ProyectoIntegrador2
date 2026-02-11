@@ -1,4 +1,7 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
+*{
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
+}
 
 /* =========================
    RESET

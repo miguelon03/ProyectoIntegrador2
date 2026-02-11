@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Organizador</title>
     <link rel="stylesheet" href="../css/panel_organizador.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -297,33 +298,9 @@
                     </div>
                 </div>
 
-                <button class="button" onclick="guardarEdicion()">Guardar edición anterior</button>
+                <button class="button" onclick="guardarEdicion()">Guardar edición</button>
             </div>
         </section>
-<!-- Modal de confirmación para guardar edición -->
-<div id="modalConfirmacionEdicion" class="modal hidden">
-    <div class="modal-content">
-        <span class="modal-close" onclick="cerrarModalConfirmacionEdicion()">✖</span>
-        <h3>¿Está seguro de que desea guardar esta edición?</h3>
-        <div class="modal-actions">
-            <button class="button" onclick="cerrarModalConfirmacionEdicion()">Cancelar</button>
-            <button class="button btn-success" onclick="mostrarCampoAnio()">Continuar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para ingresar el año de la edición -->
-<div id="modalAnioEdicion" class="modal hidden">
-    <div class="modal-content">
-        <span class="modal-close" onclick="cerrarModalAnioEdicion()">✖</span>
-        <h3>Ingrese el año de la edición</h3>
-        <input type="number" id="anioEdicion" placeholder="Año de la edición" required>
-        <div class="modal-actions">
-            <button class="button" onclick="cerrarModalAnioEdicion()">Cancelar</button>
-            <button class="button btn-success" onclick="guardarEdicionConAnio()">Guardar</button>
-        </div>
-    </div>
-</div>
 
         <!-- MODAL CONFIRMACIÓN -->
         <div id="modalConfirmacion" class="modal hidden">

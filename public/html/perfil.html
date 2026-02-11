@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Perfil</title>
   <link rel="stylesheet" href="../css/perfil.css" />
   <link rel="stylesheet" href="../css/ui.css">
@@ -14,16 +15,16 @@
     <h1>Mi perfil</h1>
 
     <div class="perfil-header-actions">
-      <button type="button" class="btn-editar" onclick="toggleEditarPerfil()">
+      <button type="button" class="perfil-action outline" onclick="toggleEditarPerfil()">
         Editar perfil
       </button>
 
-      <button id="btnNuevaCandidatura" class="button small"
+      <button id="btnNuevaCandidatura" class="perfil-action primary"
               onclick="mostrarNuevaCandidatura()" style="display:none">
-        Añadir candidatura
+        Nueva candidatura
       </button>
 
-      <a class="btn-salir" href="index.html">Salir</a>
+      <a class="perfil-action outline" href="index.html">Salir</a>
     </div>
   </div>
 </header>

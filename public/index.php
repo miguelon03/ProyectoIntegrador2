@@ -4,6 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Festival de Cortos – Universidad Europea</title>
 
     <!-- CSS principal -->
@@ -12,6 +13,8 @@
     <!-- CSS del carrusel de noticias -->
     <link rel="stylesheet" href="css/noticias_publico.css">
     <link rel="stylesheet" href="css/ui.css">
+    
+    <link rel="stylesheet" href="css/footer_override.css">
 </head>
 
 <body>
@@ -77,7 +80,7 @@
         <div class="ue-footer-top">
 
             <div class="ue-footer-logo">
-                <img src="img/logo_uem.png" alt="Universidad Europea">
+                <img src="img/logo_footer.png" alt="Universidad Europea">
             </div>
 
             <div class="ue-footer-columns">

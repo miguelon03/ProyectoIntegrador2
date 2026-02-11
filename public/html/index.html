@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Festival de Cortos – Universidad Europea</title>
 
     <!-- CSS principal -->
@@ -10,12 +11,13 @@
     <!-- CSS del carrusel de noticias -->
     <link rel="stylesheet" href="../css/noticias_publico.css">
     <link rel="stylesheet" href="../css/ui.css">
+    <link rel="stylesheet" href="../css/footer_override.css">
 </head>
 
 <body>
 
 <header class="ue-header"> 
-     
+
     <div class="main-nav">
         <div class="logo">
             <a href="index.html">
@@ -48,31 +50,24 @@
         </a>
     </section>
 
-    <!--El carrusel -->
-    
-    <section style="margin-top: 80px;">
-    
+    <!-- ================= NOTICIAS ================= -->
+    <section class="news-section" style="margin-top: 80px;">
         <div class="news-carousel">
+            <div class="news-header">
+                <h1>Últimas noticias</h1>
+            </div>
 
-        <div class="news-header">
-            <h1>Últimas noticias</h1>
-        </div>
+            <div class="news-viewport">
+                <button id="prevBtn" class="news-btn prev" aria-label="Anterior">‹</button>
 
-        <button id="prevBtn" class="carousel-btn prev">‹</button>
+                <div id="newsTrack" class="news-track">
+                    <!-- Noticias cargadas dinámicamente -->
+                </div>
 
-        <div class="carousel-viewport">
-            <div id="newsTrack" class="carousel-track">
-                <!-- Noticias cargadas dinámicamente -->
+                <button id="nextBtn" class="news-btn next" aria-label="Siguiente">›</button>
             </div>
         </div>
-
-        <button id="nextBtn" class="carousel-btn next">›</button>
-
-    </div>
-
-</section>
-
-
+    </section>
 
 </main>
 
@@ -81,7 +76,7 @@
     <div class="ue-footer-top">
 
         <div class="ue-footer-logo">
-            <img src="../img/logo_uem.png" alt="Universidad Europea">
+            <img src="../img/logo_footer.png" alt="Universidad Europea">
         </div>
 
         <div class="ue-footer-columns">
@@ -104,9 +99,9 @@
                 </ul>
             </div>
 
-            <div class="ue-footer-col"  class="footer-patrocinadores">
+            <div class="ue-footer-col footer-patrocinadores">
                 <h3>Patrocinadores</h3>
-    <div id="footerPatrocinadores" class="patrocinadores-grid"></div>
+                <div id="footerPatrocinadores" class="patrocinadores-grid"></div>
             </div>
 
             <div class="ue-footer-col">
@@ -149,7 +144,6 @@
 <script src="../js/noticias_publico.js"></script>
 <script src="../js/session.js"></script>
 <script src="../js/patrocinadores_public.js"></script>
-
 
 </body>
 </html>

@@ -118,21 +118,9 @@ CREATE TABLE IF NOT EXISTS gala_imagenes (
     ruta VARCHAR(255)
 );
 
-/*
-  EDICIONES
-  --------
-  Esta tabla se usa en la sección pública 'Ediciones anteriores'.
-
-  En versiones anteriores del proyecto hubo inconsistencias de nombres de
-  columnas ('texto' vs 'texto_resumen' y ausencia de 'anio').
-  Para evitar fallos en runtime, mantenemos aquí el esquema correcto y
-  añadimos una pequeña migración más abajo.
-*/
-
 CREATE TABLE IF NOT EXISTS ediciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    anio INT NOT NULL,
-    texto_resumen TEXT,
+    texto TEXT,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -153,7 +141,6 @@ CREATE TABLE IF NOT EXISTS patrocinadores (
     logo VARCHAR(255) NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE TABLE IF NOT EXISTS premio_honorifico (
   id INT PRIMARY KEY DEFAULT 1,
   nombre VARCHAR(255),
@@ -168,40 +155,6 @@ if (!$conexion->multi_query($sql)) {
 }
 
 while ($conexion->next_result()) {;}
-
-/* =======================
-   MIGRACIÓN SUAVE (solo si viene de una versión anterior)
-   - Renombra ediciones.texto -> ediciones.texto_resumen
-   - Añade ediciones.anio si no existe
-======================= */
-function columnaExiste($conexion, $tabla, $columna)
-{
-    $tabla = $conexion->real_escape_string($tabla);
-    $columna = $conexion->real_escape_string($columna);
-
-    $res = $conexion->query("SHOW COLUMNS FROM `{$tabla}` LIKE '{$columna}'");
-    return $res && $res->num_rows > 0;
-}
-
-// Si la tabla ediciones viene de un esquema anterior
-$__tabEdiciones = $conexion->query("SHOW TABLES LIKE 'ediciones'");
-if ($__tabEdiciones && $__tabEdiciones->num_rows > 0) {
-
-    // 1) texto -> texto_resumen
-    if (columnaExiste($conexion, 'ediciones', 'texto') && !columnaExiste($conexion, 'ediciones', 'texto_resumen')) {
-        // Renombramos la columna para que coincida con el resto del proyecto
-        $conexion->query("ALTER TABLE ediciones CHANGE texto texto_resumen TEXT");
-    }
-
-    // 2) Añadir anio
-    if (!columnaExiste($conexion, 'ediciones', 'anio')) {
-        $conexion->query("ALTER TABLE ediciones ADD COLUMN anio INT NULL AFTER id");
-        // Rellenar con el año de la fecha si existe
-        $conexion->query("UPDATE ediciones SET anio = YEAR(fecha) WHERE anio IS NULL");
-        // Intentar dejarlo como NOT NULL (si no hay filas sin año)
-        $conexion->query("ALTER TABLE ediciones MODIFY anio INT NOT NULL");
-    }
-}
 
 /* =======================
    FUNCIÓN PARA INSERTAR USUARIOS (HASH)
@@ -231,69 +184,3 @@ function insertarUsuario($conexion, $tabla, $usuario, $passwordPlano)
 
 insertarUsuario($conexion, "organizadores", "miguel", "3333");
 
-/* 12 usuarios demo */
-insertarUsuario($conexion, "participantes", "alumno1", "1234");
-insertarUsuario($conexion, "participantes", "alumno2", "1234");
-insertarUsuario($conexion, "participantes", "alumno3", "1234");
-insertarUsuario($conexion, "participantes", "alumno4", "1234");
-insertarUsuario($conexion, "participantes", "alumno5", "1234");
-insertarUsuario($conexion, "participantes", "alumno6", "1234");
-
-insertarUsuario($conexion, "participantes", "alumni1", "1234");
-insertarUsuario($conexion, "participantes", "alumni2", "1234");
-insertarUsuario($conexion, "participantes", "alumni3", "1234");
-insertarUsuario($conexion, "participantes", "alumni4", "1234");
-insertarUsuario($conexion, "participantes", "alumni5", "1234");
-insertarUsuario($conexion, "participantes", "alumni6", "1234");
-
-/* Obtener IDs */
-$ids = [];
-$result = $conexion->query("SELECT id_usuario, usuario FROM participantes");
-while ($row = $result->fetch_assoc()) {
-    $ids[$row['usuario']] = $row['id_usuario'];
-}
-
-/* =======================
-   12 INSCRIPCIONES DEMO (PROTEGIDAS)
-======================= */
-
-/* Comprobar si ya existen inscripciones */
-$check = $conexion->query("SELECT COUNT(*) AS total FROM inscripciones");
-$row = $check->fetch_assoc();
-
-if ($row['total'] == 0) {
-
-    $conexion->query("
-    INSERT INTO inscripciones 
-    (id_usuario, ficha, cartel, sinopsis, nombre_responsable, email, dni, expediente, video, tipo_participante, estado)
-    VALUES
-
-    ({$ids['alumno1']}, 'ficha1.pdf','cartel1.jpg','Un corto sobre la última luz del campus.','Carlos Martínez','carlos1@universidadeuropea.es','12345678A','EXP001','video1.mp4','Alumno','PENDIENTE'),
-
-    ({$ids['alumno2']}, 'ficha2.pdf','cartel2.jpg','Documental sobre la vida universitaria desde dentro.','Lucía Fernández','lucia2@universidadeuropea.es','87654321B','EXP002','video2.mp4','Alumno','PENDIENTE'),
-
-    ({$ids['alumno3']}, 'ficha3.pdf','cartel3.jpg','Animación sobre un personaje digital que cobra vida.','Marcos Ruiz','marcos3@universidadeuropea.es','11223344C','EXP003','video3.mp4','Alumno','PENDIENTE'),
-
-    ({$ids['alumno4']}, 'ficha4.pdf','cartel4.jpg','Historia de ficción grabada en un solo plano secuencia.','Sara Gómez','sara4@universidadeuropea.es','44332211D','EXP004','video4.mp4','Alumno','PENDIENTE'),
-
-    ({$ids['alumno5']}, 'ficha5.pdf','cartel5.jpg','Corto sobre la presión académica y la creatividad.','David López','david5@universidadeuropea.es','55667788E','EXP005','video5.mp4','Alumno','PENDIENTE'),
-
-    ({$ids['alumno6']}, 'ficha6.pdf','cartel6.jpg','Una historia de amistad en el campus.','Elena Torres','elena6@universidadeuropea.es','99887766F','EXP006','video6.mp4','Alumno','PENDIENTE'),
-
-    ({$ids['alumni1']}, 'ficha7.pdf','cartel7.jpg','Corto experimental sobre la saturación informativa.','Ana López','ana1@alumniuniversidadeuropea.es','11112222G','ALU001','video7.mp4','Alumni','PENDIENTE'),
-
-    ({$ids['alumni2']}, 'ficha8.pdf','cartel8.jpg','Historia grabada en un solo plano secuencia.','Javier Ortega','javier2@alumniuniversidadeuropea.es','22223333H','ALU002','video8.mp4','Alumni','PENDIENTE'),
-
-    ({$ids['alumni3']}, 'ficha9.pdf','cartel9.jpg','Dos historias paralelas que se cruzan en un instante.','Elena García','elena3@alumniuniversidadeuropea.es','33334444I','ALU003','video9.mp4','Alumni','PENDIENTE'),
-
-    ({$ids['alumni4']}, 'ficha10.pdf','cartel10.jpg','Un thriller psicológico ambientado en la universidad.','Mario Sánchez','mario4@alumniuniversidadeuropea.es','44445555J','ALU004','video10.mp4','Alumni','PENDIENTE'),
-
-    ({$ids['alumni5']}, 'ficha11.pdf','cartel11.jpg','Corto sobre el paso del tiempo y la memoria.','Paula Díaz','paula5@alumniuniversidadeuropea.es','55556666K','ALU005','video11.mp4','Alumni','PENDIENTE'),
-
-    ({$ids['alumni6']}, 'ficha12.pdf','cartel12.jpg','Un documental sobre la evolución del campus.','Roberto Martín','roberto6@alumniuniversidadeuropea.es','66667777L','ALU006','video12.mp4','Alumni','PENDIENTE');
-    ");
-
-}
-
-
-?>

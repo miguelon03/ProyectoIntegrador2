@@ -1,5 +1,5 @@
-// UI helpers (modales globales + validación)
-// Sustituye los avisos del navegador por un modal consistente en todo el proyecto.
+// UI helpers + Hamburguesa global para headers públicos
+// - No requiere cambiar HTML: inserta botón si existe .main-nav y .nav-links
 
 function _uiCreateGlobalModal() {
   if (document.getElementById("uiModalGlobal")) return;
@@ -9,7 +9,6 @@ function _uiCreateGlobalModal() {
   overlay.className = "ui-modal-overlay";
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
-  overlay.style.display = "none";
 
   overlay.innerHTML = `
     <div class="ui-modal" role="document">
@@ -17,9 +16,7 @@ function _uiCreateGlobalModal() {
         <h3 class="ui-modal-title" id="uiModalTitle">Aviso</h3>
         <button type="button" class="ui-modal-close" id="uiModalClose" aria-label="Cerrar">✖</button>
       </div>
-
       <div class="ui-modal-body" id="uiModalContent"></div>
-
       <div class="ui-modal-actions">
         <button type="button" class="ui-btn ui-btn-primary" id="uiModalOk">OK</button>
       </div>
@@ -28,51 +25,34 @@ function _uiCreateGlobalModal() {
 
   document.body.appendChild(overlay);
 
-  // Cerrar al hacer click fuera
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) hideModal();
   });
 
-  // Cerrar con Escape
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") hideModal();
   });
 
-  // Botones de cierre
   document.addEventListener("click", (e) => {
-    if (!e.target) return;
-
-    const id = e.target.id;
-    if (id === "uiModalClose" || id === "uiModalOk") {
-      hideModal();
-    }
+    const id = e.target && e.target.id;
+    if (id === "uiModalClose" || id === "uiModalOk") hideModal();
   });
 }
 
-// Creamos el modal lo antes posible, pero sin exigir HTML extra.
-document.addEventListener("DOMContentLoaded", _uiCreateGlobalModal);
-
 function ensureGlobalModal() {
   if (document.getElementById("uiModalGlobal")) return;
-  // Si se llama antes de DOMContentLoaded, lo creamos igualmente
   if (document.body) _uiCreateGlobalModal();
 }
 
 function showModal(message, options = {}) {
   ensureGlobalModal();
-
   const overlay = document.getElementById("uiModalGlobal");
   const content = document.getElementById("uiModalContent");
   const title = document.getElementById("uiModalTitle");
-
-  if (!overlay || !content || !title) {
-    console.warn("Modal UI no disponible. Mensaje:", message);
-    return;
-  }
+  if (!overlay || !content || !title) return;
 
   title.textContent = options.title || "Aviso";
   content.textContent = message || "";
-
   overlay.style.display = "flex";
 }
 
@@ -82,36 +62,42 @@ function hideModal() {
 }
 
 /* =========================
-   Helpers de validación
+   Hamburguesa header público
 ========================= */
-function showFieldError(inputElement, message) {
-  if (!inputElement) return;
-  let err = inputElement.parentElement.querySelector(".field-error");
-  if (!err) {
-    err = document.createElement("span");
-    err.className = "field-error";
-    inputElement.parentElement.appendChild(err);
-  }
-  err.textContent = message;
+function setupHamburgerNav() {
+  const mainNav = document.querySelector(".main-nav");
+  const nav = document.querySelector(".nav-links");
+  if (!mainNav || !nav) return;
+
+  // Evitar duplicados
+  if (document.getElementById("navToggleBtn")) return;
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.id = "navToggleBtn";
+  btn.className = "nav-toggle";
+  btn.setAttribute("aria-label", "Abrir menú");
+  btn.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="square"/>
+    </svg>
+  `;
+
+  mainNav.appendChild(btn);
+
+  const closeOnResize = () => {
+    // Al pasar a desktop, aseguramos menú visible (CSS manda)
+    if (window.innerWidth > 768) nav.classList.remove("is-open");
+  };
+
+  btn.addEventListener("click", () => {
+    nav.classList.toggle("is-open");
+  });
+
+  window.addEventListener("resize", closeOnResize);
 }
 
-function clearFieldError(inputElement) {
-  if (!inputElement) return;
-  const err = inputElement.parentElement.querySelector(".field-error");
-  if (err) err.textContent = "";
-}
-
-function clearAllFieldErrors(form) {
-  if (!form) return;
-  form.querySelectorAll(".field-error").forEach(e => e.textContent = "");
-}
-
-function escapeHtml(text) {
-  if (text === null || text === undefined) return "";
-  return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll("'", "&#039;")
-    .replaceAll('"', "&quot;");
-}
+document.addEventListener("DOMContentLoaded", () => {
+  _uiCreateGlobalModal();
+  setupHamburgerNav();
+});

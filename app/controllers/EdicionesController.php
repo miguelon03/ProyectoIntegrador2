@@ -17,91 +17,30 @@ $accion = $_GET['accion'] ?? '';
 ========================= */
 if ($accion === 'guardar') {
 
-    // Logs de depuración
-    error_log("POST recibido en guardar edición: " . print_r($_POST, true));
-    error_log("FILES recibido en guardar edición: " . print_r($_FILES, true));
-
-    /* =========================
-       VALIDAR AÑO
-    ========================== */
-    $anio = intval($_POST['anio'] ?? 0);
-
-    if ($anio < 1900 || $anio > intval(date("Y"))) {
-        echo json_encode(['ok'=>false,'error'=>'Año inválido']);
-        exit;
-    }
-
-    /* =========================
-       OBTENER DATOS DE LA GALA
-    ========================== */
+    // Obtener datos actuales de gala
     $gala = $conexion->query("
-        SELECT texto_resumen, fecha_edicion, modo
-        FROM gala
-        WHERE id = 1
+        SELECT texto_resumen, fecha_edicion
+        FROM gala WHERE id = 1
     ")->fetch_assoc();
 
-    if (!$gala) {
-        echo json_encode(['ok'=>false,'error'=>'No se pudo leer la gala']);
+    if (!$gala['texto_resumen']) {
+        echo json_encode(['ok'=>false,'error'=>'No hay resumen']);
         exit;
     }
 
-    $modo = $gala['modo'] ?? '';
-    $textoResumen = trim($gala['texto_resumen'] ?? '');
-    $fechaEdicion = $gala['fecha_edicion'] ?? null;
-
-    if ($modo !== 'POST') {
-        echo json_encode(['ok'=>false,'error'=>'La gala debe estar en modo POST para guardar una edición']);
-        exit;
-    }
-
-    if ($textoResumen === '') {
-        echo json_encode(['ok'=>false,'error'=>'No hay resumen para guardar']);
-        exit;
-    }
-
-    if (!$fechaEdicion || !strtotime($fechaEdicion)) {
-        echo json_encode(['ok'=>false,'error'=>'La gala no tiene fecha válida']);
-        exit;
-    }
-
-    /* =========================
-       VALIDAR IMÁGENES EXISTENTES
-    ========================== */
-    $imgsRes = $conexion->query("SELECT ruta FROM gala_imagenes");
-
-    if (!$imgsRes || $imgsRes->num_rows === 0) {
-        echo json_encode(['ok'=>false,'error'=>'No hay imágenes en la galería de la post-gala']);
-        exit;
-    }
-
-    $imgs = $imgsRes->fetch_all(MYSQLI_ASSOC);
-
-    /* =========================
-       INSERTAR EDICIÓN
-    ========================== */
+    // Insertar edición
     $stmt = $conexion->prepare("
-        INSERT INTO ediciones (anio, fecha, texto_resumen)
-        VALUES (?,?,?)
+        INSERT INTO ediciones (fecha, texto_resumen)
+        VALUES (CURDATE(), ?)
     ");
-
-    if (!$stmt) {
-        echo json_encode(['ok'=>false,'error'=>'Error preparando inserción de edición']);
-        exit;
-    }
-
-    $stmt->bind_param("iss", $anio, $fechaEdicion, $textoResumen);
+    $stmt->bind_param("s", $gala['texto_resumen']);
     $stmt->execute();
+
     $id_edicion = $conexion->insert_id;
 
-    if (!$id_edicion) {
-        echo json_encode(['ok'=>false,'error'=>'No se pudo crear la edición']);
-        exit;
-    }
-
-    /* =========================
-       COPIAR IMÁGENES A LA EDICIÓN
-    ========================== */
-    foreach ($imgs as $img) {
+    // Copiar imágenes
+    $imgs = $conexion->query("SELECT ruta FROM gala_imagenes");
+    while ($img = $imgs->fetch_assoc()) {
         $stmt = $conexion->prepare("
             INSERT INTO ediciones_imagenes (id_edicion, ruta)
             VALUES (?,?)
@@ -110,9 +49,7 @@ if ($accion === 'guardar') {
         $stmt->execute();
     }
 
-    /* =========================
-       LIMPIAR GALA ACTUAL
-    ========================== */
+    // Limpiar gala actual
     $conexion->query("UPDATE gala SET texto_resumen = NULL");
     $conexion->query("DELETE FROM gala_imagenes");
     $conexion->query("UPDATE gala SET modo = 'PRE'");
@@ -121,7 +58,4 @@ if ($accion === 'guardar') {
     exit;
 }
 
-/* =========================
-   ACCIÓN NO VÁLIDA
-========================= */
 echo json_encode(['ok'=>false,'error'=>'Acción no válida']);

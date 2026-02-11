@@ -1,164 +1,131 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
-
-:root{
-  --ue-red:#c8102e;
-  --ue-red-dark:#a50d26;
-  --bg:#f4f4f4;
-  --text:#222;
-  --border:#e5e5e5;
-  --font:'Hellix', Helvetica, Arial, sans-serif;
+*{
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
 }
 
-*{ box-sizing:border-box; margin:0; padding:0; }
-
+*{ box-sizing:border-box; border-radius:0 !important; }
 body{
-  font-family:var(--font);
-  background:var(--bg);
-  color:var(--text);
+  font-family:"Hellix", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin:0;
+  background:#fff;
+  color:#111;
 }
 
-/* Header */
 .perfil-header{
+  border-bottom:1px solid #e8e8e8;
   background:#fff;
-  border-bottom:1px solid #ddd;
-  box-shadow:0 2px 10px rgba(0,0,0,.06);
-  font-family:var(--font);
 }
 
 .perfil-header-inner{
-  max-width:1100px;
+  max-width:1200px;
   margin:0 auto;
-  padding:18px 22px;
+  padding:18px 18px;
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:16px;
 }
 
-.btn-salir{
+.perfil-header h1{
+  margin:0;
+  font-size:44px;
+  font-weight:900;
+  letter-spacing:-.5px;
+}
+
+.perfil-header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+/* Unificar botones del header del perfil (button + a) */
+.perfil-header-actions button,
+.perfil-header-actions a{
+  appearance:none;
+  border:1px solid #c4001a;
+  background:#fff;
+  color:#c4001a;
+  font-family:inherit;
+  font-weight:900;
+  font-size:16px;
+  padding:12px 16px;
+  height:44px;
+  min-width:170px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   text-decoration:none;
-  color:var(--ue-red);
-  font-weight:700;
+  cursor:pointer;
+  line-height:1;
 }
 
-/* Layout */
+.perfil-header-actions button:hover,
+.perfil-header-actions a:hover{
+  background:#c4001a;
+  color:#fff;
+}
+
+.perfil-header-actions button:active,
+.perfil-header-actions a:active{
+  filter:brightness(.95);
+}
+
+.perfil-header-actions button:focus,
+.perfil-header-actions a:focus{
+  outline:2px solid #111;
+  outline-offset:2px;
+}
+
+/* contenedor */
 .perfil-container{
-  max-width:1100px;
-  margin:30px auto;
-  padding:0 18px;
+  max-width:1200px;
+  margin:0 auto;
+  padding:22px 18px 56px;
   display:grid;
+  grid-template-columns: 1fr;
   gap:18px;
 }
 
 .perfil-card{
-  background:#fff;
-  border:1px solid var(--border);
-
+  border:1px solid #e8e8e8;
   padding:18px 18px;
-  box-shadow:0 10px 26px rgba(0,0,0,.05);
+  background:#fff;
 }
 
 .perfil-card h2{
-  margin-bottom:12px;
+  margin:0 0 12px 0;
+  font-size:20px;
+  font-weight:900;
 }
 
+/* datos personales */
 #datosPersonales{
-  list-style:none;
-  display:grid;
-  gap:8px;
+  margin:0;
+  padding-left:18px;
+}
+#datosPersonales li{
+  margin:6px 0;
+  overflow-wrap:anywhere; /* evita que el email se salga */
+  word-break:break-word;
 }
 
-/* =========================
-   CANDIDATURAS
-========================= */
+/* candidaturas */
 .candidatura-card{
-  padding:16px;
-  border:1px solid var(--border);
-
-  background:#fff;
-  box-shadow:0 6px 18px rgba(0,0,0,.05);
-  margin-bottom:14px;
-  display:grid;
-  gap:10px;
+  border:1px solid #e8e8e8;
+  padding:14px;
+  margin-bottom:12px;
   cursor:pointer;
-  transition:transform .12s ease, box-shadow .12s ease;
 }
-
 .candidatura-card:hover{
-  transform:translateY(-1px);
-  box-shadow:0 12px 28px rgba(0,0,0,.07);
+  border-color:#c4001a;
 }
 
-.candidatura-meta{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-}
+.estado{ font-weight:900; }
 
-.candidatura-meta h3{
-  margin-bottom:6px;
-}
-
-.candidatura-links a{
-  color:var(--ue-red);
-  font-weight:700;
-  text-decoration:none;
-}
-
-.candidatura-links a:hover{
-  text-decoration:underline;
-}
-
-.estado{
-  display:inline-flex;
-  padding:4px 10px;
-  
-  font-weight:800;
-  font-size:12px;
-  border:1px solid var(--border);
-}
-
-.estado.pendiente{ background:#fff7e6; border-color:#ffe3b3; }
-.estado.aceptado, .estado.aceptada{ background:#e9fff0; border-color:#b9f5c6; }
-.estado.nominado{ background:#eef3ff; border-color:#cdd9ff; }
-.estado.rechazado, .estado.rechazada{ background:#ffecec; border-color:#ffc6c6; }
-
-.button{
-  padding:10px 14px;
-  border:2px solid var(--ue-red);
-  background:var(--ue-red);
-  color:#fff;
-
-  cursor:pointer;
-  font-weight:800;
-  transition:.2s;
-}
-
-.button:hover{
-  background:#fff;
-  color:var(--ue-red);
-}
-
-.button.small{
-  padding:8px 12px;
-  font-size:13px;
-}
-
-.btn-link{
-  border:none;
-  background:transparent;
-  color:var(--ue-red);
-  font-weight:800;
-  cursor:pointer;
-  text-align:left;
-  padding:0;
-}
-
-.btn-link:hover{ text-decoration:underline; }
-
-/* =========================
-   MODAL (reutilizable)
-========================= */
+/* modal (usa estructura existente .modal .modal-content) */
 .modal{
   position:fixed;
   inset:0;
@@ -166,176 +133,73 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index:9999;
+  z-index:99999;
+  padding:16px;
 }
 
 .modal.hidden{ display:none; }
 
 .modal-content{
-  background:#fff;
-  width:min(720px, 92vw);
-  max-height:85vh;
+  width:min(760px, 96vw);
+  max-height:86vh;
   overflow:auto;
-  padding:22px;
-
-  box-shadow:0 18px 50px rgba(0,0,0,.25);
+  background:#fff;
+  border:1px solid #e6e6e6;
+  padding:18px;
   position:relative;
 }
 
 .modal-close{
   position:absolute;
-  top:12px;
   right:14px;
+  top:10px;
+  font-size:22px;
+  color:#c4001a;
   cursor:pointer;
-  font-size:20px;
-  color:var(--ue-red);
 }
 
-.detalle-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px 14px;
-  margin-top:12px;
-}
-
-.detalle-wide{
-  grid-column:1 / -1;
-  padding-top:6px;
-}
-
-@media (max-width:700px){
-  .detalle-grid{ grid-template-columns:1fr; }
-}
-/* =========================
-   EDITAR PERFIL
-========================= */
-.perfil-form .campo{
-  display:grid;
-  gap:6px;
-  margin-bottom:12px;
-}
-
-.perfil-form input{
+.perfil-form .campo{ margin-bottom:14px; }
+.perfil-form label{ display:block; font-weight:900; margin-bottom:6px; }
+.perfil-form input,
+.perfil-form select,
+.perfil-form textarea{
   width:100%;
-  padding:10px 12px;
-  border:1px solid var(--border);
-}
-
-.perfil-form .error{
-  color:var(--ue-red);
-  font-size:13px;
-  margin-top:6px;
-}
-.link-button{
-  background:none;
-  border:none;
-  color:#b3001b;
-  cursor:pointer;
-  font-weight:600;
-  padding:6px 0;
-}
-.link-button:hover{
-  text-decoration:underline;
-}
-/* =========================
-   CABECERA PERFIL
-========================= */
-.perfil-header-inner{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.perfil-header-left{
-  display:flex;
-  align-items:center;
-  gap:16px;
-}
-
-.link-button{
-  background:none;
-  border:none;
-  color:#b3001b;
-  font-weight:600;
-  cursor:pointer;
-  padding:0;
-}
-
-.link-button:hover{
-  text-decoration:underline;
-}
-/* =========================
-   ACCIONES CABECERA PERFIL
-========================= */
-.perfil-header-inner{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.perfil-header-actions{
-  display:flex;
-  align-items:center;
-  gap:18px;
-}
-
-/* Botón Editar perfil (mismo look que Salir, pero secundario) */
-.btn-editar{
-  background:none;
-  border:none;
-  color:#b3001b;
-  font-weight:600;
+  border:1px solid #d8d8d8;
+  padding:12px 12px;
+  font-family:inherit;
   font-size:15px;
-  cursor:pointer;
-  padding:0;
-  font-family: var(--font);
-}
-
-.btn-editar:hover{
-  text-decoration:underline;
-}
-
-/* Aseguramos contraste */
-.perfil-header h1{
+  background:#fff;
   color:#111;
 }
-.perfil-acciones {
-  display: flex;
-  gap: 12px;
-  margin-top: 10px;
-}
-.perfil-acciones button {
-  padding: 8px 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
+.perfil-form textarea{ min-height:120px; resize:vertical; }
 
-
-/* =========================
-   CABECERA SECCIÓN (Editar perfil)
-========================= */
-.perfil-card-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:12px;
-}
-
-.perfil-card-header h2{
-  margin:0;
-}
-
-.btn-cerrar-seccion{
-  background:transparent;
-  border:none;
+.button{
+  border:1px solid #c4001a;
+  background:#c4001a;
+  color:#fff;
+  font-family:inherit;
+  font-weight:900;
+  padding:12px 16px;
   cursor:pointer;
-  font-size:18px;
-  font-weight:800;
-  color:var(--ue-red);
-  line-height:1;
 }
+.button:hover{ filter:brightness(.95); }
 
-.btn-cerrar-seccion:hover{
-  filter:brightness(0.9);
+.error{ color:#c4001a; font-weight:800; }
+
+@media (max-width: 768px){
+  .perfil-header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .perfil-header h1{ font-size:34px; }
+  .perfil-header-actions{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .perfil-header-actions button,
+  .perfil-header-actions a{
+    width:100%;
+    min-width:0;
+  }
 }

@@ -1,6 +1,3 @@
-/* =========================
-   INICIO – CARGA Y NAVEGACIÓN
-========================= */
 document.addEventListener("DOMContentLoaded", () => {
 
     function mostrarSeccion(id) {
@@ -13,12 +10,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         seccion.classList.add("activa");
 
-        if (id === "candidaturas" && typeof cargarCandidaturas === "function") cargarCandidaturas();
-        if (id === "eventos" && typeof cargarEventos === "function") cargarEventos();
-        if (id === "noticias" && typeof cargarNoticias === "function") cargarNoticias();
-        if (id === "premios" && typeof cargarPremios === "function") cargarPremios();
-        if (id === "patrocinadores" && typeof cargarPatrocinadores === "function") cargarPatrocinadores();
-        if (id === "gala" && typeof cargarModo === "function") cargarModo();
+        if (id === "candidaturas" && typeof cargarCandidaturas === "function") {
+            cargarCandidaturas();
+        }
+
+        if (id === "eventos" && typeof cargarEventos === "function") {
+            cargarEventos();
+        }
+
+        if (id === "noticias" && typeof cargarNoticias === "function") {
+            cargarNoticias();
+        }
+
+        if (id === "premios" && typeof cargarPremios === "function") {
+            cargarPremios();
+        }
+
+        if (id === "patrocinadores" && typeof cargarPatrocinadores === "function") {
+            cargarPatrocinadores();
+        }
+
+        if (id === "gala" && typeof cargarModo === "function") {
+            cargarModo();
+        }
     }
 
     window.mostrarSeccion = mostrarSeccion;
@@ -30,11 +44,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ✅ Cargar por defecto candidaturas
     mostrarSeccion("candidaturas");
 });
 
 /* =========================
-   MODAL CONFIRMACIÓN
+   MODAL CONFIRMACIÓN (GENÉRICO)
+   - Reutilizable para Noticias y Eventos
 ========================= */
 let _accionConfirmacion = null;
 
@@ -43,17 +59,22 @@ function abrirModalConfirmacion(mensaje, accion) {
     const msg = document.getElementById("modalConfirmacionMensaje");
     const btnOk = document.getElementById("btnConfirmacionAceptar");
 
+    // Fallback mínimo (por si alguien borra el HTML)
     if (!modal || !msg || !btnOk) {
         if (confirm(mensaje)) accion();
         return;
     }
 
     msg.textContent = mensaje;
-    _accionConfirmacion = accion;
+    _accionConfirmacion = typeof accion === "function" ? accion : null;
 
+    // Limpieza de handler anterior y set del actual
     btnOk.onclick = () => {
-        if (_accionConfirmacion) _accionConfirmacion();
-        cerrarModalConfirmacion();
+        try {
+            if (_accionConfirmacion) _accionConfirmacion();
+        } finally {
+            cerrarModalConfirmacion();
+        }
     };
 
     modal.classList.remove("hidden");
@@ -63,28 +84,24 @@ function cerrarModalConfirmacion() {
     const modal = document.getElementById("modalConfirmacion");
     const btnOk = document.getElementById("btnConfirmacionAceptar");
 
-    modal.classList.add("hidden");
+    if (modal) modal.classList.add("hidden");
     _accionConfirmacion = null;
-    btnOk.onclick = null;
+    if (btnOk) btnOk.onclick = null;
 }
 
-window.addEventListener("keydown", e => {
-    if (e.key === "Escape") cerrarModalConfirmacion();
+/* Cerrar con ESC */
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        cerrarModalConfirmacion();
+    }
 });
 
 /* =========================
-   GALA – CONFIG
+   GALA
 ========================= */
 const BASE_URL_GALA = "/ProyectoIntegrador2/app/controllers/GalaController.php";
-const BASE_URL_EDICIONES = "/ProyectoIntegrador2/app/controllers/EdicionesController.php";
 
-function mostrarModalError(mensaje) {
-    showModal(mensaje || "Ha ocurrido un error");
-}
-
-/* =========================
-   GALA – MODO PRE/POST
-========================= */
+/* Cargar modo PRE / POST */
 function cargarModo() {
     fetch(`${BASE_URL_GALA}?accion=estado`, { credentials: "same-origin" })
         .then(r => r.json())
@@ -100,9 +117,12 @@ function cargarModo() {
                 galaPre.style.display = "block";
                 galaPost.style.display = "none";
 
+                // 🔑 FECHA DE LA GALA (FUERA DE LAS SECCIONES)
                 if (data.fecha) {
                     const inputFecha = document.getElementById("fechaGala");
-                    if (inputFecha) inputFecha.value = data.fecha;
+                    if (inputFecha) {
+                        inputFecha.value = data.fecha;
+                    }
                 }
 
                 cargarSecciones();
@@ -115,6 +135,8 @@ function cargarModo() {
         .catch(() => mostrarModalError("Error al cargar modo de gala"));
 }
 
+
+/* Cambiar modo */
 function cambiarModo() {
     fetch(`${BASE_URL_GALA}?accion=cambiarModo`, { credentials: "same-origin" })
         .then(r => r.json())
@@ -141,38 +163,37 @@ function cargarSecciones() {
 
             data.secciones.forEach(s => {
                 cont.innerHTML += `
-                    <div class="seccion-item">
-                        <b>${s.titulo}</b><br>
-                        ${s.hora} – ${s.sala}<br>
-                        -${s.descripcion}<br>
-
-                        <button class="icon-btn edit"
-                            onclick="editarSeccion(${s.id}, '${s.titulo}', '${s.hora}', '${s.sala}', '${s.descripcion}')">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-
-                        <button class="icon-btn delete"
-                            onclick="abrirModalConfirmacion('¿Eliminar sección?', () => borrarSeccion(${s.id}))">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                    <div>
+                        <b>${s.titulo}</b> <br>
+                         ${s.hora} – ${s.sala} <br>
+                         -${s.descripcion} <br>
+                        <button onclick="editarSeccion(${s.id}, '${s.titulo}', '${s.hora}', '${s.sala}', '${s.descripcion}')">✏️</button>
+                        <button onclick="borrarSeccion(${s.id})">🗑️</button>
                     </div>
                 `;
             });
         });
 }
-
-let seccionEditando = null;
-
 function mostrarFormSeccion() {
     const form = document.getElementById("formSeccion");
+    if (!form) return;
+
+    // 🔑 MODO CREAR → no estamos editando
     seccionEditando = null;
+
+    // 🔑 LIMPIAR CAMPOS
     form.reset();
+
     form.style.display = "block";
 }
 
 function ocultarFormSeccion() {
-    document.getElementById("formSeccion").style.display = "none";
+    const form = document.getElementById("formSeccion");
+    if (!form) return;
+    form.style.display = "none";
 }
+
+let seccionEditando = null;
 
 function editarSeccion(id, titulo, hora, sala, descripcion) {
     seccionEditando = id;
@@ -186,23 +207,20 @@ function editarSeccion(id, titulo, hora, sala, descripcion) {
     form.style.display = "block";
 }
 
+
+
 function borrarSeccion(id) {
+    if (!confirm("¿Eliminar sección?")) return;
     fetch(`${BASE_URL_GALA}?accion=borrarSeccion&id=${id}`)
         .then(() => cargarSecciones());
 }
 
+
 document.getElementById("formSeccion").addEventListener("submit", e => {
     e.preventDefault();
 
-    const hora = e.target.hora.value;
-    const [h] = hora.split(":");
-
-    if (parseInt(h) < 12) {
-        showModal("La hora debe ser a partir de las 12:00");
-        return;
-    }
-
     const formData = new FormData(e.target);
+
     let url = `${BASE_URL_GALA}?accion=crearSeccion`;
 
     if (seccionEditando) {
@@ -210,21 +228,25 @@ document.getElementById("formSeccion").addEventListener("submit", e => {
         url = `${BASE_URL_GALA}?accion=editarSeccion`;
     }
 
-    fetch(url, { method: "POST", body: formData })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                ocultarFormSeccion();
-                seccionEditando = null;
-                cargarSecciones();
-            } else {
-                showModal(data.error || "Error al guardar sección");
-            }
-        });
+    fetch(url, {
+        method: "POST",
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            ocultarFormSeccion();
+            seccionEditando = null;
+            cargarSecciones();
+        } else {
+            showModal(data.error || "Error al guardar sección");
+        }
+    });
 });
 
+
 /* =========================
-   RESUMEN POST-GALA
+   GUARDAR TEXTO RESUMEN (POST-GALA)
 ========================= */
 const formResumen = document.getElementById("formResumen");
 
@@ -240,22 +262,25 @@ if (formResumen) {
             credentials: "same-origin"
         })
         .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                showModal("Resumen guardado correctamente");
-                formResumen.reset();
-            } else {
-                showModal(data.error || "Error al guardar el resumen");
-            }
-        });
+       .then(data => {
+    if (data.ok) {
+        showModal("Resumen guardado correctamente");
+
+        // 🔑 LIMPIAR EL TEXTAREA DESPUÉS DE GUARDAR
+        formResumen.reset();
+    } else {
+        showModal(data.error || "Error al guardar el resumen");
+    }
+});
+
     });
 }
 
+
 /* =========================
-   IMÁGENES POST-GALA
+   POST-GALA – IMÁGENES
 ========================= */
 const formImagen = document.getElementById("formImagen");
-
 if (formImagen) {
     formImagen.addEventListener("submit", e => {
         e.preventDefault();
@@ -265,15 +290,13 @@ if (formImagen) {
             method: "POST",
             body: formData
         })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                formImagen.reset();
-                cargarImagenesPost();
-            } else {
-                showModal(data.error);
-            }
-        });
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    formImagen.reset();
+                    cargarImagenesPost();
+                } else mostrarModalError(data.error);
+            });
     });
 }
 
@@ -288,28 +311,50 @@ function cargarImagenesPost() {
                 cont.innerHTML += `
                     <div style="display:inline-block;margin:10px">
                         <img src="../../uploads/${img.ruta}" width="150"><br>
-
-                        <button class="icon-btn delete"
-                            onclick="abrirModalConfirmacion('¿Eliminar imagen?', () => borrarImagen(${img.id}))">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                        <button onclick="borrarImagen(${img.id})">Eliminar</button>
                     </div>
                 `;
             });
         });
 }
 
+let imagenAEliminar = null;
+
 function borrarImagen(id) {
-    fetch(`${BASE_URL_GALA}?accion=borrarImagen&id=${id}`)
-        .then(() => cargarImagenesPost());
+    imagenAEliminar = id;
+    document.getElementById("modalEliminarImagen").classList.remove("hidden");
+}
+/* =========================
+  MODAL
+========================= */
+function cerrarModalImagen() {
+    imagenAEliminar = null;
+    document.getElementById("modalEliminarImagen").classList.add("hidden");
 }
 
+function confirmarEliminarImagen() {
+    if (!imagenAEliminar) return;
+
+    fetch(`${BASE_URL_GALA}?accion=borrarImagen&id=${imagenAEliminar}`)
+        .then(() => {
+            cerrarModalImagen();
+            cargarImagenesPost();
+        });
+}
+
+
 /* =========================
-   FECHA DE GALA
+   GUARDAR EDICIÓN
 ========================= */
+function guardarEdicion() {
+    if (!confirm("¿Guardar como edición anterior?")) return;
+    fetch(`${BASE_URL_GALA}?accion=guardarEdicion`)
+        .then(r => r.json())
+        .then(() => mostrarModalError("Edición guardada correctamente"));
+}
+
 function guardarFechaGala() {
     const fecha = document.getElementById("fechaGala").value;
-
     if (!fecha) {
         showModal("Selecciona una fecha");
         return;
@@ -323,60 +368,10 @@ function guardarFechaGala() {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.ok) showModal("Fecha guardada");
-        else showModal(data.error);
-    });
-}
-
-/* =========================
-   GUARDAR EDICIÓN
-========================= */
-function guardarEdicion() {
-    abrirModalConfirmacionEdicion();
-}
-
-function abrirModalConfirmacionEdicion() {
-    document.getElementById("modalConfirmacionEdicion").classList.remove("hidden");
-}
-
-function cerrarModalConfirmacionEdicion() {
-    document.getElementById("modalConfirmacionEdicion").classList.add("hidden");
-}
-
-function mostrarCampoAnio() {
-    cerrarModalConfirmacionEdicion();
-    document.getElementById("modalAnioEdicion").classList.remove("hidden");
-}
-
-function cerrarModalAnioEdicion() {
-    document.getElementById("modalAnioEdicion").classList.add("hidden");
-    document.getElementById("anioEdicion").value = "";
-}
-
-function guardarEdicionConAnio() {
-    const input = document.getElementById("anioEdicion");
-    const anio = (input ? input.value : "").trim();
-
-    if (!anio) {
-        showModal("Debe ingresar un año");
-        return;
-    }
-
-    fetch(`${BASE_URL_EDICIONES}?accion=guardar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `anio=${encodeURIComponent(anio)}`,
-        credentials: "same-origin"
-    })
-    .then(r => r.json())
-    .then(data => {
         if (data.ok) {
-            showModal("Edición guardada correctamente");
-            cerrarModalAnioEdicion();
-            cargarModo();
+            showModal("Fecha guardada");
         } else {
-            showModal(data.error || "Error al guardar la edición");
+            showModal(data.error);
         }
-    })
-    .catch(() => showModal("Ocurrió un error, por favor intente nuevamente."));
+    });
 }

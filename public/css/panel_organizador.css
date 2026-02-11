@@ -1,5 +1,7 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
-
+*{
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
+}
 /* =========================
    VARIABLES UE
    ========================= */
@@ -1121,3 +1123,40 @@ section h2 {
 .premio-texto{font-weight:700}
 .premio-valor{font-weight:700}
 .premio-pendiente{color:#777;font-style:italic;font-weight:600}
+
+
+/* =========================
+   MEJORAS RESPONSIVE EXTRA (móvil)
+========================= */
+@media (max-width: 700px){
+  .content{
+    margin: 14px !important;
+    padding: 18px !important;
+  }
+
+  .event-card,
+  .news-card{
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .event-actions,
+  .news-actions{
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .admin-menu{
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px){
+  .main-nav{
+    padding: 12px 14px;
+  }
+
+  .logo img{
+    height: 44px;
+  }
+}

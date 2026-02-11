@@ -1,0 +1,123 @@
+@import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
+*{
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
+}
+/* ===== Footer estable (evita tamaños gigantes y desorden) ===== */
+.ue-footer{
+  background:#000;
+  color:#fff;
+  margin-top:60px;
+}
+
+.ue-footer a{ color:#fff; text-decoration:none; }
+.ue-footer a:hover{ text-decoration:underline; }
+
+.ue-footer-top{
+  max-width:1200px;
+  margin:0 auto;
+  padding:28px 18px;
+  display:flex;
+  gap:22px;
+  align-items:flex-start;
+}
+
+.ue-footer-logo img{
+  width:auto;
+  height:44px;
+  display:block;
+}
+
+.ue-footer-columns{
+  flex:1;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:22px;
+}
+
+.ue-footer-col h3{
+  margin:0 0 12px 0;
+  font-size:18px;
+  font-weight:900;
+  font-family:"Hellix", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.ue-footer-col ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+
+.ue-footer-col li{
+  margin:8px 0;
+  font-size:14px;
+  line-height:1.4;
+}
+
+/* Social icons: tamaño fijo y visibles */
+.ue-footer .social-icons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.ue-footer .social-icons a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border:1px solid rgba(255,255,255,.25);
+}
+
+.ue-footer .social-icons img{
+  width:18px;
+  height:18px;
+  display:block;
+  filter: invert(1);
+  opacity:.95;
+}
+
+/* Patrocinadores: nunca gigante */
+.patrocinadores-grid{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  max-height:52px;       /* ✅ límite */
+  overflow:hidden;       /* ✅ no crece */
+}
+
+.patrocinadores-grid img{
+  max-height:34px;       /* ✅ tamaño razonable */
+  width:auto;
+  height:auto;
+  display:block;
+  background:#fff;       /* si el logo es negro, se ve */
+  padding:4px 6px;
+}
+
+/* Footer bottom */
+.ue-footer-bottom{
+  border-top:1px solid rgba(255,255,255,.15);
+  padding:14px 18px;
+  text-align:center;
+  font-size:13px;
+  opacity:.9;
+}
+
+/* Responsive footer */
+@media (max-width: 900px){
+  .ue-footer-top{
+    flex-direction:column;
+  }
+  .ue-footer-columns{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px){
+  .ue-footer-columns{
+    grid-template-columns: 1fr;
+  }
+}

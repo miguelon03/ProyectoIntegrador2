@@ -1,158 +1,178 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
-body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+*{
+    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
+}
 
-    background: linear-gradient(135deg, #f4f4f4, #e9e9e9);
-    font-family: 'Hellix', Helvetica, Arial, sans-serif;
-    color: #222;
+*,
+*::before,
+*::after{
+  box-sizing: border-box;
+}
+
+body{
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, #f4f4f4, #e9e9e9);
+  font-family: 'Hellix', Helvetica, Arial, sans-serif;
+  color: #222;
+  padding: 16px; /* ✅ evita que se “pegue” en móvil */
 }
 
 /* ======================
    CONTENEDOR
 ====================== */
-.login-container {
-    position: relative;
-    background: #ffffff;
-    padding: 45px 40px;
-    width: 100%;
-    max-width: 420px;
+.login-container{
+  position: relative;
+  background: #ffffff;
+  padding: 45px 40px;
+  width: 100%;
+  max-width: 420px;
 
-    box-shadow: 0 15px 40px rgba(0,0,0,0.18);
-    text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.18);
+  text-align: center;
 }
 
 /* ======================
    TÍTULO
 ====================== */
-.login-container h2 {
-    margin-bottom: 35px;
-    font-size: 26px;
-    font-weight: 700;
-    color: #1f1f1f;
+.login-container h2{
+  margin-bottom: 35px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1f1f1f;
 }
 
 /* ======================
    CAMPOS
 ====================== */
-.campo {
-    margin-bottom: 22px;
-    text-align: left;
+form{ width: 100%; }
+
+.campo{
+  margin-bottom: 22px;
+  text-align: left;
+  width: 100%;
 }
 
-.campo input {
-    width: 100%;
-    padding: 14px 14px;
-    font-size: 16px;
+.campo input{
+  width: 100%;
+  padding: 14px 14px;
+  font-size: 16px;
 
-    border: 1px solid #ccc;
-    background: #fafafa;
+  border: 1px solid #ccc;
+  background: #fafafa;
 
-    transition: border 0.25s ease, box-shadow 0.25s ease, background 0.25s;
+  transition: border 0.25s ease, box-shadow 0.25s ease, background 0.25s;
 }
 
-.campo input::placeholder {
-    color: #888;
-    font-family: 'Hellix', Helvetica, Arial, sans-serif;
+.campo input::placeholder{
+  color: #888;
+  font-family: 'Hellix', Helvetica, Arial, sans-serif;
 }
 
 /* Focus elegante */
-.campo input:focus {
-    outline: none;
-    border-color: #c8102e;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(200,16,46,0.15);
+.campo input:focus{
+  outline: none;
+  border-color: #c8102e;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(200,16,46,0.15);
 }
 
 /* ======================
    ERRORES
 ====================== */
-.error {
-    margin-top: 6px;
-    color: #c8102e;
-    font-size: 12px;
-    min-height: 14px;
+.error{
+  margin-top: 6px;
+  color: #c8102e;
+  font-size: 12px;
+  min-height: 14px;
+  font-weight: 600;
 }
 
 /* ======================
    BOTÓN
 ====================== */
-button {
-    width: 100%;
-    padding: 15px;
+button{
+  width: 100%;
+  padding: 15px;
 
-    background: #c8102e;
-    color: #ffffff;
+  background: #c8102e;
+  color: #ffffff;
+  border: none;
 
-    border: none;
 
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
 
-    transition: background 0.3s ease,
-                transform 0.15s ease,
-                box-shadow 0.15s ease;
-    font-family: 'Hellix', Helvetica, Arial, sans-serif;
+  transition: background 0.3s ease,
+              transform 0.15s ease,
+              box-shadow 0.15s ease;
+  font-family: 'Hellix', Helvetica, Arial, sans-serif;
 }
 
-button:hover {
-    background: #a50d26;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(200,16,46,0.4);
-    font-family: 'Hellix', Helvetica, Arial, sans-serif;
+button:hover{
+  background: #a50d26;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(200,16,46,0.25);
 }
 
-button:active {
-    transform: translateY(0);
-    box-shadow: none;
+button:active{
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 /* ======================
    MENSAJE GENERAL
 ====================== */
-#mensaje {
-    margin-top: 18px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #c8102e;
-}
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-form {
-    width: 100%;
+#mensaje{
+  margin-top: 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #c8102e;
 }
 
-.campo {
-    width: 100%;
+/* Botón cerrar */
+.btn-cerrar{
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  font-size: 22px;
+  font-weight: 900;
+  color: #c8102e;
+  text-decoration: none;
+
+  cursor: pointer;
+  line-height: 1;
 }
 
-.campo input,
-button {
-    display: block;
-    width: 100%;
+.btn-cerrar:hover{
+  color: #a50d26;
+  transform: scale(1.05);
 }
-.btn-cerrar {
-    position: absolute;
-    top: 16px;
-    right: 16px;
 
+/* ======================
+   RESPONSIVE
+====================== */
+@media (max-width: 520px){
+  .login-container{
+    padding: 28px 18px;
+  }
+
+  .login-container h2{
+    margin-bottom: 22px;
     font-size: 22px;
-    font-weight: bold;
-    color: #c8102e;
-    text-decoration: none;
+  }
 
-    cursor: pointer;
-    line-height: 1;
-}
+  .campo input{
+    font-size: 15px;
+  }
 
-.btn-cerrar:hover {
-    color: #a50d26;
-    transform: scale(1.1);
+  button{
+    font-size: 16px;
+  }
 }
