@@ -14,7 +14,10 @@ function cargarPanelPremios() {
   fetch(`${URL_PREMIOS}?accion=asignados`, { credentials: "same-origin" })
     .then(r => r.json())
     .then(data => {
-      if (!data.ok) return alert(data.error || "Error al cargar premios asignados");
+      if (!data.ok) {
+        showModal(data.error || "Error al cargar premios asignados");
+        return;
+      }
 
       pintarAsignados(data.asignados || []);
       pintarHonorificoAsignado(data.honorifico || null);
@@ -175,7 +178,10 @@ function cargarNominados(premio) {
   fetch(`${URL_PREMIOS}?accion=nominados&premio=${premio}`, { credentials:"same-origin" })
     .then(r => r.json())
     .then(data => {
-      if (!data.ok) return alert(data.error);
+      if (!data.ok) {
+        showModal(data.error);
+        return;
+      }
 
       const sel = premio === "UE"
         ? document.getElementById("ueNominado")
@@ -204,7 +210,10 @@ function asignarPremioAlumni() {
 }
 
 function asignar(premio, puesto, id) {
-  if (!puesto || !id) return alert("Selecciona puesto y nominado");
+  if (!puesto || !id) {
+    showModal("Selecciona puesto y nominado");
+    return;
+  }
 
   const fd = new FormData();
   fd.append("accion", "asignar");
@@ -215,8 +224,11 @@ function asignar(premio, puesto, id) {
   fetch(URL_PREMIOS, { method:"POST", credentials:"same-origin", body:fd })
     .then(r => r.json())
     .then(res => {
-      if (!res.ok) return alert(res.error);
-      alert("Premio asignado correctamente");
+      if (!res.ok) {
+        showModal(res.error);
+        return;
+      }
+      showModal("Premio asignado correctamente");
       cargarPanelPremios(); // 🔥 recargar todo para actualizar UI
     });
 }
@@ -234,8 +246,11 @@ function guardarHonorifico() {
   fetch(URL_PREMIOS,{method:"POST",credentials:"same-origin",body:fd})
     .then(r=>r.json())
     .then(res=>{
-      if(!res.ok) return alert(res.error);
-      alert("Premio honorífico guardado");
+      if (!res.ok) {
+        showModal(res.error);
+        return;
+      }
+      showModal("Premio honorífico guardado");
       cargarPanelPremios();
     });
 }

@@ -11,6 +11,7 @@
 
     <!-- CSS del carrusel de noticias -->
     <link rel="stylesheet" href="css/noticias_publico.css">
+    <link rel="stylesheet" href="css/ui.css">
 </head>
 
 <body>
@@ -142,10 +143,10 @@
     </footer>
 
     <!-- ================= SCRIPTS ================= -->
-    <script src="js/noticias_publico.js"></script>
+    <script src="js/ui.js"></script>
+<script src="js/noticias_publico.js"></script>
     <script src="js/session.js"></script>
     <script src="js/index.js"></script>
-    <script src="js/session.js"></script>
     <script src="js/patrocinadores_public.js"></script>
 </body>
 

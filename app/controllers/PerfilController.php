@@ -131,6 +131,8 @@ $sql = "
         dni,
         expediente,
         video,
+        tipo_participante,
+        fecha,
         estado,
         $select_motivo
         id_usuario

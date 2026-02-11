@@ -1,17 +1,194 @@
-const URL_PERFIL = "/ProyectoIntegrador2/app/controllers/PerfilController.php";
-const URL_INS = "/ProyectoIntegrador2/app/controllers/InscripcionController.php";
+const BASE_PATH = (() => {
+  // Ej: /ProyectoIntegrador2/public/html/perfil.html  ->  /ProyectoIntegrador2
+  const p = window.location.pathname || "";
+  const idx = p.indexOf("/public/");
+  if (idx > 0) return p.substring(0, idx);
+  return "/ProyectoIntegrador2"; // fallback
+})();
 
-let _estadoCandidaturaActual = null;
+const URL_PERFIL = `${BASE_PATH}/app/controllers/PerfilController.php`;
+const URL_INS = `${BASE_PATH}/app/controllers/InscripcionController.php`;
+
+let _candidaturas = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   cargarPerfil();
-
-  const formReenviar = document.getElementById("formReenviar");
-  if (formReenviar) formReenviar.addEventListener("submit", reenviarCandidatura);
+  contarCandidaturasParaBoton();
 
   const formPerfil = document.getElementById("formPerfil");
   if (formPerfil) formPerfil.addEventListener("submit", guardarPerfil);
+
+  const formNueva = document.getElementById("formNuevaCandidatura");
+  if (formNueva) formNueva.addEventListener("submit", enviarSegundaCandidatura);
+
+  const formReenviar = document.getElementById("formReenviarCandidatura");
+  if (formReenviar) formReenviar.addEventListener("submit", reenviarCandidatura);
 });
+
+/* =========================
+   HELPERS
+========================= */
+function fetchJson(url, options) {
+  return fetch(url, options).then(async (r) => {
+    const txt = await r.text();
+    try {
+      return JSON.parse(txt);
+    } catch (e) {
+      console.error("Respuesta no JSON:", txt);
+      throw new Error("Respuesta no JSON");
+    }
+  });
+}
+
+function normalizarRuta(ruta) {
+  if (!ruta) return "";
+  let p = String(ruta);
+
+  // Si es URL completa
+  if (p.startsWith("http://") || p.startsWith("https://")) return p;
+
+  // Si viene con /ProyectoIntegrador2 pero el BASE_PATH es otro, lo adaptamos
+  if (p.startsWith("/ProyectoIntegrador2/") && BASE_PATH !== "/ProyectoIntegrador2") {
+    p = BASE_PATH + p.substring("/ProyectoIntegrador2".length);
+  }
+
+  return p;
+}
+
+function badgeEstado(estado) {
+  const e = String(estado || "-").trim();
+  const cls = e.toLowerCase();
+  return `<span class="estado ${cls}">${e}</span>`;
+}
+
+function setText(id, txt) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = txt || "";
+}
+
+/* =========================
+   BOTÓN "AÑADIR CANDIDATURA" (solo si total == 1)
+========================= */
+function contarCandidaturasParaBoton() {
+  fetchJson(`${URL_INS}?accion=contar`, { credentials: "same-origin" })
+    .then((data) => {
+      const btn = document.getElementById("btnNuevaCandidatura");
+      if (!btn) return;
+
+      const total = Number(data.total || 0);
+
+      // Mostrar SOLO si tiene exactamente 1 candidatura (permitimos crear la 2ª)
+      if (data.ok && total === 1) btn.style.display = "inline-block";
+      else btn.style.display = "none";
+    })
+    .catch(() => {
+      const btn = document.getElementById("btnNuevaCandidatura");
+      if (btn) btn.style.display = "none";
+    });
+}
+
+/* =========================
+   MODAL NUEVA CANDIDATURA
+========================= */
+function getMsgNuevaCandidatura() {
+  return (
+    document.getElementById("errorNuevaCandidatura") ||
+    document.getElementById("msgNuevaCandidatura")
+  );
+}
+
+function setMsgNuevaCandidatura(texto) {
+  const el = getMsgNuevaCandidatura();
+  if (el) el.textContent = texto || "";
+}
+
+function mostrarNuevaCandidatura() {
+  const m = document.getElementById("modalNuevaCandidatura");
+  const form = document.getElementById("formNuevaCandidatura");
+
+  setMsgNuevaCandidatura("");
+
+  if (form) form.reset();
+  if (m) m.classList.remove("hidden");
+}
+
+function cerrarNuevaCandidatura() {
+  const m = document.getElementById("modalNuevaCandidatura");
+  if (m) m.classList.add("hidden");
+}
+
+// Alias (tu HTML llama a esto)
+function cerrarModalNuevaCandidatura() {
+  cerrarNuevaCandidatura();
+}
+
+/* =========================
+   ENVIAR 2ª CANDIDATURA
+========================= */
+function enviarSegundaCandidatura(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  setMsgNuevaCandidatura("");
+
+  const tipo = form.tipo_participante?.value?.trim() || "";
+  const sinopsis = form.sinopsis?.value?.trim() || "";
+  const video = form.video?.value?.trim() || "";
+
+  if (tipo !== "Alumno" && tipo !== "Alumni") {
+    setMsgNuevaCandidatura("Debes seleccionar Alumno o Alumni.");
+    return;
+  }
+  if (!sinopsis) {
+    setMsgNuevaCandidatura("Sinopsis obligatoria.");
+    return;
+  }
+  if (!video || !video.startsWith("http")) {
+    setMsgNuevaCandidatura("El vídeo debe ser un enlace válido (http/https).");
+    return;
+  }
+  if (!form.ficha?.files?.length || !form.cartel?.files?.length) {
+    setMsgNuevaCandidatura("Ficha y cartel son obligatorios.");
+    return;
+  }
+
+  const fd = new FormData(form);
+  fd.append("accion", "crear_segunda");
+
+  const btnSubmit = form.querySelector("button[type='submit']");
+  const txtOld = btnSubmit ? btnSubmit.textContent : "";
+  if (btnSubmit) {
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "Enviando...";
+  }
+
+  fetchJson(URL_INS, {
+    method: "POST",
+    credentials: "same-origin",
+    body: fd
+  })
+    .then((data) => {
+      if (!data.ok) {
+        setMsgNuevaCandidatura(data.error || "Error al enviar la candidatura.");
+        return;
+      }
+
+      cerrarNuevaCandidatura();
+      cargarPerfil();
+      contarCandidaturasParaBoton();
+      showModal("Segunda candidatura enviada correctamente.", { title: "¡Listo!" });
+    })
+    .catch((err) => {
+      console.error(err);
+      setMsgNuevaCandidatura("Error de red/servidor al enviar la candidatura.");
+    })
+    .finally(() => {
+      if (btnSubmit) {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = txtOld || "Enviar candidatura";
+      }
+    });
+}
 
 /* =========================
    TOGGLE EDITAR PERFIL
@@ -21,7 +198,7 @@ function toggleEditarPerfil(forzar) {
   if (!sec) return;
 
   const visibleActual = sec.style.display !== "none";
-  const mostrar = (typeof forzar === "boolean") ? forzar : !visibleActual;
+  const mostrar = typeof forzar === "boolean" ? forzar : !visibleActual;
 
   sec.style.display = mostrar ? "block" : "none";
 
@@ -30,12 +207,14 @@ function toggleEditarPerfil(forzar) {
   }
 }
 
+/* =========================
+   CARGAR PERFIL + LISTA CANDIDATURAS
+========================= */
 function cargarPerfil() {
-  fetch(URL_PERFIL, { credentials: "same-origin" })
-    .then(r => r.json())
-    .then(data => {
+  fetchJson(URL_PERFIL, { credentials: "same-origin" })
+    .then((data) => {
       if (!data.ok) {
-        alert("No autorizado");
+        showModal("No autorizado", { title: "Acceso denegado" });
         return;
       }
 
@@ -50,7 +229,7 @@ function cargarPerfil() {
         `;
       }
 
-      // form editar perfil (rellenamos siempre, aunque esté oculto)
+      // form editar perfil
       const inUser = document.getElementById("perfilUsuario");
       const inEmail = document.getElementById("perfilEmail");
       const inDni = document.getElementById("perfilDni");
@@ -63,30 +242,243 @@ function cargarPerfil() {
       if (inExp) inExp.value = data.expediente ?? "";
       if (inPass) inPass.value = "";
 
-      // candidaturas (mostrar la más reciente)
+      // candidaturas
       const cont = document.getElementById("misCandidaturas");
       if (!cont) return;
 
       cont.innerHTML = "";
 
-      if (!data.candidaturas || data.candidaturas.length === 0) {
+      _candidaturas = Array.isArray(data.candidaturas) ? data.candidaturas : [];
+
+      if (_candidaturas.length === 0) {
         cont.innerHTML = "<p>No tienes candidaturas.</p>";
         return;
       }
 
-      const c = data.candidaturas[0];
+      _candidaturas.forEach((c, i) => {
+        const estado = String(c.estado || "-").trim();
+        const tipo = c.tipo_participante ? String(c.tipo_participante) : "-";
+        const fecha = c.fecha ? String(c.fecha) : "";
 
-      cont.innerHTML = `
-        <div class="candidatura-card" onclick="abrirMiDetalle()">
-          <p><strong>Estado:</strong> <span class="estado">${c.estado}</span></p>
-          <p><strong>Vídeo:</strong> ${c.video ? `<a href="${c.video}" target="_blank">Ver vídeo</a>` : "—"}</p>
-          <p style="margin-top:8px;"><em>Haz click para ver detalle</em></p>
-        </div>
-      `;
+        const card = document.createElement("div");
+        card.className = "candidatura-card";
+        card.setAttribute("role", "button");
+        card.setAttribute("tabindex", "0");
+
+        const videoHtml = c.video
+          ? `<a href="${c.video}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver vídeo</a>`
+          : "—";
+
+        card.innerHTML = `
+          <div class="candidatura-meta">
+            <div>
+              <h3>Candidatura ${i + 1} / ${_candidaturas.length}</h3>
+              <p><strong>Tipo:</strong> ${tipo}</p>
+              ${fecha ? `<p><strong>Fecha:</strong> ${fecha}</p>` : ""}
+            </div>
+            <div>
+              ${badgeEstado(estado)}
+            </div>
+          </div>
+
+          <div class="candidatura-links">
+            <p><strong>Vídeo:</strong> ${videoHtml}</p>
+            <p class="muted"><em>Click para ver detalle</em></p>
+          </div>
+        `;
+
+        card.addEventListener("click", () => abrirDetalleCandidatura(c.id_inscripcion));
+        card.addEventListener("keypress", (ev) => {
+          if (ev.key === "Enter" || ev.key === " ") abrirDetalleCandidatura(c.id_inscripcion);
+        });
+
+        cont.appendChild(card);
+      });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
-      alert("Error al cargar el perfil");
+      showModal("Error al cargar el perfil", { title: "Error" });
+    });
+}
+
+/* =========================
+   MODAL DETALLE CANDIDATURA + REENVIAR
+========================= */
+function abrirDetalleCandidatura(id) {
+  const c = _candidaturas.find(x => Number(x.id_inscripcion) === Number(id));
+  if (!c) {
+    showModal("No se encontró la candidatura.", { title: "Error" });
+    return;
+  }
+
+  const estado = String(c.estado || "").trim().toUpperCase();
+
+  // Info (solo lectura)
+  const info = document.getElementById("detalleCandidaturaInfo");
+  const ficha = normalizarRuta(c.ficha);
+  const cartel = normalizarRuta(c.cartel);
+
+  const linkFicha = ficha
+    ? `<a href="${ficha}" target="_blank" rel="noopener" download>Descargar ficha</a>`
+    : "—";
+
+  const linkCartel = cartel
+    ? `<a href="${cartel}" target="_blank" rel="noopener" download>Descargar cartel</a>`
+    : "—";
+
+  if (info) {
+    info.innerHTML = `
+      <div class="detalle-grid">
+        <div><strong>ID:</strong> ${c.id_inscripcion ?? "-"}</div>
+        <div><strong>Estado:</strong> ${badgeEstado(c.estado)}</div>
+        <div><strong>Tipo:</strong> ${c.tipo_participante ?? "-"}</div>
+        <div><strong>Email:</strong> ${c.email ?? "-"}</div>
+
+        <div class="detalle-wide"><strong>Vídeo:</strong> ${
+          c.video ? `<a href="${c.video}" target="_blank" rel="noopener">Ver vídeo</a>` : "—"
+        }</div>
+
+        <div class="detalle-wide"><strong>Ficha:</strong> ${linkFicha}</div>
+        <div class="detalle-wide"><strong>Cartel:</strong> ${linkCartel}</div>
+
+        <div class="detalle-wide"><strong>Sinopsis:</strong><br>${c.sinopsis ?? "-"}</div>
+      </div>
+    `;
+  }
+
+  // Motivo rechazo
+  const bloqueMotivo = document.getElementById("bloqueMotivoRechazo");
+  const txtMotivo = document.getElementById("detalleMotivoRechazo");
+
+  if (estado === "RECHAZADO" && c.motivo_rechazo) {
+    if (bloqueMotivo) bloqueMotivo.classList.remove("hidden");
+    if (txtMotivo) txtMotivo.textContent = c.motivo_rechazo;
+  } else {
+    if (bloqueMotivo) bloqueMotivo.classList.add("hidden");
+    if (txtMotivo) txtMotivo.textContent = "";
+  }
+
+  // Form reenviar (solo si RECHAZADO)
+  const form = document.getElementById("formReenviarCandidatura");
+  const msg = document.getElementById("msgReenviar");
+  if (msg) msg.textContent = "";
+
+  if (form) {
+    if (estado === "RECHAZADO") {
+      form.classList.remove("hidden");
+      document.getElementById("detIdInscripcion").value = c.id_inscripcion ?? "";
+      document.getElementById("detSinopsis").value = c.sinopsis ?? "";
+      document.getElementById("detVideo").value = c.video ?? "";
+
+      const linkFichaActual = document.getElementById("linkFichaActual");
+      const linkCartelActual = document.getElementById("linkCartelActual");
+      if (linkFichaActual) linkFichaActual.innerHTML = linkFicha;
+      if (linkCartelActual) linkCartelActual.innerHTML = linkCartel;
+
+      // limpiamos inputs file
+      const detFicha = document.getElementById("detFicha");
+      const detCartel = document.getElementById("detCartel");
+      if (detFicha) detFicha.value = "";
+      if (detCartel) detCartel.value = "";
+
+    } else {
+      form.classList.add("hidden");
+    }
+  }
+
+  // mostrar modal
+  const modal = document.getElementById("modalDetalleCandidatura");
+  if (modal) modal.classList.remove("hidden");
+}
+
+function cerrarModalDetalleCandidatura() {
+  const modal = document.getElementById("modalDetalleCandidatura");
+  if (modal) modal.classList.add("hidden");
+}
+
+function cerrarModalDetalleCandidaturaPorClickFuera(e) {
+  const modal = document.getElementById("modalDetalleCandidatura");
+  if (modal && e.target === modal) cerrarModalDetalleCandidatura();
+}
+// Cerrar al clicar fuera
+document.addEventListener("click", (e) => {
+  const modal = document.getElementById("modalDetalleCandidatura");
+  if (modal && !modal.classList.contains("hidden") && e.target === modal) {
+    cerrarModalDetalleCandidatura();
+  }
+});
+
+/* =========================
+   REENVIAR (solo RECHAZADA)
+========================= */
+function reenviarCandidatura(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const msg = document.getElementById("msgReenviar");
+  if (msg) msg.textContent = "";
+
+  const idIns = document.getElementById("detIdInscripcion")?.value || "";
+  const sinopsis = document.getElementById("detSinopsis")?.value?.trim() || "";
+  const video = document.getElementById("detVideo")?.value?.trim() || "";
+
+  if (!idIns) {
+    if (msg) msg.textContent = "No se ha podido identificar la candidatura.";
+    return;
+  }
+
+  // ✅ Seguridad extra: aunque alguien manipule el DOM, solo permitimos reenviar si está RECHAZADA
+  const c = _candidaturas.find(x => Number(x.id_inscripcion) === Number(idIns));
+  const estado = String(c?.estado || "").trim().toUpperCase();
+  if (estado !== "RECHAZADO" && estado !== "RECHAZADA") {
+    if (msg) msg.textContent = "Solo puedes reenviar si tu candidatura está RECHAZADA.";
+    showModal("Solo puedes reenviar si tu candidatura está RECHAZADA.", { title: "No permitido" });
+    return;
+  }
+  if (!sinopsis) {
+    if (msg) msg.textContent = "Sinopsis obligatoria.";
+    return;
+  }
+  if (!video || !video.startsWith("http")) {
+    if (msg) msg.textContent = "El vídeo debe ser un enlace válido (http/https).";
+    return;
+  }
+
+  const fd = new FormData(form);
+  fd.append("accion", "actualizar");
+
+  const btn = form.querySelector("button[type='submit']");
+  const oldTxt = btn ? btn.textContent : "";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Reenviando...";
+  }
+
+  fetchJson(URL_INS, {
+    method: "POST",
+    credentials: "same-origin",
+    body: fd
+  })
+    .then((data) => {
+      if (!data.ok) {
+        if (msg) msg.textContent = data.error || "Error al reenviar.";
+        return;
+      }
+
+      cerrarModalDetalleCandidatura();
+      cargarPerfil();
+      showModal("Candidatura reenviada. Pasa a estado PENDIENTE.", { title: "Reenviado" });
+    })
+    .catch((err) => {
+      console.error(err);
+      if (msg) msg.textContent = "Error de red al reenviar.";
+      showModal("Error de red al reenviar.", { title: "Error" });
+    })
+    .finally(() => {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = oldTxt || "Reenviar candidatura";
+      }
     });
 }
 
@@ -150,7 +542,10 @@ function guardarPerfil(e) {
   const contrasena = document.getElementById("perfilContrasena")?.value || "";
 
   const msg = document.getElementById("msgPerfil");
-  if (msg) msg.textContent = "";
+  if (msg) {
+    msg.textContent = "";
+    msg.style.color = "";
+  }
 
   if (!validarPerfil({ usuario, email, dni, expediente, contrasena })) {
     if (msg) msg.textContent = "Corrige los errores antes de continuar.";
@@ -165,166 +560,36 @@ function guardarPerfil(e) {
   fd.append("expediente", expediente.trim());
   if (contrasena) fd.append("contrasena", contrasena);
 
-  fetch(URL_PERFIL, {
+  fetchJson(URL_PERFIL, {
     method: "POST",
     credentials: "same-origin",
     body: fd
   })
-    .then(r => r.json())
-    .then(data => {
+    .then((data) => {
       if (!data.ok) {
         if (msg) msg.textContent = data.error || "Error al guardar";
+        showModal(data.error || "Error al guardar", { title: "Error" });
         return;
-      } if (msg) {
+      }
+      if (msg) {
         msg.textContent = "Cambios guardados correctamente.";
         msg.style.color = "green";
       }
 
-      // Recargamos datos SIN borrar el mensaje
       cargarPerfil();
 
-      // Ocultar el mensaje tras 4 segundos
       setTimeout(() => {
-        if (msg) msg.textContent = "";
+        if (msg) {
+          msg.textContent = "";
+          msg.style.color = "";
+        }
       }, 4000);
 
+      showModal("Cambios guardados correctamente.", { title: "Perfil actualizado" });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err);
       if (msg) msg.textContent = "Error de red al guardar";
-    });
-}
-
-/* =========================
-   DETALLE / REENVÍO CANDIDATURA
-   - Solo editable si estado = RECHAZADO
-   - Sin datos personales visibles
-========================= */
-function setCandidaturaEditable(esEditable) {
-  const form = document.getElementById("formReenviar");
-  if (!form) return;
-
-  // Solo habilitamos lo “de candidatura”
-  const campos = [
-    document.getElementById("detSinopsis"),
-    document.getElementById("detVideo"),
-    ...form.querySelectorAll("input[type='file']")
-  ];
-
-  campos.forEach(c => {
-    if (c) c.disabled = !esEditable;
-  });
-
-  const btn = document.getElementById("btnReenviar");
-  const info = document.getElementById("infoEdicionCandidatura");
-
-  if (esEditable) {
-    if (btn) btn.style.display = "inline-block";
-    if (info) { info.style.display = "none"; info.textContent = ""; }
-  } else {
-    if (btn) btn.style.display = "none";
-    if (info) {
-      info.style.display = "block";
-      info.textContent = "Solo puedes editar y reenviar la candidatura cuando está RECHAZADA.";
-    }
-  }
-}
-
-function abrirMiDetalle() {
-  fetch(`${URL_INS}?accion=mi_detalle`, { credentials: "same-origin" })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        alert(data.error || "Error");
-        return;
-      }
-
-      const ins = data.inscripcion;
-      if (!ins) {
-        alert("No tienes inscripción");
-        return;
-      }
-
-      document.getElementById("msgReenviar").textContent = "";
-
-      // ✅ Guardamos datos personales en hidden (no visibles)
-      document.getElementById("detNombreHidden").value = ins.nombre_responsable ?? "";
-      document.getElementById("detEmailHidden").value = ins.email ?? "";
-      document.getElementById("detDniHidden").value = ins.dni ?? "";
-      document.getElementById("detExpedienteHidden").value = ins.expediente ?? "";
-
-      // Solo candidatura editable
-      document.getElementById("detSinopsis").value = ins.sinopsis ?? "";
-      document.getElementById("detVideo").value = ins.video ?? "";
-
-      // links ficha/cartel actuales
-      const lf = document.getElementById("linkFicha");
-      const lc = document.getElementById("linkCartel");
-
-      lf.innerHTML = ins.ficha ? `Actual: <a href="${ins.ficha}" target="_blank" download>Descargar ficha</a>` : "";
-      lc.innerHTML = ins.cartel ? `Actual: <a href="${ins.cartel}" target="_blank" download>Descargar cartel</a>` : "";
-
-      // estado/motivo
-      const estado = (ins.estado || "").toUpperCase();
-      _estadoCandidaturaActual = estado;
-
-      document.getElementById("detEstado").innerHTML = `<strong>Estado actual:</strong> ${ins.estado ?? "-"}`;
-
-      const motivo = document.getElementById("detMotivo");
-      if (estado === "RECHAZADO" && ins.motivo_rechazo) {
-        motivo.style.display = "block";
-        motivo.innerHTML = `<strong>Motivo rechazo:</strong> ${ins.motivo_rechazo}`;
-      } else {
-        motivo.style.display = "none";
-        motivo.textContent = "";
-      }
-
-      // ✅ solo editable si RECHAZADO
-      setCandidaturaEditable(estado === "RECHAZADO");
-
-      document.getElementById("modalDetalle").classList.remove("hidden");
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Error al cargar detalle");
-    });
-}
-
-function cerrarModalDetalle() {
-  document.getElementById("modalDetalle").classList.add("hidden");
-}
-
-function reenviarCandidatura(e) {
-  e.preventDefault();
-
-  if ((_estadoCandidaturaActual || "").toUpperCase() !== "RECHAZADO") {
-    const msg = document.getElementById("msgReenviar");
-    if (msg) msg.textContent = "Solo puedes reenviar si tu candidatura está RECHAZADA.";
-    return;
-  }
-
-  const form = e.target;
-  const fd = new FormData(form);
-  fd.append("accion", "actualizar");
-
-  fetch(URL_INS, {
-    method: "POST",
-    credentials: "same-origin",
-    body: fd
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        document.getElementById("msgReenviar").textContent = data.error || "Error";
-        return;
-      }
-
-      cerrarModalDetalle();
-      cargarPerfil();
-      alert("Reenviado. Tu candidatura vuelve a PENDIENTE.");
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById("msgReenviar").textContent = "Error al reenviar";
+      showModal("Error de red al guardar", { title: "Error" });
     });
 }

@@ -4,143 +4,187 @@
   <meta charset="UTF-8" />
   <title>Mi Perfil</title>
   <link rel="stylesheet" href="../css/perfil.css" />
+  <link rel="stylesheet" href="../css/ui.css">
 </head>
 
 <body>
 
-  <header class="perfil-header">
+<header class="perfil-header">
   <div class="perfil-header-inner">
+    <h1>Mi perfil</h1>
 
-  <h1>Mi perfil</h1>
+    <div class="perfil-header-actions">
+      <button type="button" class="btn-editar" onclick="toggleEditarPerfil()">
+        Editar perfil
+      </button>
 
-  <div class="perfil-header-actions">
-    <button
-      type="button"
-      class="btn-editar"
-      onclick="toggleEditarPerfil()">
-      Editar perfil
-    </button>
+      <button id="btnNuevaCandidatura" class="button small"
+              onclick="mostrarNuevaCandidatura()" style="display:none">
+        Añadir candidatura
+      </button>
 
-    <a class="btn-salir" href="index.html">Salir</a>
-  </div>
-
-</div>
-
-</header>
-
-
-  <main class="perfil-container">
-
-    <section class="perfil-card">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-        <h2 style="margin:0;">Datos personales</h2>
-        
-      </div>
-
-      <ul id="datosPersonales"></ul>
-    </section>
-
-    <!-- ✅ Editar perfil: oculto por defecto -->
-    <section class="perfil-card" id="seccionEditarPerfil" style="display:none;">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-        <h2 style="margin:0;">Editar perfil</h2>
-        <button type="button" class="link-button" onclick="toggleEditarPerfil(false)">
-          Cerrar
-        </button>
-      </div>
-
-      <form id="formPerfil" class="perfil-form">
-        <div class="campo">
-          <label>Usuario</label>
-          <input type="text" name="usuario" id="perfilUsuario" required />
-          <small class="error" id="errPerfilUsuario"></small>
-        </div>
-
-        <div class="campo">
-          <label>Email</label>
-          <input type="email" name="email" id="perfilEmail" required />
-          <small class="error" id="errPerfilEmail"></small>
-        </div>
-
-        <div class="campo">
-          <label>DNI</label>
-          <input type="text" name="dni" id="perfilDni" required />
-          <small class="error" id="errPerfilDni"></small>
-        </div>
-
-        <div class="campo">
-          <label>Nº Expediente</label>
-          <input type="text" name="expediente" id="perfilExpediente" required />
-          <small class="error" id="errPerfilExpediente"></small>
-        </div>
-
-        <div class="campo">
-          <label>Nueva contraseña (opcional)</label>
-          <input type="password" name="contrasena" id="perfilContrasena" placeholder="Deja vacío para no cambiar" />
-          <small class="error" id="errPerfilContrasena"></small>
-        </div>
-
-        <button type="submit" class="button">Guardar cambios</button>
-        <p id="msgPerfil" class="error"></p>
-      </form>
-    </section>
-
-    <section class="perfil-card">
-      <h2>Mis candidaturas</h2>
-      <div id="misCandidaturas"></div>
-    </section>
-
-  </main>
-
-  <!-- Modal detalle candidatura -->
-  <div id="modalDetalle" class="modal hidden">
-    <div class="modal-content">
-      <span class="modal-close" onclick="cerrarModalDetalle()">✖</span>
-
-      <h3>Detalle de mi candidatura</h3>
-
-      <form id="formReenviar" enctype="multipart/form-data">
-
-        <!-- ✅ Datos personales NO visibles (se editan en Editar perfil) -->
-        <input type="hidden" name="nombre_responsable" id="detNombreHidden">
-        <input type="hidden" name="email" id="detEmailHidden">
-        <input type="hidden" name="dni" id="detDniHidden">
-        <input type="hidden" name="expediente" id="detExpedienteHidden">
-
-        <div class="campo">
-          <label>Sinopsis</label>
-          <textarea name="sinopsis" id="detSinopsis" required></textarea>
-        </div>
-
-        <div class="campo">
-          <label>Vídeo</label>
-          <input type="url" name="video" id="detVideo" required>
-        </div>
-
-        <div class="campo">
-          <label>Ficha (opcional si quieres cambiarla)</label>
-          <input type="file" name="ficha">
-          <small id="linkFicha"></small>
-        </div>
-
-        <div class="campo">
-          <label>Cartel (opcional si quieres cambiarlo)</label>
-          <input type="file" name="cartel">
-          <small id="linkCartel"></small>
-        </div>
-
-        <p id="detEstado"></p>
-        <p id="detMotivo" style="display:none;"></p>
-
-        <p id="infoEdicionCandidatura" class="error" style="display:none;"></p>
-
-        <button id="btnReenviar" type="submit" class="button">Reenviar al organizador</button>
-      </form>
-
-      <p id="msgReenviar" class="error"></p>
+      <a class="btn-salir" href="index.html">Salir</a>
     </div>
   </div>
+</header>
 
-  <script src="../js/perfil.js"></script>
+<main class="perfil-container">
+
+  <section class="perfil-card">
+    <h2>Datos personales</h2>
+    <ul id="datosPersonales"></ul>
+  </section>
+
+  <!-- EDITAR PERFIL -->
+  <section class="perfil-card" id="seccionEditarPerfil" style="display:none;">
+    <div class="perfil-card-header">
+      <h2>Editar perfil</h2>
+      <button type="button" class="btn-cerrar-seccion" onclick="toggleEditarPerfil(false)" aria-label="Cerrar">✖</button>
+    </div>
+
+    <form id="formPerfil" class="perfil-form">
+      <div class="campo">
+        <label>Usuario</label>
+        <input type="text" id="perfilUsuario" required>
+        <small class="error" id="errPerfilUsuario"></small>
+      </div>
+
+      <div class="campo">
+        <label>Email</label>
+        <input type="email" id="perfilEmail" required>
+        <small class="error" id="errPerfilEmail"></small>
+      </div>
+
+      <div class="campo">
+        <label>DNI</label>
+        <input type="text" id="perfilDni" required>
+        <small class="error" id="errPerfilDni"></small>
+      </div>
+
+      <div class="campo">
+        <label>Expediente</label>
+        <input type="text" id="perfilExpediente" required>
+        <small class="error" id="errPerfilExpediente"></small>
+      </div>
+
+      <div class="campo">
+        <label>Nueva contraseña (opcional)</label>
+        <input type="password" id="perfilContrasena">
+        <small class="error" id="errPerfilContrasena"></small>
+      </div>
+
+      <button class="button" type="submit">Guardar cambios</button>
+      <p id="msgPerfil" class="error"></p>
+    </form>
+  </section>
+
+  <section class="perfil-card">
+    <h2>Mis candidaturas</h2>
+    <p class="ayuda">Haz click en una candidatura para ver el detalle.</p>
+    <div id="misCandidaturas"></div>
+  </section>
+
+</main>
+
+<!-- ================= MODAL NUEVA CANDIDATURA ================= -->
+<div id="modalNuevaCandidatura" class="modal hidden">
+  <div class="modal-content">
+    <span class="modal-close" onclick="cerrarModalNuevaCandidatura()">✖</span>
+
+    <h3>Nueva candidatura</h3>
+
+    <form id="formNuevaCandidatura" enctype="multipart/form-data">
+
+      <div class="campo">
+        <label>Tipo de participante</label>
+        <select name="tipo_participante" required>
+          <option value="">Selecciona</option>
+          <option value="Alumno">Alumno</option>
+          <option value="Alumni">Alumni</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Sinopsis</label>
+        <textarea name="sinopsis" required></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Vídeo</label>
+        <input type="url" name="video" required>
+      </div>
+
+      <div class="campo">
+        <label>Ficha (PDF)</label>
+        <input type="file" name="ficha" required>
+      </div>
+
+      <div class="campo">
+        <label>Cartel</label>
+        <input type="file" name="cartel" required>
+      </div>
+
+      <button class="button" type="submit">Enviar candidatura</button>
+      <p id="errorNuevaCandidatura" class="error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ================= MODAL DETALLE CANDIDATURA ================= -->
+<div id="modalDetalleCandidatura" class="modal hidden">
+  <div class="modal-content">
+    <span class="modal-close" onclick="cerrarModalDetalleCandidatura()">✖</span>
+
+    <h3>Detalle de candidatura</h3>
+
+    <div id="detalleCandidaturaInfo"></div>
+
+    <div id="bloqueMotivoRechazo" class="motivo-rechazo hidden">
+      <h4>Motivo del rechazo</h4>
+      <p id="detalleMotivoRechazo"></p>
+    </div>
+
+    <!-- Solo se muestra si está RECHAZADA -->
+    <form id="formReenviarCandidatura" class="perfil-form hidden" enctype="multipart/form-data">
+      <input type="hidden" name="id_inscripcion" id="detIdInscripcion">
+
+      <div class="campo">
+        <label>Sinopsis</label>
+        <textarea name="sinopsis" id="detSinopsis" required></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Vídeo</label>
+        <input type="url" name="video" id="detVideo" required>
+      </div>
+
+      <div class="campo">
+        <label>Ficha actual</label>
+        <div id="linkFichaActual"></div>
+      </div>
+
+      <div class="campo">
+        <label>Nueva ficha (PDF) (opcional)</label>
+        <input type="file" name="ficha" id="detFicha">
+      </div>
+
+      <div class="campo">
+        <label>Cartel actual</label>
+        <div id="linkCartelActual"></div>
+      </div>
+
+      <div class="campo">
+        <label>Nuevo cartel (opcional)</label>
+        <input type="file" name="cartel" id="detCartel">
+      </div>
+
+      <button class="button" type="submit">Reenviar candidatura</button>
+      <p id="msgReenviar" class="error"></p>
+    </form>
+  </div>
+</div>
+
+<script src="../js/ui.js"></script>
+<script src="../js/perfil.js"></script>
 </body>
 </html>
