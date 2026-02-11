@@ -65,7 +65,8 @@ body {
 
 /* LOGO */
 .logo img {
-    height: 48px;
+    height: 70px;   /* prueba entre 65px y 80px */
+    width: auto;
 }
 
 /* =========================
@@ -320,15 +321,175 @@ button[type="button"]:hover {
 }
 
 /* =========================
-   GALA
-   ========================= */
+   GALA — DISEÑO MEJORADO
+========================= */
+
 #galaPre,
 #galaPost {
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid var(--ue-border);
-    background-color: #fafafa;
+  background: #ffffff;
+  padding: 30px 32px;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  margin-top: 30px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.04);
 }
+
+/* Títulos principales dentro de gala */
+#galaPre h3,
+#galaPost h3 {
+  margin-bottom: 20px;
+  font-weight: 900;
+  color:#C8102E;
+  letter-spacing: -0.3px;
+}
+
+/* Subtítulos */
+#galaPre h4,
+#galaPost h4 {
+  margin-top: 35px;
+  margin-bottom: 14px;
+  font-weight: 800;
+  color:  #1f1f1f;
+  border-left: 4px solid var(--ue-red);
+  padding-left: 12px;
+}
+
+/* Inputs generales dentro de gala */
+#galaPre input,
+#galaPre textarea,
+#galaPost input,
+#galaPost textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  margin-bottom: 14px;
+  transition: all .2s ease;
+}
+
+#galaPre input:focus,
+#galaPre textarea:focus,
+#galaPost input:focus,
+#galaPost textarea:focus {
+  outline: none;
+  border-color: var(--ue-red);
+  box-shadow: 0 0 0 3px rgba(200,16,46,.12);
+}
+
+/* Botones dentro de gala */
+#galaPre .button,
+#galaPost .button {
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+/* Formularios internos mejor organizados */
+#galaPre form,
+#galaPost form {
+  margin-top: 18px;
+  padding: 20px;
+  background: #fafafa;
+
+  border: 1px solid #eee;
+}
+
+/* Separación clara entre bloques */
+#galaPre > div,
+#galaPost > div {
+  margin-bottom: 30px;
+}
+
+/* Lista de secciones (pre-gala) */
+#listaSecciones {
+  margin-top: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+/* Tarjeta sección */
+.seccion-card {
+  background: #fff;
+  border: 1px solid #eee;
+
+  padding: 16px 18px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+}
+
+.seccion-card h4 {
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.seccion-card small {
+  color: #666;
+}
+.seccion-titulo {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.seccion-meta {
+  font-size: 15px;
+  
+}
+
+.seccion-desc {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+
+/* Galería post-gala */
+#galeriaPost {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+#galeriaPost img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+
+#galeriaPost img:hover {
+  transform: scale(1.03);
+}
+
+/* Modo actual bloque */
+#gala > div:first-child {
+  background: #fafafa;
+  padding: 18px 22px;
+  border: 1px solid #eee;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+#gala > div:first-child strong {
+  font-weight: 800;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  #galaPre,
+  #galaPost {
+    padding: 22px 18px;
+  }
+
+  #gala > div:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 
 /* =========================
    RESPONSIVE
@@ -706,9 +867,6 @@ body {
   align-items: center;
 }
 
-.logo img {
-  height: 45px;
-}
 
 /* ================= CONTENT ================= */
 .content {
@@ -872,7 +1030,7 @@ section h2 {
   color: white;
 }
 
-.estado-badge.pendiente { background:#999; }
+.estado-badge.pendiente { background:#797878; }
 .estado-badge.aceptado  { background:#2e7d32; }
 .estado-badge.nominado  { background:#1565c0; }
 .estado-badge.rechazado { background:#c8102e; }
@@ -901,11 +1059,15 @@ section h2 {
   color: #fff;
 }
 
-.estado-badge.pendiente { background: #888; }
+
 .estado-badge.aceptado  { background: #2e7d32; }
 .estado-badge.nominado  { background: #1565c0; }
 .estado-badge.rechazado { background: #c8102e; }
-
+.estado-badge.pendiente{
+  background: #888;
+  color: #ffffff;
+  font-family: 'Hellix', Helvetica, Arial, sans-serif;
+}
 
 .error-msg {
     color: #d60000;
@@ -1030,7 +1192,7 @@ section h2 {
 
 .pendiente{
   color:#888;
-  font-style:italic;
+
 }
 
 .premio-completo{
@@ -1159,4 +1321,93 @@ section h2 {
   .logo img{
     height: 44px;
   }
+}
+
+/* =====================================================
+   MODAL DETALLE CANDIDATURA — ESTILO UEM PROFESIONAL
+===================================================== */
+
+/* Modal más amplio y elegante */
+#modalDetalle .modal-content {
+  width: min(950px, 95vw);
+  padding: 40px 45px;
+  border-radius: 16px;
+  text-align: left; /* evita centrado anterior */
+}
+
+/* Título principal */
+#modalDetalle h3 {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 30px;
+  color: var(--ue-dark);
+}
+
+/* Contenido organizado */
+#detalleContenido {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Bloque individual */
+.detalle-item {
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Etiqueta pequeña superior */
+.detalle-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #7a7a7a;
+}
+.detalle-item:last-child {
+  border-bottom: none;
+}
+/* Valor principal */
+.detalle-valor {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ue-dark);
+  word-break: break-word;
+}
+
+/* Elemento ancho completo */
+.detalle-wide {
+  grid-column: 1 / -1;
+}
+
+/* Separador elegante */
+.detalle-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: #ececec;
+  margin: 10px 0 5px;
+}
+
+/* Acciones del modal más limpias */
+#modalDetalle .modal-actions {
+  border-top: 1px solid #eee;
+  padding-top: 22px;
+  margin-top: 10px;
+  gap: 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #detalleContenido {
+    grid-template-columns: 1fr;
+  }
+
+  #modalDetalle .modal-content {
+    padding: 25px;
+  }
+}
+/* Forzar tamaño logo */
+.ue-header .logo img {
+  height: 80px !important;
+  width: auto;
 }

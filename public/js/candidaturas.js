@@ -96,29 +96,44 @@ function abrirModalDetalle(c) {
     acciones.innerHTML = "";
 
     cont.innerHTML = `
-        <p><strong>Usuario:</strong> ${c.usuario ?? "-"}</p>
-        <p><strong>Email:</strong> ${c.email ?? "-"}</p>
-        <p><strong>DNI:</strong> ${c.dni ?? "-"}</p>
-        <p><strong>Expediente:</strong> ${c.expediente ?? "-"}</p>
+      <div class="detalle-item">
+    <div class="detalle-label">Usuario</div><br>
+    <div class="detalle-valor">${c.usuario}</div>
+  </div>
 
-        <p><strong>Tipo:</strong> ${c.tipo_participante}</p>
+  <div class="detalle-item">
+    <div class="detalle-label">Email</div>
+    <div class="detalle-valor">${c.email}</div>
+  </div>
 
-        <p><strong>Sinopsis:</strong><br>${c.sinopsis ?? "-"}</p>
+  <div class="detalle-item">
+    <div class="detalle-label">Tipo participante</div>
+    <div class="detalle-valor">${c.tipo_participante}</div>
+  </div>
 
-        <p><strong>Vídeo:</strong>
-            ${c.video ? `<a href="${c.video}" target="_blank">Ver vídeo</a>` : "—"}
-        </p>
+  <div class="detalle-item">
+    <div class="detalle-label">Estado</div>
+    <div class="detalle-valor">
+      <span class="estado-badge ${c.estado.toLowerCase()}">
+        ${c.estado}
+      </span>
+    </div>
+  </div>
 
-        <p><strong>Ficha técnica:</strong>
-            ${c.ficha ? `<a href="${BASE_PATH}/uploads/${extraerNombre(c.ficha)}" target="_blank" download>Descargar ficha</a>` : "—"}
-        </p>
+  <div class="detalle-divider"></div>
 
-        <p><strong>Cartel:</strong>
-            ${c.cartel ? `<a href="${BASE_PATH}/uploads/${extraerNombre(c.cartel)}" target="_blank" download>Descargar cartel</a>` : "—"}
-        </p>
+  <div class="detalle-item detalle-wide">
+    <div class="detalle-label">Sinopsis</div>
+    <div class="detalle-valor">${c.sinopsis}</div>
+  </div>
 
-        <p><strong>Estado:</strong> ${c.estado}</p>
-    `;
+  <div class="detalle-item detalle-wide">
+    <div class="detalle-label">Vídeo</div>
+    <div class="detalle-valor">
+      <a href="${c.video}" target="_blank">Ver vídeo</a>
+    </div>
+  </div>
+`;
 
     const estado = String(c.estado || "").trim().toUpperCase();
 

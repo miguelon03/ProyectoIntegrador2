@@ -30,7 +30,11 @@ body{
   gap: 14px;
 }
 
-.logo img{ height: 64px; }
+/* Forzar tamaño logo */
+.ue-header .logo img {
+  height: 80px !important;
+  width: auto;
+}
 
 .nav-links a,
 .nav-links select{
@@ -127,7 +131,6 @@ body{
 
 .pendiente{
   color: #777;
-  font-style: italic;
   font-weight: 700;
 }
 

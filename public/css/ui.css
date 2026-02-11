@@ -336,3 +336,9 @@ body{
 @media (max-width: 560px){
   .ue-footer-columns{ grid-template-columns: 1fr; }
 }
+
+/* Forzar tamaño logo */
+.ue-header .logo img {
+  height: 80px !important;
+  width: auto;
+}

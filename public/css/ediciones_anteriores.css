@@ -80,3 +80,8 @@ body{
   margin:0 0 10px 0;
   font-size:1.6rem;
 }
+/* Forzar tamaño logo */
+.ue-header .logo img {
+  height: 80px !important;
+  width: auto;
+}

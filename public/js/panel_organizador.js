@@ -161,14 +161,26 @@ function cargarSecciones() {
                 return;
             }
 
-            data.secciones.forEach(s => {
+           data.secciones.forEach(s => {
                 cont.innerHTML += `
-                    <div>
-                        <b>${s.titulo}</b> <br>
-                         ${s.hora} – ${s.sala} <br>
-                         -${s.descripcion} <br>
-                        <button onclick="editarSeccion(${s.id}, '${s.titulo}', '${s.hora}', '${s.sala}', '${s.descripcion}')">✏️</button>
-                        <button onclick="borrarSeccion(${s.id})">🗑️</button>
+                   <div class="news-card">
+                   <div class="seccion-info">
+                    <div class="seccion-titulo">${s.titulo}</div>
+                     <div class="seccion-meta">${s.hora} <br> ${s.sala}</div>
+                      <div class="seccion-desc">${s.descripcion}</div>
+                         </div>
+
+
+                        <div class="news-actions">
+                            <button class="icon-btn edit"
+                                onclick="editarSeccion(${s.id}, '${s.titulo}', '${s.hora}', '${s.sala}', '${s.descripcion}')">
+                                ✏️
+                            </button>
+                            <button class="icon-btn delete"
+                                onclick="borrarSeccion(${s.id})">
+                                🗑️
+                            </button>
+                        </div>
                     </div>
                 `;
             });

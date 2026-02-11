@@ -20,9 +20,12 @@
     justify-content: space-between;
 }
 
-.logo img {
-    height: 64px;
+/* Forzar tamaño logo */
+.ue-header .logo img {
+  height: 80px !important;
+  width: auto;
 }
+
 
 .nav-links a,
 .nav-links select {
