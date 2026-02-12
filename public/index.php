@@ -28,7 +28,6 @@
             </div>
 
             <nav class="nav-links">
-                <!-- Noticias ELIMINADO -->
                 <a href="html/eventos.html">Eventos</a>
                 <a href="html/premios.html">Premios</a>
                 <a href="html/gala.html">Gala</a>
@@ -58,19 +57,15 @@
             </a>
         </section>
 
-        <!-- ================= NOTICIAS INTEGRADAS ================= -->
-        <section id="noticiasIndex" class="news-carousel" style="margin-top: 80px;">
+        <!-- ================= NOTICIAS SIN BOTONES ================= -->
+        <section id="noticiasIndex" style="margin-top: 80px;">
             <h2 style="margin-bottom: 20px;">Últimas noticias</h2>
-
-            <button class="carousel-btn prev" onclick="prevNoticia()">‹</button>
 
             <div class="carousel-viewport">
                 <div class="carousel-track" id="newsTrack">
                     <!-- Noticias cargadas dinámicamente -->
                 </div>
             </div>
-
-            <button class="carousel-btn next" onclick="nextNoticia()">›</button>
         </section>
 
     </main>
@@ -88,7 +83,6 @@
                 <div class="ue-footer-col">
                     <h3>Festival</h3>
                     <ul>
-                        <!-- Noticias ELIMINADO -->
                         <li><a href="html/eventos.html">Eventos</a></li>
                         <li><a href="html/premios.html">Premios</a></li>
                         <li><a href="html/gala.html">Gala</a></li>
@@ -105,7 +99,7 @@
                     </ul>
                 </div>
 
-                <div class="ue-footer-col" class="footer-patrocinadores">
+                <div class="ue-footer-col footer-patrocinadores">
                     <h3>Patrocinadores</h3>
                     <div id="footerPatrocinadores" class="patrocinadores-grid"></div>
                 </div>
@@ -147,7 +141,7 @@
 
     <!-- ================= SCRIPTS ================= -->
     <script src="js/ui.js"></script>
-<script src="js/noticias_publico.js"></script>
+    <script src="js/noticias_publico.js"></script>
     <script src="js/session.js"></script>
     <script src="js/index.js"></script>
     <script src="js/patrocinadores_public.js"></script>

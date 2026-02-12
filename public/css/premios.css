@@ -30,7 +30,13 @@ body{
   gap: 14px;
 }
 
-.logo img{ height: 64px; }
+/* FORZAR tamaño del logo del header */
+.ue-header .logo img {
+    height: 90px !important;   /* cámbialo a lo que quieras */
+    width: auto !important;
+    object-fit: contain !important;
+}
+
 
 .nav-links a,
 .nav-links select{

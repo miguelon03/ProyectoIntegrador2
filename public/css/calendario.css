@@ -169,12 +169,13 @@ body {
     gap: 40px;
 }
 
-/* LOGO UE — SIN FILTRO */
-.ue-footer-logo img {
-    height: 60px;
-    object-fit: contain;
-    filter: none;
+/* FORZAR tamaño del logo del header */
+.ue-header .logo img {
+    height: 90px !important;   /* cámbialo a lo que quieras */
+    width: auto !important;
+    object-fit: contain !important;
 }
+
 
 /* GRID PRINCIPAL */
 .ue-footer-columns {

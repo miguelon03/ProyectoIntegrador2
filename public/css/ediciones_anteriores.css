@@ -60,6 +60,14 @@ body{
   display:block;
 }
 
+/* FORZAR tamaño del logo del header */
+.ue-header .logo img {
+    height: 90px !important;   /* cámbialo a lo que quieras */
+    width: auto !important;
+    object-fit: contain !important;
+}
+
+
 /* Responsive */
 @media (max-width: 768px){
   .content{

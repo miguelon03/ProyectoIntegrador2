@@ -1,150 +1,174 @@
-// Noticias público (carrusel)
-// Soporta 2 maquetaciones:
-//  1) public/html/index.html  -> botones con id prevBtn/nextBtn y contenedor .news-carousel
-//  2) public/index.php        -> botones .carousel-btn con onclick prevNoticia/nextNoticia y contenedor #noticiasIndex
 (() => {
-  const getBasePath = () => {
-    const p = window.location.pathname || "";
-    const idx = p.indexOf("/public/");
-    if (idx !== -1) return p.substring(0, idx);
-    return "/ProyectoIntegrador2"; // fallback
-  };
 
-  const BASE = getBasePath();
-  const API = `${BASE}/app/controllers/NoticiasController.php`;
+    // ===============================
+    //  CONFIG
+    // ===============================
+    const getBasePath = () => {
+        const p = window.location.pathname || "";
+        const idx = p.indexOf("/public/");
+        if (idx !== -1) return p.substring(0, idx);
+        return "/ProyectoIntegrador2";
+    };
 
-  let indiceActual = 0;
-  let total = 0;
-  let timer = null;
+    const BASE = getBasePath();
+    const API = `${BASE}/app/controllers/NoticiasController.php`;
 
-  const escapeHtml = (text) =>
-    String(text ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    let indice = 0;
+    let total = 0;
+    let autoSlide = null;
 
-  const imagenAleatoria = () => {
-    const imagenes = ["festival.jpg", "imagen2.jpg", "imagen3.avif"];
-    return imagenes[Math.floor(Math.random() * imagenes.length)];
-  };
+    const escapeHtml = (t) =>
+        String(t ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
 
-  const trackEl = () => document.getElementById("newsTrack");
+    const imagenAleatoria = () => {
+        const imgs = ["festival.jpg", "imagen2.jpg", "imagen3.avif"];
+        return imgs[Math.floor(Math.random() * imgs.length)];
+    };
 
-  const setSingleSlide = (title, desc) => {
-    const track = trackEl();
-    if (!track) return;
-    track.innerHTML = `
-      <article class="news-slide">
-        <div class="news-text">
-          <h2>${escapeHtml(title)}</h2>
-          <p>${escapeHtml(desc)}</p>
-        </div>
-        <div class="news-image">
-          <img src="${BASE}/public/img/noticias/${imagenAleatoria()}" alt="">
-        </div>
-      </article>
-    `;
-    total = 1;
-    indiceActual = 0;
-    track.style.transform = "translateX(0%)";
-  };
+    const track = () => document.getElementById("newsTrack");
 
-  const actualizar = () => {
-    const track = trackEl();
-    if (!track) return;
-    track.style.transform = `translateX(-${indiceActual * 100}%)`;
-  };
+    // ===============================
+    //  RENDER DE UNA SOLA NOTICIA
+    // ===============================
+    const renderSingle = (titulo, desc) => {
+        const t = track();
+        if (!t) return;
 
-  const next = () => {
-    if (total <= 1) return;
-    indiceActual = (indiceActual + 1) % total;
-    actualizar();
-  };
+        t.innerHTML = `
+            <article class="news-slide">
+                <div class="news-text">
+                    <h2>${escapeHtml(titulo)}</h2>
+                    <p>${escapeHtml(desc)}</p>
+                </div>
+                <div class="news-image">
+                    <img src="${BASE}/public/img/noticias/${imagenAleatoria()}" alt="">
+                </div>
+            </article>
+        `;
 
-  const prev = () => {
-    if (total <= 1) return;
-    indiceActual = (indiceActual - 1 + total) % total;
-    actualizar();
-  };
+        total = 1;
+        indice = 0;
+        t.style.transform = "translateX(0%)";
+    };
 
-  // Compatibilidad con public/index.php (botones inline onclick)
-  // eslint-disable-next-line no-undef
-  window.nextNoticia = next;
-  // eslint-disable-next-line no-undef
-  window.prevNoticia = prev;
+    // ===============================
+    //  MOVIMIENTO DEL CARRUSEL
+    // ===============================
+    const actualizar = () => {
+        const t = track();
+        if (!t) return;
+        t.style.transform = `translateX(-${indice * 100}%)`;
+    };
 
-  document.addEventListener("DOMContentLoaded", () => {
-    const track = trackEl();
-    // 1) Maquetación nueva: ids
-    const nextBtn = document.getElementById("nextBtn");
-    const prevBtn = document.getElementById("prevBtn");
-    // 2) Maquetación antigua: clases
-    const nextBtnLegacy = document.querySelector("#noticiasIndex .carousel-btn.next");
-    const prevBtnLegacy = document.querySelector("#noticiasIndex .carousel-btn.prev");
-
-    if (!track) return;
-
-    // Placeholder inmediato
-    setSingleSlide("Cargando noticias…", "Espera un momento.");
-
-    // Si existen botones (cualquier maquetación), los cableamos
-    if (nextBtn) nextBtn.addEventListener("click", next);
-    if (prevBtn) prevBtn.addEventListener("click", prev);
-    if (nextBtnLegacy) nextBtnLegacy.addEventListener("click", next);
-    if (prevBtnLegacy) prevBtnLegacy.addEventListener("click", prev);
-
-    fetch(`${API}?accion=listar`, { credentials: "same-origin" })
-      .then(async (r) => {
-        const txt = await r.text();
-        try {
-          return JSON.parse(txt);
-        } catch (e) {
-          console.error("Noticias: respuesta no es JSON", txt);
-          throw e;
-        }
-      })
-      .then((data) => {
-        if (!data || data.ok !== true) {
-          console.error("Noticias: API ok=false", data);
-          setSingleSlide("No se pudieron cargar las noticias", data?.error || "Error desconocido.");
-          return;
-        }
-
-        const noticias = Array.isArray(data.noticias) ? data.noticias : [];
-
-        if (noticias.length === 0) {
-          setSingleSlide("No hay noticias", "Cuando se publiquen noticias, aparecerán aquí automáticamente.");
-          return;
-        }
-
-        track.innerHTML = "";
-        noticias.forEach((n) => {
-          track.insertAdjacentHTML(
-            "beforeend",
-            `<article class="news-slide">
-              <div class="news-text">
-                <h2>${escapeHtml(n.titulo ?? "")}</h2>
-                <p>${escapeHtml(n.descripcion ?? "")}</p>
-              </div>
-              <div class="news-image">
-                <img src="${BASE}/public/img/noticias/${imagenAleatoria()}" alt="">
-              </div>
-            </article>`
-          );
-        });
-
-        total = noticias.length;
-        indiceActual = 0;
+    const next = () => {
+        if (total <= 1) return;
+        indice = (indice + 1) % total;
         actualizar();
+    };
 
-        if (timer) clearInterval(timer);
-        if (total > 1) timer = setInterval(next, 7000);
-      })
-      .catch((err) => {
-        console.error("Noticias error:", err);
-        setSingleSlide("No se pudieron cargar las noticias", "Revisa consola y la ruta del proyecto.");
-      });
-  });
+    const prev = () => {
+        if (total <= 1) return;
+        indice = (indice - 1 + total) % total;
+        actualizar();
+    };
+
+    // Exponer funciones para botones inline
+    window.nextNoticia = next;
+    window.prevNoticia = prev;
+
+    // ===============================
+    //  DESACTIVAR BOTONES SI NO HAY NOTICIAS
+    // ===============================
+    const actualizarBotones = () => {
+        const prevBtn = document.querySelector("#noticiasIndex .carousel-btn.prev");
+        const nextBtn = document.querySelector("#noticiasIndex .carousel-btn.next");
+
+        if (!prevBtn || !nextBtn) return;
+
+        if (total <= 1) {
+            prevBtn.classList.add("disabled");
+            nextBtn.classList.add("disabled");
+        } else {
+            prevBtn.classList.remove("disabled");
+            nextBtn.classList.remove("disabled");
+        }
+    };
+
+    // ===============================
+    //  CARGA INICIAL
+    // ===============================
+    document.addEventListener("DOMContentLoaded", () => {
+
+        const t = track();
+        if (!t) return;
+
+        // Placeholder inicial
+        renderSingle("Cargando noticias…", "Espera un momento.");
+
+        // Botones reales de index.php
+        const prevBtn = document.querySelector("#noticiasIndex .carousel-btn.prev");
+        const nextBtn = document.querySelector("#noticiasIndex .carousel-btn.next");
+
+        if (prevBtn) prevBtn.addEventListener("click", prev);
+        if (nextBtn) nextBtn.addEventListener("click", next);
+
+        // Petición al backend
+        fetch(`${API}?accion=listar`, { credentials: "same-origin" })
+            .then(r => r.json())
+            .then(data => {
+
+                if (!data || data.ok !== true) {
+                    renderSingle("No se pudieron cargar las noticias", data?.error || "Error desconocido.");
+                    actualizarBotones();
+                    return;
+                }
+
+                const noticias = Array.isArray(data.noticias) ? data.noticias : [];
+
+                if (noticias.length === 0) {
+                    renderSingle("No hay noticias", "Cuando se publiquen noticias, aparecerán aquí automáticamente.");
+                    actualizarBotones();
+                    return;
+                }
+
+                // Render de todas las noticias
+                t.innerHTML = "";
+                noticias.forEach(n => {
+                    t.insertAdjacentHTML(
+                        "beforeend",
+                        `
+                        <article class="news-slide">
+                            <div class="news-text">
+                                <h2>${escapeHtml(n.titulo)}</h2>
+                                <p>${escapeHtml(n.descripcion)}</p>
+                            </div>
+                            <div class="news-image">
+                                <img src="${BASE}/public/img/noticias/${imagenAleatoria()}" alt="">
+                            </div>
+                        </article>
+                        `
+                    );
+                });
+
+                total = noticias.length;
+                indice = 0;
+                actualizar();
+                actualizarBotones();
+
+                // Auto-slide
+                if (autoSlide) clearInterval(autoSlide);
+                if (total > 1) autoSlide = setInterval(next, 7000);
+            })
+            .catch(err => {
+                console.error("Noticias error:", err);
+                renderSingle("No se pudieron cargar las noticias", "Revisa consola y la ruta del proyecto.");
+                actualizarBotones();
+            });
+    });
+
 })();
