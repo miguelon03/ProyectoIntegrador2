@@ -1,250 +1,201 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
-*{
-    font-family: 'Hellix', Helvetica, Arial, sans-serif;;
-}
 
-/* =========================
-   RESET
-========================= */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =========================================================
+   LAYOUT GLOBAL PARA QUE EL FOOTER QUEDE ABAJO
+========================================================= */
+html, body {
+    height: 100%;
 }
 
 body {
-    font-family: 'Hellix', Helvetica, Arial, sans-serif;
-    background: #f4f4f4;
-    color: #1E1E1E;
-}
-
-/* =========================
-   HEADER (hereda estilos globales)
-========================= */
-.ue-header {
-    background: #fff;
-    border-bottom: 1px solid #ddd;
-}
-
-.main-nav {
-    max-width: 1200px;
-    margin: auto;
-    padding: 15px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    margin: 0;
+    background: #f4f4f4;
+    font-family: "Hellix", Helvetica, Arial, sans-serif;
 }
 
-/* FORZAR tamaño del logo del header */
-.ue-header .logo img {
-    height: 90px !important;   /* cámbialo a lo que quieras */
-    width: auto !important;
-    object-fit: contain !important;
-/* Forzar tamaño logo */
-.ue-header .logo img {
-  height: 80px !important;
-  width: auto;
+main {
+    flex: 1;
 }
 
-
-
-.nav-links a,
-.nav-links select {
-    margin-left: 15px;
-    text-decoration: none;
-    color: #1E1E1E;
-    font-weight: bold;
-}
-
-.nav-links select {
-    border: none;
-}
-
-/* =========================
-   CONTENIDO GALA
-========================= */
-.content {
-    max-width: 1100px;
+/* =========================================================
+   CONTENEDOR PRINCIPAL DE GALA
+========================================================= */
+.gala-container {
+    max-width: 1100px;   /* antes 900px */
     margin: 60px auto;
-    padding: 40px;
+    padding: 40px 30px;
     background: #fff;
-    box-shadow: 0 10px 40px rgba(0,0,0,.1);
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.08);
 }
 
-.content h1 {
-    font-size: 2.4rem;
+
+.gala-container h1 {
+    font-size: 42px;
+    font-weight: 900;
     margin-bottom: 20px;
 }
 
-section h2 {
+.gala-container h2 {
+    font-size: 28px;
+    font-weight: 700;
     margin-top: 40px;
-    font-size: 1.8rem;
+    margin-bottom: 12px;
 }
 
-#galeria {
+.gala-fecha {
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* =========================================================
+   PROGRAMA DE LA GALA
+========================================================= */
+.gala-programa {
+    background: #fafafa;
+    padding: 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   GALERÍA
+========================================================= */
+.gala-galeria {
     margin-top: 20px;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
 }
 
-/* =========================
-   FOOTER UE CORPORATIVO
-========================= */
-
-.ue-footer {
-    background: #000;
-    color: #fff;
-    margin-top: 60px;
-    padding-top: 40px;
+.gala-galeria img {
+    width: 100%;
+    border-radius: 10px;
+    object-fit: cover;
 }
 
-.ue-footer-top {
-    max-width: 1200px;
-    margin: auto;
-    padding: 0 20px 40px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+/* =========================================================
+   FOOTER — COPIA EXACTA DEL INDEX
+========================================================= */
+
+.ue-footer{
+  background:#000;
+  color:#fff;
+  margin-top:60px;
 }
 
-.ue-footer-logo img {
-    height: 60px;
-    object-fit: contain;
-    filter: none;
+.ue-footer a{ color:#fff; text-decoration:none; }
+.ue-footer a:hover{ text-decoration:underline; }
+
+.ue-footer-top{
+  max-width:1200px;
+  margin:0 auto;
+  padding:28px 18px;
+  display:flex;
+  gap:22px;
+  align-items:flex-start;
 }
 
-.ue-footer-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 40px;
+.ue-footer-logo img{
+  width:auto;
+  height:44px;
+  display:block;
 }
 
-.ue-footer-col h3 {
-    font-size: 18px;
-    margin-bottom: 12px;
-    color: #fff;
+.ue-footer-columns{
+  flex:1;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:22px;
 }
 
-.ue-footer-col ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.ue-footer-col h3{
+  margin:0 0 12px 0;
+  font-size:18px;
+  font-weight:900;
 }
 
-.ue-footer-col ul li {
-    margin-bottom: 8px;
+.ue-footer-col ul{
+  list-style:none;
+  padding:0;
+  margin:0;
 }
 
-.ue-footer-col ul li a {
-    color: #ccc;
-    text-decoration: none;
-    font-size: 14px;
+.ue-footer-col li{
+  margin:8px 0;
+  font-size:14px;
+  line-height:1.4;
 }
 
-.ue-footer-col ul li a:hover {
-    color: #ff3228;
+/* Social icons */
+.ue-footer .social-icons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
 }
 
-.social-icons {
-    display: flex;
-    gap: 12px;
-    margin-top: 10px;
+.ue-footer .social-icons a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border:1px solid rgba(255,255,255,.25);
 }
 
-.social-icons img {
-    width: 26px;
-    height: 26px;
-    object-fit: contain;
-    filter: brightness(0) invert(1);
-    transition: 0.2s;
+.ue-footer .social-icons img{
+  width:18px;
+  height:18px;
+  display:block;
+  filter: invert(1);
+  opacity:.95;
 }
 
-.social-icons img:hover {
-    transform: scale(1.15);
-    filter: brightness(0) invert(1) drop-shadow(0 0 4px #ff3228);
+/* Patrocinadores */
+.patrocinadores-grid{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  max-height:52px;
+  overflow:hidden;
 }
 
-.patrocinadores-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+.patrocinadores-grid img{
+  max-height:34px;
+  width:auto;
+  height:auto;
+  display:block;
+  background:#fff;
+  padding:4px 6px;
 }
 
-.patrocinadores-grid img {
-    height: 40px;
-    background: #fff;
-    padding: 6px;
-    object-fit: contain;
+/* Footer bottom */
+.ue-footer-bottom{
+  border-top:1px solid rgba(255,255,255,.15);
+  padding:14px 18px;
+  text-align:center;
+  font-size:13px;
+  opacity:.9;
 }
 
-.ue-footer-bottom {
-    text-align: center;
-    padding: 20px;
-    background: #111;
-    font-size: 14px;
-    color: #bbb;
+/* Responsive footer */
+@media (max-width: 900px){
+  .ue-footer-top{
+    flex-direction:column;
+  }
+  .ue-footer-columns{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-/* =========================
-   RESPONSIVE FOOTER
-========================= */
-@media (max-width: 480px) {
-
-    .ue-footer-columns {
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
-    }
-
-    .ue-footer-logo { order: 1; }
-    .ue-footer-col:nth-child(4) { order: 2; }
-    .ue-footer-col:nth-child(3) { order: 3; }
-    .ue-footer-col:nth-child(1) { order: 4; }
-    .ue-footer-col:nth-child(2) { order: 5; }
-
-    .social-icons img {
-        width: 32px;
-        height: 32px;
-    }
-}
-.footer-patrocinadores {
-    margin-top: 60px;
-    padding: 30px 20px;
-    background: #f7f7f7;
-    border-top: 2px solid #ddd;
-    text-align: center;
-}
-
-.footer-patrocinadores h3 {
-    margin-bottom: 20px;
-    font-size: 20px;
-    color: #333;
-}
-
-.patrocinadores-grid {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 25px;
-}
-
-.patro-footer-item img {
-    max-height: 100px;
-    max-width: 200px;
-    object-fit: contain;
-    filter: grayscale(100%);
-    transition: filter 0.3s ease, transform 0.2s ease;
-}
-
-.patro-footer-item img:hover {
-    filter: grayscale(0%);
-    transform: scale(1.05);
-}
-
-.patro-vacio {
-    color: #777;
-    font-style: italic;
-}
+@media (max-width: 560px){
+  .ue-footer-columns{
+    grid-template-columns: 1fr;
+  }
 }

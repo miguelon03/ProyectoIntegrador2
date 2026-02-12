@@ -1,95 +1,186 @@
 @import url("https://db.onlinewebfonts.com/c/a2021d3d882d11183ba0b0ff3f95f984?family=Hellix");
 
-/* Mantener tipografía Hellix */
-*{ font-family:'Hellix', Helvetica, Arial, sans-serif; box-sizing:border-box; }
-
-body{
-  background:#f4f4f4;
-  color:#1E1E1E;
-  margin:0;
+/* =========================================================
+   LAYOUT GLOBAL PARA FOOTER PEGADO ABAJO
+========================================================= */
+html, body {
+    height: 100%;
 }
 
-/* Contenedor igual a Gala */
-.content{
-  max-width:1100px;
-  margin:60px auto;
-  padding:40px;
-  background:#fff;
-  box-shadow:0 10px 40px rgba(0,0,0,.1);
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    background: #f4f4f4;
+    font-family: "Hellix", Helvetica, Arial, sans-serif;
 }
 
-.content h1{
-  font-size:2.4rem;
-  margin-bottom:20px;
+main {
+    flex: 1;
 }
 
-/* Lista de ediciones */
-#listaEdiciones{
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:18px;
-  margin-top:20px;
+/* =========================================================
+   CONTENEDOR PRINCIPAL DE EDICIONES
+========================================================= */
+.ediciones-container {
+    max-width: 1100px;   /* antes 900px */
+    margin: 60px auto;
+    padding: 40px 30px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.08);
 }
 
-.edicion-card{
-  border:1px solid #e6e6e6;
-  background:#fff;
-  padding:18px;
+
+.ediciones-container h1 {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 20px;
 }
 
-.edicion-card h2{
-  margin:0 0 10px 0;
-  font-size:1.6rem;
+#listaEdiciones {
+    margin-top: 20px;
+    display: grid;
+    gap: 20px;
 }
 
-.edicion-card p{
-  margin:0;
-  line-height:1.5;
+.edicion-item {
+    background: #fafafa;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
 }
 
-/* Galería si hay imágenes */
-.edicion-galeria{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap:14px;
+.edicion-item h3 {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    font-weight: 700;
 }
-.edicion-galeria img{
-  width:100%;
-  height:auto;
+
+.edicion-item p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   FOOTER — COPIA EXACTA DEL INDEX
+========================================================= */
+
+.ue-footer{
+  background:#000;
+  color:#fff;
+  margin-top:60px;
+}
+
+.ue-footer a{ color:#fff; text-decoration:none; }
+.ue-footer a:hover{ text-decoration:underline; }
+
+.ue-footer-top{
+  max-width:1200px;
+  margin:0 auto;
+  padding:28px 18px;
+  display:flex;
+  gap:22px;
+  align-items:flex-start;
+}
+
+.ue-footer-logo img{
+  width:auto;
+  height:44px;
   display:block;
 }
 
-/* FORZAR tamaño del logo del header */
-.ue-header .logo img {
-    height: 90px !important;   /* cámbialo a lo que quieras */
-    width: auto !important;
-    object-fit: contain !important;
+.ue-footer-columns{
+  flex:1;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:22px;
 }
 
-
-/* Responsive */
-@media (max-width: 768px){
-  .content{
-    margin:24px 14px;
-    padding:22px;
-  }
-  .content h1{ font-size:2rem; }
+.ue-footer-col h3{
+  margin:0 0 12px 0;
+  font-size:18px;
+  font-weight:900;
 }
 
+.ue-footer-col ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
 
-/* Compat con JS actual (.bloque) */
-#listaEdiciones .bloque{
-  border:1px solid #e6e6e6;
+.ue-footer-col li{
+  margin:8px 0;
+  font-size:14px;
+  line-height:1.4;
+}
+
+/* Social icons */
+.ue-footer .social-icons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.ue-footer .social-icons a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  height:34px;
+  border:1px solid rgba(255,255,255,.25);
+}
+
+.ue-footer .social-icons img{
+  width:18px;
+  height:18px;
+  display:block;
+  filter: invert(1);
+  opacity:.95;
+}
+
+/* Patrocinadores */
+.patrocinadores-grid{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:center;
+  max-height:52px;
+  overflow:hidden;
+}
+
+.patrocinadores-grid img{
+  max-height:34px;
+  width:auto;
+  height:auto;
+  display:block;
   background:#fff;
-  padding:18px;
+  padding:4px 6px;
 }
-#listaEdiciones .bloque h2{
-  margin:0 0 10px 0;
-  font-size:1.6rem;
+
+/* Footer bottom */
+.ue-footer-bottom{
+  border-top:1px solid rgba(255,255,255,.15);
+  padding:14px 18px;
+  text-align:center;
+  font-size:13px;
+  opacity:.9;
 }
-/* Forzar tamaño logo */
-.ue-header .logo img {
-  height: 80px !important;
-  width: auto;
+
+/* Responsive footer */
+@media (max-width: 900px){
+  .ue-footer-top{
+    flex-direction:column;
+  }
+  .ue-footer-columns{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px){
+  .ue-footer-columns{
+    grid-template-columns: 1fr;
+  }
 }

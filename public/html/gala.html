@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gala – Festival de Cortos UEM</title>
 
-    <!-- SOLO panel_organizador.css -->
-    <link rel="stylesheet" href="../css/gala_publico.css">
     <link rel="stylesheet" href="../css/ui.css">
+    <link rel="stylesheet" href="../css/gala_publico.css">
 </head>
 
 <body>
@@ -20,12 +19,20 @@
             </a>
         </div>
 
-        <nav class="nav-links">
-            <a class="nav-item" href="eventos.html">Eventos</a>
-            <a class="nav-item" href="premios.html">Premios</a>
-            <a class="nav-item" href="gala.html">Gala</a>
-            <a class="nav-item" href="ediciones.html">Ediciones anteriores</a>
-            <a class="nav-item" id="btnInscripcion" href="inscripcion.html">Inscripción</a>
+        <button class="nav-toggle" id="navToggle">
+            <svg viewBox="0 0 100 80" width="30" height="30">
+                <rect width="100" height="12"></rect>
+                <rect y="30" width="100" height="12"></rect>
+                <rect y="60" width="100" height="12"></rect>
+            </svg>
+        </button>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="eventos.html">Eventos</a>
+            <a href="premios.html">Premios</a>
+            <a href="gala.html">Gala</a>
+            <a href="ediciones.html">Ediciones anteriores</a>
+            <a href="inscripcion.html">Inscripción</a>
 
             <select id="login">
                 <option value="" selected disabled hidden>👤 Entrar</option>
@@ -36,32 +43,28 @@
     </div>
 </header>
 
-<main class="content">
+<main class="gala-container">
 
     <h1>Gala del Festival</h1>
 
-    <!-- ================= PRE EVENTO ================= -->
     <section id="galaPrePublico">
         <h2>Programa de la Gala</h2>
-        <p id="fechaGalaPublica" style="font-weight:bold;margin-bottom:15px;"></p>
-        <div id="programaGala"></div>
+        <p id="fechaGalaPublica" class="gala-fecha"></p>
+
+        <div id="programaGala" class="gala-programa"></div>
     </section>
 
-    <!-- ================= POST EVENTO ================= -->
     <section id="galaPostPublico" style="display:none;">
         <h2>Así fue la Gala</h2>
 
         <p id="textoResumen"></p>
 
         <h3>Galería</h3>
-        <div id="galeria" class="bloques"></div>
+        <div id="galeria" class="gala-galeria"></div>
     </section>
 
 </main>
 
-<!-- =========================================================
-     FOOTER UNIVERSIDAD EUROPEA – CORPORATIVO
-========================================================= -->
 <footer class="ue-footer">
     <div class="ue-footer-top">
 
@@ -84,41 +87,35 @@
             <div class="ue-footer-col">
                 <h3>Contacto</h3>
                 <ul>
-                    <li><a>Email: festival@universidadeuropea.es</a></li>
-                    <li><a>Tel: +34 91 740 72 72</a></li>
-                    <li><a>Campus de Villaviciosa de Odón</a></li>
+                    <li>Email: festival@universidadeuropea.es</li>
+                    <li>Tel: +34 91 740 72 72</li>
+                    <li>Campus de Villaviciosa de Odón</li>
                 </ul>
             </div>
 
-            <div class="ue-footer-col"  class="footer-patrocinadores">
+            <div class="ue-footer-col">
                 <h3>Patrocinadores</h3>
-    <div id="footerPatrocinadores" class="patrocinadores-grid"></div>
+                <div id="footerPatrocinadores" class="patrocinadores-grid"></div>
             </div>
 
             <div class="ue-footer-col">
                 <h3>Síguenos</h3>
                 <div class="social-icons">
-
                     <a href="https://www.facebook.com/UniversidadEuropea" target="_blank">
                         <img src="../img/footer/logo-de-facebook.png" alt="Facebook">
                     </a>
-
                     <a href="https://www.instagram.com/universidadeuropea" target="_blank">
                         <img src="../img/footer/instagram.png" alt="Instagram">
                     </a>
-
                     <a href="https://www.youtube.com/user/UniversidadEuropea" target="_blank">
                         <img src="../img/footer/youtube.png" alt="YouTube">
                     </a>
-
                     <a href="https://www.linkedin.com/school/universidad-europea-de-madrid/posts/?feedView=all" target="_blank">
                         <img src="../img/footer/linkedin.png" alt="LinkedIn">
                     </a>
-
                     <a href="https://twitter.com/UEuropea" target="_blank">
                         <img src="../img/footer/twitter.png" alt="X (Twitter)">
                     </a>
-
                 </div>
             </div>
 
