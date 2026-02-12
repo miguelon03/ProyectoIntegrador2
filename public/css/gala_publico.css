@@ -40,7 +40,12 @@ body {
     height: 90px !important;   /* cámbialo a lo que quieras */
     width: auto !important;
     object-fit: contain !important;
+/* Forzar tamaño logo */
+.ue-header .logo img {
+  height: 80px !important;
+  width: auto;
 }
+
 
 
 .nav-links a,
@@ -241,4 +246,5 @@ section h2 {
 .patro-vacio {
     color: #777;
     font-style: italic;
+}
 }

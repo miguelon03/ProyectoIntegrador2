@@ -103,7 +103,7 @@
             <div class="modal-content">
                 <span class="modal-close" onclick="cerrarModalRechazo()">✖</span>
 
-                <h3>Rechazar candidatura</h3>
+                <h3>Rechazar candidatura</h3> <br>
                 <textarea id="motivoRechazo" placeholder="Escribe el motivo del rechazo"></textarea>
 
                 <div class="modal-actions">
@@ -248,11 +248,13 @@
             </div>
 
             <div id="galaPre">
-                <h2>Fecha de la gala</h2>
+                <h3>Pre-Gala</h3>
+
+                <h4>Fecha de la gala</h4>
                 <input type="date" id="fechaGala">
                 <button class="button" onclick="guardarFechaGala()">Guardar fecha</button>
 
-                <h3>Pre-evento: Secciones</h3>
+                <h4>Pre-evento: Secciones</h4>
                 <button class="button" onclick="mostrarFormSeccion()">Añadir sección</button>
 
                 <form id="formSeccion" style="display:none;margin-top:15px;">
